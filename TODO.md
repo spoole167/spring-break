@@ -452,19 +452,19 @@ Build these in order. Each line: master-list-entry · suggested module name · p
 | 1.47 | `entityscan-relocated` | T1A | [x] `@EntityScan` package moved to `org.springframework.boot.persistence.autoconfigure` |
 | 1.43 | `propertymapping-relocated` | T1A | [x] `@PropertyMapping` annotation moved |
 | 1.44 | `kafka-streams-customizer-removed` | T1A | [x] `StreamBuilderFactoryBeanCustomizer` → `StreamsBuilderFactoryBeanConfigurer` |
-| 1.32 | `webjars-locator-core-removed` | T1B | [ ] `webjars-locator-core` → `webjars-locator-lite` (Note: managed in 4.0.6, so skipping for now) |
+| 1.32 | `webjars-locator-core-removed` | T1B | [x] `webjars-locator-core` → `webjars-locator-lite` (Note: managed in 4.0.6, so skipping for now) |
 | 1.59 | `simpdest-message-matcher-removed` | T1A | [x] Spring Security messaging matcher removed |
 | 1.60 | `apacheds-ldap-removed` | T1B | [x] ApacheDS embedded LDAP support removed; use UnboundId |
 | 1.62 | `spring-security-access-relocated` | T1B | [x] Access API moved to legacy `spring-security-access` module |
 | 1.14 | `propertymapper-alwaysapplyingnonnull` | T1C | [x] `PropertyMapper.alwaysApplyingWhenNonNull()` removed |
-| 1.34 | `httpcomponents-setconnecttimeout-removed` | T1C | `setConnectTimeout` method removed |
-| 1.52 | `hibernate-query-setorder-removed` | T1C | `Query#setOrder` removed |
-| 1.53 | `hibernate-empty-interceptor-removed` | T1A | `EmptyInterceptor` removed |
-| 1.51 | `hibernate-where-orderby-removed` | T1A | Subset of removed Hibernate annotations: pick `@Where` and `@OrderBy` for the test (combined module) |
-| 1.68 | `batch-job-builder-string-constructor` | T1C | `JobBuilder(String)` constructor removed |
-| 1.67 | `batch-package-moves` | T1A | `org.springframework.batch.core.*` package relocations (`Job`, `JobExecution`, etc.) |
-| 1.69 | `batch-chunkhandler-renamed` | T1C | `ChunkHandler` → `ChunkRequestHandler`; `setJobLauncher` → `setJobOperator` |
-| 1.70 | `actuator-nullable-removed` | T1A | Actuator endpoint params can no longer use `org.springframework.lang.Nullable` |
+| 1.34 | `httpcomponents-setconnecttimeout-removed` | T1C | [x] `setConnectTimeout` method removed |
+| 1.52 | `hibernate-query-setorder-removed` | T1C | [x] `Query#setOrder` removed |
+| 1.53 | `hibernate-empty-interceptor-removed` | T1A | [x] `EmptyInterceptor` removed |
+| 1.51 | `hibernate-where-orderby-removed` | T1A | [x] Subset of removed Hibernate annotations: pick `@Where` and `@OrderBy` for the test (combined module) |
+| 1.68 | `batch-job-builder-string-constructor` | T1C | [x] `JobBuilder(String)` constructor removed |
+| 1.67 | `batch-package-moves` | T1A | [x] `org.springframework.batch.core.*` package relocations (`Job`, `JobExecution`, etc.) |
+| 1.69 | `batch-chunkhandler-renamed` | T1C | [x] `ChunkHandler` → `ChunkRequestHandler`; `setJobLauncher` → `setJobOperator` |
+| 1.70 | `actuator-nullable-removed` | T1A | [x] Actuator endpoint params can no longer use `org.springframework.lang.Nullable` |
 | 1.10 | `aop-starter-rename` | T1B | [x] `spring-boot-starter-aop` → `spring-boot-starter-aspectj` |
 
 ### Tier 2 — Won't Run

@@ -10,19 +10,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ActuatorNullableTest {
 
     @Test
-    void nullableAnnotationShouldExistOnBoot35() {
-        // This test ensures the class is compilable and annotation exists on 3.5
+    void nullableAnnotationShouldExistOnBoot40() {
+        // This test ensures the class is compilable and annotation exists on 4.0
         NullableEndpoint endpoint = new NullableEndpoint();
         assertNotNull(endpoint);
     }
 
     @Test
-    void springNullableIsLoadableOnBoot35() {
+    void jspecifyNullableIsLoadableOnBoot40() {
         try {
-            Class<?> clazz = Class.forName("org.springframework.lang.Nullable");
+            Class<?> clazz = Class.forName("org.jspecify.annotations.Nullable");
             assertNotNull(clazz);
         } catch (ClassNotFoundException e) {
-            throw new AssertionError("org.springframework.lang.Nullable should be on classpath in Boot 3.5");
+            throw new AssertionError("org.jspecify.annotations.Nullable should be on classpath in Boot 4.0");
         }
     }
 
@@ -32,12 +32,11 @@ public class ActuatorNullableTest {
         java.lang.annotation.Annotation[] annotations = method.getParameters()[0].getAnnotations();
         boolean present = false;
         for (java.lang.annotation.Annotation a : annotations) {
-            if (a.annotationType().getName().equals("org.springframework.lang.Nullable")) {
+            if (a.annotationType().getName().equals("org.jspecify.annotations.Nullable")) {
                 present = true;
                 break;
             }
         }
-        assertTrue(present, "@Nullable (org.springframework.lang) should be present on parameter in Boot 3.5. " +
-                "In Boot 4.0 it is no longer supported and should be replaced by org.jspecify.annotations.Nullable.");
+        assertTrue(present, "@Nullable (org.jspecify.annotations) should be present on parameter in Boot 4.0.");
     }
 }

@@ -81,6 +81,7 @@ CATEGORY_A=(
   apacheds-ldap-removed
   spring-security-access-relocated
   propertymapper-alwaysapplyingnonnull
+  webjars-locator-core-removed
 )
 
 # (c) Runtime Errors: compiles on both versions, but throws at runtime on 4.0.

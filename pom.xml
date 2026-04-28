@@ -49,6 +49,16 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.webjars</groupId>
+                <artifactId>webjars-locator-core</artifactId>
+                <version>0.59</version>
+            </dependency>
+            <dependency>
+                <groupId>org.webjars</groupId>
+                <artifactId>webjars-locator-lite</artifactId>
+                <version>1.1.3</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -78,10 +88,10 @@
         </pluginManagement>
     </build>
 
-    <!-- 45 modules organised by migration failure mode.
+    <!-- 46 modules organised by migration failure mode.
          Run on 3.5.14: all pass.  Run on 4.0.6: all fail. -->
     <modules>
-        <!-- Category (a) — Won't Compile / Won't Resolve on 4.0  (30 modules)
+        <!-- Category (a) — Won't Compile / Won't Resolve on 4.0  (38 modules)
              Real imports / artifacts / starters that vanish on 4.0.
              Build fails at compile or dependency-resolution time. -->
         <module>jackson-group-id</module>
@@ -114,6 +124,14 @@
         <module>apacheds-ldap-removed</module>
         <module>spring-security-access-relocated</module>
         <module>propertymapper-alwaysapplyingnonnull</module>
+        <module>httpcomponents-setconnecttimeout-removed</module>
+        <module>hibernate-query-setorder-removed</module>
+        <module>hibernate-empty-interceptor-removed</module>
+        <module>hibernate-where-orderby-removed</module>
+        <module>batch-job-builder-string-constructor</module>
+        <module>batch-package-moves</module>
+        <module>batch-chunkhandler-renamed</module>
+        <module>actuator-nullable-removed</module>
 
         <!-- Category (c) — Runtime Errors on 4.0  (12 modules)
              Compiles on both versions, throws at runtime on 4.0. -->
@@ -135,6 +153,7 @@
         <module>jackson-date-serialisation</module>
         <module>jackson-locale-format</module>
         <module>hibernate-native-datetime</module>
+        <module>webjars-locator-core-removed</module>
     </modules>
 
 </project>
