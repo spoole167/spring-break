@@ -34,11 +34,11 @@ OAuth 2.1 (RFC 9700) explicitly deprecates the password grant because it violate
 
 The test attempts to access `AuthorizationGrantType.PASSWORD` and verify the OAuth2 configuration:
 
-- **testPasswordGrantConfigurationExists()**: Checks if ClientRegistrationRepository loads successfully. Passes on 3.4.1, likely fails on 4.0 if password grant is configured.
+- **testPasswordGrantConfigurationExists()**: Checks if ClientRegistrationRepository loads successfully. Passes on 3.5.14, likely fails on 4.0 if password grant is configured.
 - **testClientRegistrationForPasswordGrant()**: Retrieves the "example" client registration from configuration. Verifies basic OAuth2 client setup.
 - **testPasswordGrantUnsupported()**: Attempts to access AuthorizationGrantType.PASSWORD. Passes on 3.5 (field exists), fails on 4.0 (field removed).
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean test
@@ -115,7 +115,7 @@ ClientRegistration registration = ClientRegistration
 
 ## References
 
-- Spring Security 7.0 Migration: https://docs.spring.io/spring-security/reference/migration-7/index.html
+- Spring Security 7.0 Migration: https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html
 - OAuth 2.1 Security Best Current Practice: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics
 - OAuth 2.0 Password Grant Removal: https://datatracker.ietf.org/doc/html/rfc9700
 - Spring Boot 4.0 Migration Guide: https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide

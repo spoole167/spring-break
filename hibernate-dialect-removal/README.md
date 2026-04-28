@@ -33,7 +33,7 @@ The test combines CRUD operations with a reflection check:
 - **testCreateAndRetrieveProduct()** / **testFindProductById()**: Verify basic JPA operations work with auto-detected dialect (H2 in-memory database).
 - **versionSpecificDialectClassShouldBeLoadable()**: Uses reflection to load MySQL8Dialect. Passes on Hibernate 6.x (class exists), fails on Hibernate 7.x (class removed).
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean test
@@ -89,5 +89,5 @@ grep -r "hibernate\.dialect" src/main/resources/
 ## References
 
 - Hibernate 7.0 Migration Guide: https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html
-- Hibernate ORM 7.0 Release: https://in.relation.to/2024/11/22/orm-700-final/
+- Hibernate ORM 7.0 Release: https://docs.hibernate.org/orm/7.0/migration-guide/migration-guide.html
 - Spring Boot 4.0 Migration Guide: https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide

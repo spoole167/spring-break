@@ -13,8 +13,8 @@
     <name>Spring Boot 3.5 to 4.0 Migration Test Cases</name>
     <description>
         Each module demonstrates a specific breaking change between Spring Boot 3.5 and 4.0.
-        Default build uses Spring Boot 3.5.13 (all tests pass).
-        Override with -Dspring-boot.version=4.0.5 to see them fail.
+        Default build uses Spring Boot 3.5.14 (all tests pass).
+        Override with -Dspring-boot.version=4.0.6 to see them fail.
     </description>
 
     <!-- ================================================================
@@ -24,15 +24,15 @@
            mvn test
 
          Build on 4.0 (watch it break):
-           mvn test -Dspring-boot.version=4.0.5
+           mvn test -Dspring-boot.version=4.0.6
 
          Build a single module:
            mvn test -pl jackson-date-serialisation
-           mvn test -pl jackson-date-serialisation -Dspring-boot.version=4.0.5
+           mvn test -pl jackson-date-serialisation -Dspring-boot.version=4.0.6
          ================================================================ -->
 
     <properties>
-        <spring-boot.version>3.5.13</spring-boot.version>
+        <spring-boot.version>3.5.14</spring-boot.version>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
@@ -78,11 +78,11 @@
         </pluginManagement>
     </build>
 
-    <!-- 19 modules organised by migration failure mode.
-         Run on 3.5.13: all pass.  Run on 4.0.5: all fail. -->
+    <!-- 45 modules organised by migration failure mode.
+         Run on 3.5.14: all pass.  Run on 4.0.6: all fail. -->
     <modules>
-        <!-- Category (a) — Won't Compile on 4.0  (8 modules)
-             Real imports / dependencies that vanish on 4.0.
+        <!-- Category (a) — Won't Compile / Won't Resolve on 4.0  (30 modules)
+             Real imports / artifacts / starters that vanish on 4.0.
              Build fails at compile or dependency-resolution time. -->
         <module>jackson-group-id</module>
         <module>undertow-removed</module>
@@ -92,9 +92,32 @@
         <module>hibernate-cascade-removal</module>
         <module>testcontainers-class-relocation</module>
         <module>spring-retry-removed</module>
+        <module>hibernate-processor-rename</module>
+        <module>listenable-future-removed</module>
+        <module>okhttp3-removed</module>
+        <module>spring-jcl-removed</module>
+        <module>aspectj-observed</module>
+        <module>retry-semantics-change</module>
+        <module>retryable-transaction-order</module>
+        <module>path-matching-engine</module>
+        <module>jackson-property-inclusion</module>
+        <module>bootstrap-registry-relocated</module>
+        <module>testrest-template-removed</module>
+        <module>httpheaders-multivaluemap</module>
+        <module>javax-annotation-removed</module>
+        <module>elasticsearch-rest5client</module>
+        <module>entityscan-relocated</module>
+        <module>propertymapping-relocated</module>
+        <module>kafka-streams-customizer-removed</module>
+        <module>aop-starter-rename</module>
+        <module>simpdest-message-matcher-removed</module>
+        <module>apacheds-ldap-removed</module>
+        <module>spring-security-access-relocated</module>
+        <module>propertymapper-alwaysapplyingnonnull</module>
 
-        <!-- Category (c) — Runtime Errors on 4.0  (7 modules)
+        <!-- Category (c) — Runtime Errors on 4.0  (12 modules)
              Compiles on both versions, throws at runtime on 4.0. -->
+        <module>hibernate-query-type-required</module>
         <module>jackson-exception-hierarchy</module>
         <module>hibernate-dialect-removal</module>
         <module>oauth-password-grant-removed</module>
@@ -102,13 +125,16 @@
         <module>batch-schema-change</module>
         <module>batch-job-serialisation</module>
         <module>pkce-mandatory</module>
+        <module>opensaml4-removed</module>
+        <module>resttemplate-autoconfig</module>
+        <module>test-slice-relocated</module>
+        <module>mockito-test-execution-listener</module>
 
-        <!-- Category (d) — Different Results on 4.0  (4 modules)
+        <!-- Category (d) — Different Results on 4.0  (3 modules)
              Compiles and runs on both, output/behaviour differs silently. -->
         <module>jackson-date-serialisation</module>
         <module>jackson-locale-format</module>
         <module>hibernate-native-datetime</module>
-        <module>retry-semantics-change</module>
     </modules>
 
 </project>

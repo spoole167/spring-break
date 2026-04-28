@@ -20,7 +20,7 @@ The test module demonstrates untyped vs. typed Hibernate queries:
 - **Product.java**: Simple JPA entity
 - **App.java**: Minimal Spring Boot application
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean test
@@ -104,5 +104,5 @@ grep -r "createQuery(" --include="*.java" src/ | grep -v ", *[A-Z]"
 ## References
 
 - [Hibernate 7.0 Migration Guide](https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html)
-- [Hibernate ORM 7.0 Release](https://in.relation.to/2024/11/22/orm-700-final/)
+- [Hibernate ORM 7.0 Release](https://docs.hibernate.org/orm/7.0/migration-guide/migration-guide.html)
 - [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)

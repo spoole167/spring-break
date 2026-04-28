@@ -21,7 +21,7 @@ The test module demonstrates the spring-retry BOM removal:
 - **App.java**: Minimal Spring Boot application
 - **pom.xml**: Declares spring-retry without explicit version (relies on BOM management)
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean verify

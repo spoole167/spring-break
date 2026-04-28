@@ -16,7 +16,7 @@ Applications that rely on schema auto-initialization are unaffected (Spring Boot
 
 ## Module Contents
 
-- **pom.xml**: Spring Boot 3.4.1 parent with `spring-boot-starter-batch` and h2
+- **pom.xml**: Spring Boot 3.5.14 parent with `spring-boot-starter-batch` and h2
 - **App.java**: Spring Boot application with `@EnableBatchProcessing` to initialize schema
 - **application.properties**: H2 in-memory database, batch schema auto-initialization, job auto-run disabled for testing
 - **BatchSchemaTest.java**: Tests for the old table names using JDBC metadata inspection
@@ -25,12 +25,12 @@ Applications that rely on schema auto-initialization are unaffected (Spring Boot
 
 The test uses JDBC DatabaseMetaData to check for the existence of old Batch schema table names:
 
-- **batchJobSeqTableShouldExist()**: Queries for BATCH_JOB_SEQ table. Spring Boot 3.4.1 auto-initializes with this name; Spring Boot 4.0 auto-initializes with BATCH_JOB_INSTANCE_SEQ instead.
-- **batchStepExecutionSeqTableShouldExist()**: Queries for BATCH_STEP_EXECUTION_SEQ table. Same pattern: old name on 3.4.1, renamed on 4.0.
+- **batchJobSeqTableShouldExist()**: Queries for BATCH_JOB_SEQ table. Spring Boot 3.5.14 auto-initializes with this name; Spring Boot 4.0 auto-initializes with BATCH_JOB_INSTANCE_SEQ instead.
+- **batchStepExecutionSeqTableShouldExist()**: Queries for BATCH_STEP_EXECUTION_SEQ table. Same pattern: old name on 3.5.14, renamed on 4.0.
 
-The test demonstrates the breaking change by verifying the old schema is present (passes on 3.4.1, fails on 4.0).
+The test demonstrates the breaking change by verifying the old schema is present (passes on 3.5.14, fails on 4.0).
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean test

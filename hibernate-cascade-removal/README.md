@@ -29,7 +29,7 @@ The test uses reflection to verify the enum constant exists:
 - **cascadeTypeAllShouldWork()**: Loads the Parent entity class (uses standard JPA CascadeType.ALL). Works identically on both versions.
 - **saveUpdateCascadeTypeShouldExist()**: Uses reflection to load org.hibernate.annotations.CascadeType and check if SAVE_UPDATE constant exists. Passes on Hibernate 6.x, fails on 7.x.
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean test
@@ -89,5 +89,5 @@ grep -r "CascadeType\.DELETE_ORPHAN" src/
 ## References
 
 - Hibernate 7.0 Migration Guide: https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html
-- Hibernate ORM 7.0 Release: https://in.relation.to/2024/11/22/orm-700-final/
+- Hibernate ORM 7.0 Release: https://docs.hibernate.org/orm/7.0/migration-guide/migration-guide.html
 - JPA CascadeType (Jakarta Persistence): https://docs.oracle.com/javaee/7/api/javax/persistence/CascadeType.html

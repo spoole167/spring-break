@@ -23,9 +23,9 @@ The test module contains a standard Spring Security OAuth2 configuration without
 The test cannot be run in isolation (it requires a real OAuth provider), but the breaking change is visible by:
 - Enabling debug logging and checking for PKCE parameter presence in request logs
 - Testing against a legacy OAuth provider that rejects PKCE parameters
-- Comparing HTTP request payloads between Spring Boot 3.4.1 and 4.0
+- Comparing HTTP request payloads between Spring Boot 3.5.14 and 4.0
 
-## On Spring Boot 3.4.1 (Spring Security 6.x)
+## On Spring Boot 3.5.14 (Spring Security 6.x)
 
 ```bash
 mvn spring-boot:run
@@ -44,7 +44,7 @@ GET /oauth/authorize?client_id=...&redirect_uri=...&response_type=code&scope=...
 ## On Spring Boot 4.0 (Spring Security 7.x)
 
 ```bash
-mvn spring-boot:run -Dspring-boot.version=4.0.2
+mvn spring-boot:run -Dspring-boot.version=4.0.6
 ```
 
 Same OAuth2 configuration now includes PKCE automatically:
@@ -161,6 +161,6 @@ public AuthorizationRequestRepository<OAuth2AuthorizationRequest>
 
 - PKCE RFC 7636: https://datatracker.ietf.org/doc/html/rfc7636
 - OAuth 2.1 (mandates PKCE): https://datatracker.ietf.org/doc/html/rfc9700
-- Spring Security 7.0 Migration Guide: https://docs.spring.io/spring-security/reference/migration-7/index.html
+- Spring Security 7.0 Migration Guide: https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html
 - Spring Boot 4.0 Migration Guide: https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide
 - Spring Boot 4.0 Release Notes: https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Release-Notes

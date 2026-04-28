@@ -29,7 +29,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * 4. Update formLogin()/logout() to lambda syntax
  *
  * References:
- * - Spring Security 7.0 Migration: https://docs.spring.io/spring-security/reference/migration-7/index.html
+ * - Spring Security 7.0 Migration: https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html
  * - Spring Boot 4.0 Migration: https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide
  */
 @Configuration

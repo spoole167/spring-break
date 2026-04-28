@@ -48,7 +48,7 @@ The test uses reflection to check for the existence of factory classes and their
 - **newJobBuilderShouldExist()**: Attempts to load JobBuilder class (direct constructor). Passes on both versions.
 - **newStepBuilderShouldExist()**: Attempts to load StepBuilder class (direct constructor). Passes on both versions.
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean test

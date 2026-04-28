@@ -15,12 +15,12 @@ This is a **Tier 1 failure**: code using deprecated APIs fails to compile on Boo
 
 ## How This Test Works
 
-The test module demonstrates deprecated APIs that compile with warnings on Boot 3.4.1 but fail to compile on Boot 4.0:
+The test module demonstrates deprecated APIs that compile with warnings on Boot 3.5.14 but fail to compile on Boot 4.0:
 
 - **DeprecatedUsageDemo.java**: Uses deprecated APIs (`RestTemplate` auto-configuration, deprecated builder methods, legacy container customization)
-- **DeprecatedUsageTest.java**: Tests that the deprecated APIs work correctly on Boot 3.4.1
+- **DeprecatedUsageTest.java**: Tests that the deprecated APIs work correctly on Boot 3.5.14
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean compile

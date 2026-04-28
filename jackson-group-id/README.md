@@ -15,12 +15,12 @@ This is a **Tier 1 failure**: your build breaks immediately with `package does n
 
 ## How This Test Works
 
-The test module contains Jackson 2.x code that compiles cleanly on Spring Boot 3.4.1 but fails to compile on Boot 4.0:
+The test module contains Jackson 2.x code that compiles cleanly on Spring Boot 3.5.14 but fails to compile on Boot 4.0:
 
 - **JacksonGroupIdDemo.java**: Uses Jackson 2.x APIs (`com.fasterxml.jackson.*` imports, `JsonSerializer` class)
 - **JacksonGroupIdTest.java**: Two test cases validating Jackson serialization using legacy APIs
 
-**On Spring Boot 3.4.1**: Both tests pass; the code compiles and runs.
+**On Spring Boot 3.5.14**: Both tests pass; the code compiles and runs.
 
 **On Spring Boot 4.0**: Compilation fails immediately with errors like:
 ```
@@ -28,7 +28,7 @@ error: package com.fasterxml.jackson.databind does not exist
 error: cannot find symbol: class JsonSerializer
 ```
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean compile

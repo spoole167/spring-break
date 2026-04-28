@@ -7,7 +7,7 @@ Jackson 3.0 (Spring Boot 4.0) silently changes default date serialisation from n
 
 Jackson 3.0 bundled with Spring Boot 4.0 changes the default date serialisation behaviour:
 
-**Spring Boot 3.4.1 (Jackson 2.x):** `java.util.Date` → `1699257000000` (numeric millis)
+**Spring Boot 3.5.14 (Jackson 2.x):** `java.util.Date` → `1699257000000` (numeric millis)
 **Spring Boot 4.0 (Jackson 3.x):** `java.util.Date` → `"2023-11-06T05:30:00Z"` (ISO-8601 string)
 
 This is a **silent change with no compilation or runtime errors**. The serialisation format simply changes, breaking any code that depends on:
@@ -27,7 +27,7 @@ The test suite uses Java reflection to load Jackson's `ObjectMapper` (handling b
 
 The test uses a Map-based approach rather than direct Jackson imports to remain compatible with both Jackson 2.x and Jackson 3.x package names.
 
-## On Spring Boot 3.4.1 (Jackson 2.x)
+## On Spring Boot 3.5.14 (Jackson 2.x)
 
 ```bash
 mvn test

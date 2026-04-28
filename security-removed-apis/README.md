@@ -21,7 +21,7 @@ The test module demonstrates the breaking changes using:
 - **SecurityConfigTest.java**: Tests that authorization rules are properly applied
 - **SecurityApp.java**: Simple REST endpoints with different security requirements
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean compile
@@ -144,6 +144,6 @@ public class SecurityConfig {
 
 ## References
 
-- [Spring Security 7.0 Migration Guide](https://docs.spring.io/spring-security/reference/migration-7/index.html)
+- [Spring Security 7.0 Migration Guide](https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html)
 - [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 - [Spring Framework 7 What's New](https://github.com/spring-projects/spring-framework/wiki/What%27s-New-in-Spring-Framework-7.x)

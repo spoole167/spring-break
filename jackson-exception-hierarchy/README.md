@@ -6,7 +6,7 @@ JacksonException no longer extends IOException; catch blocks for IOException mis
 
 Jackson 3.x changed the exception hierarchy: `JacksonException` now extends `RuntimeException` instead of `IOException`. This is a silent breaking change because code compiles identically on both versions, but catch blocks become dead code.
 
-**Jackson 2.x (Spring Boot 3.4.1):**
+**Jackson 2.x (Spring Boot 3.5.14):**
 ```
 JacksonException extends IOException
 → catch(IOException e) catches all Jackson parse errors
@@ -28,7 +28,7 @@ The test uses reflection to load Jackson classes from either package (com.faster
 - **catchIOExceptionPatternStillWorks()**: Attempts to parse malformed JSON and catch the exception as IOException. Succeeds on 2.x (exception caught), fails on 3.x (exception escapes as RuntimeException).
 - **validJsonStillParses()**: Confirms valid JSON parses correctly on both versions.
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean test

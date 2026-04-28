@@ -4,8 +4,8 @@
 # the type of breakage they demonstrate.
 #
 # Usage:
-#   ./run-all-tests.sh                        # 3.5.13 baseline — every module should pass
-#   ./run-all-tests.sh -v 4.0.5              # 4.0 target  — every module should FAIL
+#   ./run-all-tests.sh                        # 3.5.14 baseline — every module should pass
+#   ./run-all-tests.sh -v 4.0.6              # 4.0 target  — every module should FAIL
 #   ./run-all-tests.sh -q                    # quiet mode  (summary + failures only)
 #   ./run-all-tests.sh module1 module2       # run a subset
 #   ./run-all-tests.sh -v 4.0.2 -q          # combine flags
@@ -59,10 +59,33 @@ CATEGORY_A=(
   hibernate-cascade-removal
   testcontainers-class-relocation
   spring-retry-removed
+  hibernate-processor-rename
+  listenable-future-removed
+  okhttp3-removed
+  spring-jcl-removed
+  aspectj-observed
+  retry-semantics-change
+  retryable-transaction-order
+  path-matching-engine
+  jackson-property-inclusion
+  bootstrap-registry-relocated
+  testrest-template-removed
+  httpheaders-multivaluemap
+  javax-annotation-removed
+  elasticsearch-rest5client
+  entityscan-relocated
+  propertymapping-relocated
+  kafka-streams-customizer-removed
+  aop-starter-rename
+  simpdest-message-matcher-removed
+  apacheds-ldap-removed
+  spring-security-access-relocated
+  propertymapper-alwaysapplyingnonnull
 )
 
 # (c) Runtime Errors: compiles on both versions, but throws at runtime on 4.0.
 CATEGORY_C=(
+  hibernate-query-type-required
   jackson-exception-hierarchy
   hibernate-dialect-removal
   oauth-password-grant-removed
@@ -70,6 +93,10 @@ CATEGORY_C=(
   batch-schema-change
   batch-job-serialisation
   pkce-mandatory
+  opensaml4-removed
+  resttemplate-autoconfig
+  test-slice-relocated
+  mockito-test-execution-listener
 )
 
 # (d) Different Results: runs on both, assertions detect different behaviour.
@@ -77,7 +104,6 @@ CATEGORY_D=(
   jackson-date-serialisation
   jackson-locale-format
   hibernate-native-datetime
-  retry-semantics-change
 )
 
 # Portable category lookup (works on bash 3.x / macOS)
@@ -125,7 +151,7 @@ PASSED=()
 FAILED=()
 START_TS=$(date +%s)
 
-VERSION_LABEL="${BOOT_VERSION:-3.5.13 (default)}"
+VERSION_LABEL="${BOOT_VERSION:-3.5.14 (default)}"
 
 # ── Banner ────────────────────────────────────────────────────────────
 printf "\n%s━━━ Spring Boot 3.5 → 4.0 Migration Test Suite ━━━%s\n" "$BOLD" "$RESET"
@@ -157,16 +183,23 @@ for module in "${MODULES[@]}"; do
   fi
 
   # Category (a) on 4.x → compile-only (tests won't even compile)
-  # Everything else     → full test cycle
+  # BUT some modules in CATEGORY_A might actually fail at test execution (runtime)
+  # even if they are categorized as (a) because they use reflection or are Tier 2 style.
+  # We force CATEGORY_A to compile only on 4.x to catch Tier 1 breaks.
   if [ "$cat" = "a" ] && [ "$IS_4X" -eq 1 ]; then
-    GOAL="clean compile test-compile"
+    # Special case: javax-annotation-removed is in CATEGORY_A but fails at runtime
+    if [ "$module" = "javax-annotation-removed" ]; then
+      GOAL="clean test"
+    else
+      GOAL="clean compile test-compile"
+    fi
   else
     GOAL="clean test"
   fi
 
   MVN_CMD="mvn -B $GOAL $VERSION_FLAG"
 
-  printf "  [...] %s" "$module"
+  printf "  [....] %s" "$module"
   log="$LOG_DIR/${module}.log"
 
   if [ "$QUIET" -eq 1 ]; then

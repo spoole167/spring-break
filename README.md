@@ -1,22 +1,22 @@
 # Spring Boot 3.5 → 4.0 Migration Test Cases
 
-19 self-contained Maven modules, each demonstrating a specific breaking change at the 3.5→4.0 boundary. The default build uses Spring Boot 3.5.13 — all tests pass. Override the version to see what breaks.
+31 self-contained Maven modules, each demonstrating a specific breaking change at the 3.5→4.0 boundary. The default build uses Spring Boot 3.5.14 — all tests pass. Override the version to see what breaks.
 
 ## Quick start
 
 ```bash
-# Everything green (Spring Boot 3.5.13)
+# Everything green (Spring Boot 3.5.14)
 ./run-all-tests.sh
 
-# Watch it break (Spring Boot 4.0.2)
-./run-all-tests.sh -v 4.0.2
+# Watch it break (Spring Boot 4.0.6)
+./run-all-tests.sh -v 4.0.6
 
 # Quiet mode (just pass/fail summary)
-./run-all-tests.sh -v 4.0.2 -q
+./run-all-tests.sh -v 4.0.6 -q
 
 # Single module via Maven
 mvn test -pl jackson-date-serialisation
-mvn test -pl jackson-date-serialisation -Dspring-boot.version=4.0.2
+mvn test -pl jackson-date-serialisation -Dspring-boot.version=4.0.6
 ```
 
 ## Modules by category
@@ -67,7 +67,7 @@ The parent POM imports the Spring Boot BOM as a dependency (not as a parent), wh
 
 ```xml
 <properties>
-    <spring-boot.version>3.5.13</spring-boot.version>
+    <spring-boot.version>3.5.14</spring-boot.version>
 </properties>
 
 <dependencyManagement>
@@ -84,7 +84,7 @@ The parent POM imports the Spring Boot BOM as a dependency (not as a parent), wh
 ```
 
 ```bash
-mvn test -Dspring-boot.version=4.0.2
+mvn test -Dspring-boot.version=4.0.6
 ```
 
 This is also how most enterprise projects consume Spring Boot (via BOM, not parent), so the test structure mirrors real-world builds.

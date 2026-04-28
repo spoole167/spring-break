@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * - Remove .and() chaining; use lambda closures instead
  * - Update .antMatchers() to .requestMatchers()
  *
- * See: https://docs.spring.io/spring-security/reference/migration-7/index.html
+ * See: https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html
  */
 @SpringBootTest
 @AutoConfigureMockMvc

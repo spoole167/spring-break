@@ -1,0 +1,42 @@
+[INFO] Scanning for projects...
+[ERROR] [ERROR] Some problems were encountered while processing the POMs:
+[ERROR] 'dependencies.dependency.version' for org.springframework.boot:spring-boot-starter-undertow:jar is missing. @ line 30, column 21
+[ERROR] 'dependencies.dependency.version' for org.testcontainers:postgresql:jar is missing. @ line 33, column 21
+[ERROR] 'dependencies.dependency.version' for org.springframework.retry:spring-retry:jar is missing. @ line 32, column 21
+[ERROR] 'dependencies.dependency.version' for org.hibernate.orm:hibernate-jpamodelgen:jar is missing. @ line 23, column 21
+[ERROR] 'dependencies.dependency.version' for org.springframework:spring-jcl:jar is missing. @ line 31, column 21
+[ERROR] 'dependencies.dependency.version' for org.springframework.boot:spring-boot-starter-aop:jar is missing. @ line 23, column 21
+[ERROR] 'dependencies.dependency.version' for org.springframework.boot:spring-boot-starter-aop:jar is missing. @ line 30, column 21
+[ERROR] 'dependencies.dependency.version' for org.springframework.boot:spring-boot-starter-aop:jar is missing. @ line 29, column 21
+ @ 
+[ERROR] The build could not read 8 projects -> [Help 1]
+[ERROR]   
+[ERROR]   The project com.example:undertow-removed:1.0.0 (/Users/spoole/Documents/Claude/Projects/SpringBoot Promotion/test-cases/undertow-removed/pom.xml) has 1 error
+[ERROR]     'dependencies.dependency.version' for org.springframework.boot:spring-boot-starter-undertow:jar is missing. @ line 30, column 21
+[ERROR]   
+[ERROR]   The project com.example:testcontainers-class-relocation:1.0.0 (/Users/spoole/Documents/Claude/Projects/SpringBoot Promotion/test-cases/testcontainers-class-relocation/pom.xml) has 1 error
+[ERROR]     'dependencies.dependency.version' for org.testcontainers:postgresql:jar is missing. @ line 33, column 21
+[ERROR]   
+[ERROR]   The project com.example:spring-retry-removed:1.0.0 (/Users/spoole/Documents/Claude/Projects/SpringBoot Promotion/test-cases/spring-retry-removed/pom.xml) has 1 error
+[ERROR]     'dependencies.dependency.version' for org.springframework.retry:spring-retry:jar is missing. @ line 32, column 21
+[ERROR]   
+[ERROR]   The project com.example:hibernate-processor-rename:1.0.0 (/Users/spoole/Documents/Claude/Projects/SpringBoot Promotion/test-cases/hibernate-processor-rename/pom.xml) has 1 error
+[ERROR]     'dependencies.dependency.version' for org.hibernate.orm:hibernate-jpamodelgen:jar is missing. @ line 23, column 21
+[ERROR]   
+[ERROR]   The project com.example:spring-jcl-removed:1.0.0 (/Users/spoole/Documents/Claude/Projects/SpringBoot Promotion/test-cases/spring-jcl-removed/pom.xml) has 1 error
+[ERROR]     'dependencies.dependency.version' for org.springframework:spring-jcl:jar is missing. @ line 31, column 21
+[ERROR]   
+[ERROR]   The project com.example:aspectj-observed:1.0.0 (/Users/spoole/Documents/Claude/Projects/SpringBoot Promotion/test-cases/aspectj-observed/pom.xml) has 1 error
+[ERROR]     'dependencies.dependency.version' for org.springframework.boot:spring-boot-starter-aop:jar is missing. @ line 23, column 21
+[ERROR]   
+[ERROR]   The project com.example:retry-semantics-change:1.0.0 (/Users/spoole/Documents/Claude/Projects/SpringBoot Promotion/test-cases/retry-semantics-change/pom.xml) has 1 error
+[ERROR]     'dependencies.dependency.version' for org.springframework.boot:spring-boot-starter-aop:jar is missing. @ line 30, column 21
+[ERROR]   
+[ERROR]   The project com.example:retryable-transaction-order:1.0.0 (/Users/spoole/Documents/Claude/Projects/SpringBoot Promotion/test-cases/retryable-transaction-order/pom.xml) has 1 error
+[ERROR]     'dependencies.dependency.version' for org.springframework.boot:spring-boot-starter-aop:jar is missing. @ line 29, column 21
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/ProjectBuildingException

@@ -7,7 +7,7 @@ Jackson 3.0 (Spring Boot 4.0) changes locale serialisation from underscores (Jav
 
 Jackson 3.0 bundled with Spring Boot 4.0 changes how it serialises `java.util.Locale` objects to JSON:
 
-**Spring Boot 3.4.1 (Jackson 2.x):** `Locale.CHINA` → `"zh_CN"` (Java's `Locale.toString()`)
+**Spring Boot 3.5.14 (Jackson 2.x):** `Locale.CHINA` → `"zh_CN"` (Java's `Locale.toString()`)
 **Spring Boot 4.0 (Jackson 3.x):** `Locale.CHINA` → `"zh-CN"` (IETF BCP 47 via `Locale.toLanguageTag()`)
 
 This is a **silent change with no compilation or runtime error**. The locale format changes, breaking code that depends on:
@@ -29,7 +29,7 @@ All three tests expect underscores. On Jackson 3.x, they receive hyphens instead
 
 The test uses a Map-based approach with reflection to remain compatible with both Jackson 2.x and Jackson 3.x package names.
 
-## On Spring Boot 3.4.1 (Jackson 2.x)
+## On Spring Boot 3.5.14 (Jackson 2.x)
 
 ```bash
 mvn test

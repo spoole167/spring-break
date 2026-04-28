@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * References:
  * - Hibernate 7.0 Migration Guide: https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html
- * - Hibernate ORM 7.0 Release: https://in.relation.to/2024/11/22/orm-700-final/
  */
 @SpringBootTest
 @Transactional

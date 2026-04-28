@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * References:
  * - PKCE RFC 7636: https://datatracker.ietf.org/doc/html/rfc7636
  * - OAuth 2.1 (RFC 9700): https://datatracker.ietf.org/doc/html/rfc9700
- * - Spring Security 7.0 Migration: https://docs.spring.io/spring-security/reference/migration-7/index.html
+ * - Spring Security 7.0 Migration: https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html
  */
 class PkceTest {
 

@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Client Credentials Grant (server-to-server).
  *
  * Reference: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics
- * Reference: https://docs.spring.io/spring-security/reference/migration-7/index.html
+ * Reference: https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html
  */
 @SpringBootTest
 public class OAuth2PasswordGrantTest {

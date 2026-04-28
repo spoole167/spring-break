@@ -7,7 +7,7 @@ Hibernate 7.0 (Spring Boot 4.0) returns `java.time.LocalDate` from native SQL qu
 
 Hibernate 7.0 bundled with Spring Boot 4.0 modernizes the return types for native SQL query results. When querying DATE columns via native SQL, the return type changes silently:
 
-**Spring Boot 3.4.1 (Hibernate 6.x):** `SELECT date_column` → `java.sql.Date` object
+**Spring Boot 3.5.14 (Hibernate 6.x):** `SELECT date_column` → `java.sql.Date` object
 **Spring Boot 4.0 (Hibernate 7.x):** `SELECT date_column` → `java.time.LocalDate` object
 
 This is a **silent breaking change** that manifests only when executing native SQL queries. The application compiles and starts normally, but code that:
@@ -26,7 +26,7 @@ The test suite uses Hibernate's `EntityManager` with native SQL queries to verif
 
 The first test reveals the breaking change by checking return type with `instanceof`. The second test confirms that mapped entity queries are not affected.
 
-## On Spring Boot 3.4.1 (Hibernate 6.x)
+## On Spring Boot 3.5.14 (Hibernate 6.x)
 
 ```bash
 mvn test

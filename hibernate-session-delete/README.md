@@ -21,7 +21,7 @@ The test module uses reflection to check whether Hibernate Session API methods e
   - `sessionDeleteMethodShouldExist()` — checks `Session.delete(Object)` (exists on 6.x, removed on 7.x)
 - **App.java**: Minimal Spring Boot application
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean test
@@ -93,7 +93,7 @@ grep -r "\.delete(" --include="*.java" src/ | grep -i session
 ## References
 
 - [Hibernate 7.0 Migration Guide](https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html)
-- [Hibernate ORM 7.0 Release](https://in.relation.to/2024/11/22/orm-700-final/)
+- [Hibernate ORM 7.0 Release](https://docs.hibernate.org/orm/7.0/migration-guide/migration-guide.html)
 - [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 
 ```java
@@ -131,13 +131,13 @@ This is the recommended approach and is **not affected** by this breaking change
 ## Testing
 
 This module includes a test that checks if the `delete` method exists on Hibernate Session:
-- **Boot 3.4.1 (Hibernate 6.x)**: Test passes — `delete()` method is present
-- **Boot 4.0.2 (Hibernate 7.x)**: Test fails — `delete()` method is removed
+- **Boot 3.5.14 (Hibernate 6.x)**: Test passes — `delete()` method is present
+- **Boot 4.0.6 (Hibernate 7.x)**: Test fails — `delete()` method is removed
 
 Run:
 ```bash
-mvn test                                    # Boot 3.4.1 — passes
-mvn test -Dspring-boot.version=4.0.2       # Boot 4.0 — fails
+mvn test                                    # Boot 3.5.14 — passes
+mvn test -Dspring-boot.version=4.0.6       # Boot 4.0 — fails
 ```
 
 ## Impact Level

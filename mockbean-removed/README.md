@@ -4,7 +4,7 @@
 
 ## What Breaks
 
-Spring Boot 4.0 removed the `@MockBean` and `@SpyBean` annotations from `org.springframework.boot.test.mock.mockito`. Code compiles on Spring Boot 3.4.1 but fails at runtime on 4.0 because the annotation classes no longer exist. The annotations have been replaced with Mockito's native bean override mechanism: `@MockitoBean` and `@MockitoSpyBean` in the `org.springframework.test.context.bean.override.mockito` package.
+Spring Boot 4.0 removed the `@MockBean` and `@SpyBean` annotations from `org.springframework.boot.test.mock.mockito`. Code compiles on Spring Boot 3.5.14 but fails at runtime on 4.0 because the annotation classes no longer exist. The annotations have been replaced with Mockito's native bean override mechanism: `@MockitoBean` and `@MockitoSpyBean` in the `org.springframework.test.context.bean.override.mockito` package.
 
 **Compilation Error on Spring Boot 4.0:**
 ```
@@ -19,9 +19,9 @@ The test demonstrates the use of both `@MockBean` (full mock) and `@SpyBean` (pa
 - **ServiceTest.testMockBean()**: Uses `@MockBean` to completely replace MyService with a mock. The test stubs behavior using `when()` and verifies method calls with `verify()`.
 - **ServiceTest.testSpyBean()**: Uses `@SpyBean` on HelperService to wrap the real bean. Real methods execute unless explicitly stubbed; `verify()` confirms the real methods were called.
 
-The supporting beans (MyService, HelperService) are simple Spring-managed services. The test runs in a `@SpringBootTest` context, which on 3.4.1 correctly injects the mocked/spied beans; on 4.0, the annotations are not recognized.
+The supporting beans (MyService, HelperService) are simple Spring-managed services. The test runs in a `@SpringBootTest` context, which on 3.5.14 correctly injects the mocked/spied beans; on 4.0, the annotations are not recognized.
 
-## On Spring Boot 3.4.1
+## On Spring Boot 3.5.14
 
 ```bash
 mvn clean test
