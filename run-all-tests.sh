@@ -87,6 +87,7 @@ CATEGORY_A=(
   batch-job-builder-string-constructor
   batch-package-moves
   batch-chunkhandler-renamed
+  batch-listener-classes
   webjars-locator-core-removed
 )
 

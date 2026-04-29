@@ -1,4 +1,4 @@
-id: batch-schema-rename
+id: batch-schema-change
 tier: 2
 tier_label: "Won't Run"
 title: "Spring Batch 6 Schema Sequence Rename"

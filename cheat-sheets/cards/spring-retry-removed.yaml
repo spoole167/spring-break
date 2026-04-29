@@ -1,4 +1,4 @@
-id: spring-retry-bom
+id: spring-retry-removed
 tier: 1
 tier_label: "Won't Build"
 title: "spring-retry Removed from BOM"

@@ -1,4 +1,4 @@
-id: session-delete-removed
+id: hibernate-session-delete
 tier: 1
 tier_label: "Won't Build"
 title: "Session.delete() Removed"

@@ -133,6 +133,7 @@
         <module>batch-job-builder-string-constructor</module>
         <module>batch-package-moves</module>
         <module>batch-chunkhandler-renamed</module>
+        <module>batch-listener-classes</module>
 
         <!-- Category (c) — Runtime Errors on 4.0  (12 modules)
              Compiles on both versions, throws at runtime on 4.0. -->

@@ -1,4 +1,4 @@
-id: retry-semantics
+id: retry-semantics-change
 tier: 3
 tier_label: "Wrong Results"
 title: "maxAttempts Now Means Retries, Not Total Attempts"

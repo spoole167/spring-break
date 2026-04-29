@@ -1,4 +1,4 @@
-id: testcontainers-package
+id: testcontainers-class-relocation
 tier: 1
 tier_label: "Won't Build"
 title: "Testcontainers 2.0 Package Relocation"

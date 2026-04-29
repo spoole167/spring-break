@@ -1,4 +1,4 @@
-id: cascade-save-update
+id: hibernate-cascade-removal
 tier: 2
 tier_label: "Won't Run"
 title: "CascadeType.SAVE_UPDATE Removed in Hibernate 7"

@@ -1,4 +1,4 @@
-id: security-dsl-rewrite
+id: security-removed-apis
 tier: 1
 tier_label: "Won't Build"
 title: "Security DSL Rewrite"
