@@ -1,0 +1,119 @@
+id: webjars-locator-core-removed
+tier: 1
+tier_label: "Won't Build"
+title: "webjars-locator-core Removed from BOM"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  WebJar assets resolve correctly via the webjars-locator-lite replacement
+
+further_info: >
+  Spring Boot 4.0 drops dependency management for org.webjars:webjars-locator-core
+  and replaces it with org.webjars:webjars-locator-lite. The core locator used
+  classpath scanning which was expensive and incompatible with GraalVM native
+  images. The lite variant uses a manifest-based lookup and is both faster and
+  native-image safe. Any application declaring webjars-locator-core without
+  an explicit version will fail to resolve the dependency on Boot 4.0.
+
+oneliner: >
+  Spring Boot 4.0 removes <code>webjars-locator-core</code> from the BOM.
+  WebJar version-agnostic URLs (<code>/webjars/jquery/jquery.min.js</code>)
+  stop resolving. Switch to <code>webjars-locator-lite</code>.
+
+error_output: |
+  // pom.xml — dependency with no version (relies on BOM)
+  <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>webjars-locator-core</artifactId>
+  </dependency>
+
+  // Boot 3.5: BOM provides version 0.59 — resolves fine.
+
+  // Boot 4.0: BOM no longer manages webjars-locator-core.
+  [ERROR] 'dependencies.dependency.version' for
+    org.webjars:webjars-locator-core:jar is missing.
+  [ERROR] BUILD FAILURE
+
+  // Or if version is pinned in pom.xml — compiles but WebJarAssetLocator
+  // is no longer registered by Boot's auto-configuration:
+  java.lang.ClassNotFoundException: org.webjars.WebJarAssetLocator
+
+what_changed: >
+  <code>org.webjars:webjars-locator-core</code> was the original WebJar
+  asset locator, using full classpath scanning to find versioned WebJar paths.
+  Spring Boot 4.0 removes it from the BOM and its auto-configuration wiring,
+  replacing it with <code>org.webjars:webjars-locator-lite</code>, which uses
+  a pre-generated manifest file (<code>webjars-requirejs.js</code> or
+  <code>META-INF/resources/webjars/</code>) to locate assets without scanning.
+
+why_changed: >
+  The classpath scanning approach in <code>webjars-locator-core</code> added
+  startup overhead proportional to the number of JARs on the classpath and
+  was incompatible with GraalVM native image compilation. The lite variant
+  eliminates both problems: manifest-based lookup is O(1) and works in native
+  images.
+
+diffs:
+  - comment: "// pom.xml — replace locator dependency"
+    removed: |
+      <dependency>
+          <groupId>org.webjars</groupId>
+          <artifactId>webjars-locator-core</artifactId>
+      </dependency>
+    added: |
+      <dependency>
+          <groupId>org.webjars</groupId>
+          <artifactId>webjars-locator-lite</artifactId>
+      </dependency>
+  - comment: "// Code using WebJarAssetLocator directly"
+    removed: |
+      import org.webjars.WebJarAssetLocator;
+      WebJarAssetLocator locator = new WebJarAssetLocator();
+      String path = locator.getFullPath("jquery", "jquery.min.js");
+    added: |
+      import org.webjars.lite.WebJarAssetLocator;
+      WebJarAssetLocator locator = new WebJarAssetLocator();
+      String path = locator.getFullPath("jquery", "jquery.min.js");
+
+fixes:
+  - label: "Replace webjars-locator-core with webjars-locator-lite."
+    text: >
+      Update <code>pom.xml</code> or <code>build.gradle</code> to declare
+      <code>org.webjars:webjars-locator-lite</code>. The API is compatible
+      for common use cases — Spring MVC's WebJar resource handler works with
+      both.
+  - label: "Update direct WebJarAssetLocator imports."
+    text: >
+      If your code imports <code>org.webjars.WebJarAssetLocator</code>
+      directly, change the import to the <code>org.webjars.lite</code>
+      package. The method signatures for <code>getFullPath()</code> are
+      compatible.
+
+scope_check: >
+  Search for <code>webjars-locator-core</code> in <code>pom.xml</code> and
+  <code>build.gradle</code> files. Also grep your Java source for
+  <code>import org.webjars.WebJarAssetLocator</code>. Check Thymeleaf templates
+  and JSPs for version-agnostic WebJar URLs
+  (<code>th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"</code>) — these
+  require a locator to resolve and will 404 if no locator is present.
+
+watch_out:
+  - >
+    If you pin an explicit version of <code>webjars-locator-core</code>
+    in your pom, the build will succeed — but Boot 4.0 no longer wires the
+    auto-configuration. WebJar URLs that worked without a version segment
+    will silently return 404 instead of failing at startup.
+  - >
+    <code>webjars-locator-lite</code> requires that WebJar dependencies
+    include a <code>webjars-requirejs.js</code> manifest. Older WebJar
+    artifacts may not include this file. Check the WebJar version you are
+    using is compatible with the lite locator.
+
+footer_links:
+  - text: "spring-break module: webjars-locator-core-removed"
+    url: "https://github.com/spoole167/spring-break/tree/main/webjars-locator-core-removed"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+  - text: "webjars-locator-lite on GitHub"
+    url: "https://github.com/webjars/webjars-locator-lite"

@@ -1,0 +1,98 @@
+id: batch-job-serialisation
+tier: 2
+tier_label: "Won't Run"
+title: "Spring Batch 6 Listener Support Classes Removed (Runtime)"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  JobExecutionListenerSupport, StepExecutionListenerSupport, and
+  ChunkListenerSupport are on the classpath and loadable at runtime
+
+further_info: >
+  Complements batch-listener-classes, which catches the same removal at
+  compile time via direct imports. This module catches it at runtime via
+  Class.forName(), covering the case where the support classes are
+  referenced dynamically (e.g. via Spring XML config, reflection-based
+  frameworks, or AOP proxies) rather than through direct source-level imports.
+  Both modules demonstrate the same underlying Batch 6.0 removal.
+
+oneliner: >
+  <code>JobExecutionListenerSupport</code>, <code>StepExecutionListenerSupport</code>,
+  and <code>ChunkListenerSupport</code> are removed in Spring Batch 6.0.
+  Dynamic loading via reflection throws <code>ClassNotFoundException</code>
+  on Boot 4.0.
+
+error_output: |
+  // Dynamic class loading — e.g. framework, XML config, or legacy reflection
+  Class.forName("org.springframework.batch.core.listener.JobExecutionListenerSupport");
+
+  // Boot 3.5 (Batch 5.x): class present, deprecated since 5.0 — loads fine.
+
+  // Boot 4.0 (Batch 6.0): class removed.
+  java.lang.ClassNotFoundException:
+    org.springframework.batch.core.listener.JobExecutionListenerSupport
+
+what_changed: >
+  Spring Batch 6.0 (shipped with Spring Boot 4.0) removed three convenience
+  base classes that had been deprecated since Batch 5.0:
+  <code>JobExecutionListenerSupport</code>,
+  <code>StepExecutionListenerSupport</code>, and
+  <code>ChunkListenerSupport</code>. These classes provided empty default
+  implementations of listener methods, a pattern made redundant by Java 8
+  interface default methods.
+
+why_changed: >
+  Java 8 interface default methods eliminate the need for adapter-style base
+  classes. Batch 5.0 deprecated them with that rationale; Batch 6.0 follows
+  through with removal. Implementing the listener interface directly is both
+  more explicit and compatible with composition rather than inheritance.
+
+diffs:
+  - comment: "// Replace base class with direct interface implementation"
+    removed: |
+      public class MyJobListener extends JobExecutionListenerSupport {
+          @Override
+          public void afterJob(JobExecution jobExecution) {
+              // only override what you need
+          }
+      }
+    added: |
+      public class MyJobListener implements JobExecutionListener {
+          @Override
+          public void afterJob(JobExecution jobExecution) {
+              // implement the interface directly
+          }
+      }
+
+fixes:
+  - label: "Implement the listener interface directly."
+    text: >
+      Replace <code>extends JobExecutionListenerSupport</code> with
+      <code>implements JobExecutionListener</code>. Do the same for
+      <code>StepExecutionListenerSupport</code> →
+      <code>StepExecutionListener</code> and
+      <code>ChunkListenerSupport</code> → <code>ChunkListener</code>.
+      You only need to implement the methods you actually use — all others
+      have default no-op implementations on the interface.
+
+scope_check: >
+  Search for <code>extends JobExecutionListenerSupport</code>,
+  <code>extends StepExecutionListenerSupport</code>, and
+  <code>extends ChunkListenerSupport</code> in your source. Also check
+  Spring XML configuration files and any reflection-based lookups for these
+  class names.
+
+watch_out:
+  - >
+    The compile-time version of this break is covered by the
+    <code>batch-listener-classes</code> module. This module specifically
+    targets runtime reflection scenarios — XML-configured listeners,
+    framework-generated proxies, or dynamic class loading that bypasses
+    the compiler.
+
+footer_links:
+  - text: "spring-break module: batch-job-serialisation"
+    url: "https://github.com/spoole167/spring-break/tree/main/batch-job-serialisation"
+  - text: "Spring Batch 6.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide"

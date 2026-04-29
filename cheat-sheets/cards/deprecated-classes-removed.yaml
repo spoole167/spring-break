@@ -1,0 +1,113 @@
+id: deprecated-classes-removed
+tier: 2
+tier_label: "Won't Run"
+title: "Deprecated RestTemplateBuilder APIs Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+no_module: true
+no_module_reason: >
+  The existing module (deprecated-classes-removed) tests RestTemplate bean
+  creation using RestTemplateBuilder, which overlaps substantially with the
+  resttemplate-autoconfig module. The test does not cleanly isolate a specific
+  deprecated-API removal — it autowires RestTemplate and asserts non-null,
+  which is the same assertion resttemplate-autoconfig makes. A dedicated module
+  for deprecated RestTemplateBuilder method removal (e.g.
+  additionalMessageConverters()) would need a test that actually calls the
+  removed method at compile time. The existing module is better understood as
+  a second angle on the resttemplate-autoconfig break and should not be
+  treated as an independent canonical test.
+
+verify: >
+  Code using deprecated RestTemplateBuilder methods fails to compile on Boot 4.0
+
+further_info: >
+  Spring Boot follows a deprecation policy where APIs deprecated in 3.x are
+  removed in 4.0. RestTemplateBuilder accumulated several deprecated methods
+  during the 3.x lifecycle as the framework pushed users toward RestClient.
+  Methods such as additionalMessageConverters(), messageConverters(), and
+  requestFactory() were deprecated in favour of RestClient equivalents.
+  On Boot 4.0 these methods are removed entirely, causing compile errors in
+  code that ignored the deprecation warnings. See also: resttemplate-autoconfig.
+
+oneliner: >
+  Deprecated <code>RestTemplateBuilder</code> methods removed in Boot 4.0.
+  Code that called deprecated builder methods compiles on 3.5 (with warnings)
+  and fails to compile on 4.0. Migrate to <code>RestClient</code>.
+
+error_output: |
+  // Calling a deprecated builder method
+  RestTemplate rt = builder
+      .additionalMessageConverters(new MappingJackson2HttpMessageConverter())
+      .build();
+
+  // Boot 3.5: compiles with deprecation warning, runs fine.
+
+  // Boot 4.0: compile error.
+  error: cannot find symbol
+    symbol: method additionalMessageConverters(MappingJackson2HttpMessageConverter)
+
+what_changed: >
+  Spring Boot 3.x deprecated several <code>RestTemplateBuilder</code> methods
+  to signal the migration path to <code>RestClient</code> (introduced in
+  Spring Framework 6.1). Boot 4.0 removes these deprecated methods entirely,
+  following the standard deprecation-then-removal cycle.
+
+why_changed: >
+  <code>RestTemplate</code> is in maintenance mode. The modern replacement is
+  <code>RestClient</code>, which offers a fluent, functional API and is the
+  recommended HTTP client for new development in Spring Framework 6.x+.
+  Removing the deprecated builder methods accelerates the migration.
+
+diffs:
+  - comment: "// Migrate from RestTemplate to RestClient"
+    removed: |
+      @Bean
+      public RestTemplate restTemplate(RestTemplateBuilder builder) {
+          return builder
+              .additionalMessageConverters(new MappingJackson2HttpMessageConverter())
+              .build();
+      }
+    added: |
+      @Bean
+      public RestClient restClient() {
+          return RestClient.builder()
+              .messageConverters(converters ->
+                  converters.add(new MappingJackson2HttpMessageConverter()))
+              .build();
+      }
+
+fixes:
+  - label: "Migrate to RestClient."
+    text: >
+      <code>RestClient</code> is the modern replacement. It offers a similar
+      fluent builder API and is available from Spring Framework 6.1 onward
+      (Spring Boot 3.2+). Migrating removes the deprecated call and future-proofs
+      the HTTP client code.
+  - label: "If RestTemplate must be kept, remove the deprecated builder calls."
+    text: >
+      Construct a <code>RestTemplate</code> directly (via constructor or with
+      a plain <code>RestTemplateBuilder.build()</code>) and configure message
+      converters via <code>restTemplate.getMessageConverters().add(...)</code>
+      after construction.
+
+scope_check: >
+  Run <code>mvn compile</code> with <code>-Xlint:deprecation</code> on Boot 3.5
+  to find every deprecated API call before upgrading to 4.0. Pay particular
+  attention to any <code>RestTemplateBuilder</code> method chains — each
+  deprecated method call is a potential compile error on 4.0.
+
+watch_out:
+  - >
+    RestTemplate auto-configuration is also removed in Boot 4.0 — a separate
+    break from deprecated method removal. If your application relies on an
+    auto-configured <code>RestTemplate</code> bean rather than declaring one,
+    see the <code>resttemplate-autoconfig</code> card.
+
+footer_links:
+  - text: "spring-break module: deprecated-classes-removed"
+    url: "https://github.com/spoole167/spring-break/tree/main/deprecated-classes-removed"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+  - text: "RestClient migration guide"
+    url: "https://docs.spring.io/spring-framework/reference/integration/rest-clients.html"

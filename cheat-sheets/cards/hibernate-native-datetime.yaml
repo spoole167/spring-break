@@ -1,4 +1,4 @@
-id: hibernate-date-types
+id: hibernate-native-datetime
 tier: 3
 tier_label: "Wrong Results"
 title: "Hibernate Native Query Date Return Types Changed"
