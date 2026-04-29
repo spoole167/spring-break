@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spring Batch Core Package Relocations — Spring Boot 4.0 Migration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 10mm 16mm 20mm;
+    position: relative;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 2px solid #c0392b;
+  }
+
+  .tier-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    background: #c0392b;
+    padding: 2pt 7pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .series-label {
+    font-size: 7pt;
+    color: #999;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .meta-badges {
+    display: flex;
+    gap: 6pt;
+    align-items: center;
+    margin-bottom: 1.5mm;
+  }
+
+  .effort-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .effort-S { background: #d4edda; color: #155724; }
+  .effort-M { background: #fff3cd; color: #856404; }
+  .effort-L { background: #f8d7da; color: #721c24; }
+
+  .openrewrite-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 600;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    background: #e8f0fe;
+    color: #1a56db;
+    letter-spacing: 0.3px;
+  }
+
+  .verify-box {
+    background: #f0faf0;
+    border: 1px solid #c3e6c3;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    font-size: 8pt;
+    line-height: 1.4;
+  }
+
+  .verify-box strong { font-size: 8pt; color: #155724; }
+  .verify-box code { font-size: 7.5pt; background: #d4edda; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14pt;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1.5mm;
+  }
+
+  .oneliner {
+    font-size: 9pt;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 2mm;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #c0392b;
+    margin-bottom: 1mm;
+    margin-top: 2.5mm;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+
+  p {
+    font-size: 8.5pt;
+    line-height: 1.45;
+    margin-bottom: 1.5mm;
+  }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    line-height: 1.5;
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    overflow: hidden;
+  }
+
+  pre .removed { color: #c0392b; text-decoration: line-through; opacity: 0.7; }
+  pre .added { color: #27713b; font-weight: 500; }
+  pre .comment { color: #999; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    background: #f0f0f0;
+    padding: 0.5pt 3pt;
+    border-radius: 2px;
+  }
+
+  .fix-options { margin: 1mm 0 1.5mm; }
+
+  .fix-option {
+    display: flex;
+    gap: 2.5mm;
+    margin-bottom: 1mm;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .fix-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #c0392b;
+    min-width: 4mm;
+    flex-shrink: 0;
+  }
+
+  .fix-label { font-weight: 600; }
+  .fix-option a { color: #2563eb; text-decoration: none; }
+
+  .scope-box {
+    background: #fdf2f2;
+    border: 1px solid #f0d0d0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0;
+    font-size: 8pt;
+    line-height: 1.45;
+  }
+
+  .scope-box strong { font-size: 8pt; }
+
+  /* Further Info — compact single block */
+  .further-info {
+    margin-top: 2.5mm;
+    padding: 1.5mm 2.5mm;
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 3px;
+    font-size: 7.5pt;
+    line-height: 1.45;
+    color: #555;
+  }
+
+  .further-info-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #c0392b;
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links {
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 7.5pt;
+  }
+
+  .further-info-links span.sep {
+    color: #ccc;
+    margin: 0 1mm;
+  }
+
+  .further-info-facts {
+    font-size: 7pt;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  .footer {
+    position: fixed;
+    bottom: 6mm;
+    left: 16mm;
+    right: 16mm;
+    font-size: 6.5pt;
+    color: #999;
+  }
+
+  .footer-mitigation {
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 2px;
+    padding: 2pt 6pt;
+    margin-bottom: 3pt;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .footer-mitigation strong { color: #1a1a1a; }
+  .footer-mitigation a { color: #2563eb; text-decoration: none; }
+
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2pt;
+    border-top: 1px solid #ddd;
+  }
+
+  .footer-links a { color: #2563eb; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="series-label">spring-boot 3.5 → 4.0</span>
+  </div>
+
+  <h1>Spring Batch Core Package Relocations</h1>
+  <div class="oneliner">Core Spring Batch domain classes (Job, JobExecution, etc.) moved from org.springframework.batch.core to org.springframework.batch.core.job.</div>
+
+  <div class="meta-badges">
+    <span class="effort-badge effort-M">Effort: M</span>
+
+  </div>
+
+  <h2>What You'll See</h2>
+<pre><span class="comment">$ mvn compile
+[ERROR] /src/main/java/com/example/BatchCoreUsage.java:[3,44]
+  error: package org.springframework.batch.core does not contain class Job
+[ERROR] /src/main/java/com/example/BatchCoreUsage.java:[4,44]
+  error: package org.springframework.batch.core does not contain class JobExecution</span></pre>
+
+  <h2>What Changed</h2>
+  <p>Core domain classes have moved from <code>org.springframework.batch.core</code> to subpackages, primarily <code>org.springframework.batch.core.job</code>. Affected classes include <code>Job</code>, <code>JobExecution</code>, <code>JobInstance</code>, and <code>JobParameters</code> among others.</p>
+
+<pre><span class="comment">// Core domain imports</span>
+<span class="removed">import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
+import org.springframework.batch.core.JobParameters;
+</span>
+<span class="added">import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.JobParameters;
+</span></pre>
+
+
+  <h2>Why This Changed</h2>
+  <p>Spring Batch 6.0 redesigned the domain model to give each concern its own subpackage, making the module boundaries clearer and aligning with the broader Spring Batch 6.0 architectural goals.</p>
+
+  <h2>How to Fix</h2>
+  <div class="fix-options">
+    <div class="fix-option">
+      <span class="fix-num">A</span>
+      <div><span class="fix-label">Update imports to include the job subpackage.</span> Add <code>.job</code> to the package path for the affected classes. This is a mechanical find-and-replace: <code>org.springframework.batch.core.Job</code> becomes <code>org.springframework.batch.core.job.Job</code>, and so on. Check the Spring Batch 6.0 Migration Guide for the complete list of moved classes.</div>
+    </div>
+  </div>
+
+  <div class="verify-box">
+    <strong>✓ Verify:</strong> mvn compile — no package does not exist errors for org.springframework.batch.core classes
+  </div>
+
+
+  <div class="scope-box">
+    <strong>Scope check:</strong> Search for <code>import org.springframework.batch.core.</code> across all Java/Kotlin sources. Any import that resolves directly to a class in the root <code>core</code> package is likely affected. The scope is proportional to how deeply your code interacts with Batch domain objects.
+  </div>
+
+
+  <h2>Watch Out</h2>
+  <p>Not all classes in <code>org.springframework.batch.core</code> moved. Some remain at the root level. Verify each import against the 6.0 Javadoc rather than bulk-replacing all root-level imports.</p>
+
+
+
+  <div class="further-info">
+    <div class="further-info-header">Further Info</div>
+    <div class="further-info-links">
+      <a href="https://github.com/spoole167/spring-break/tree/main/batch-package-moves">spring-break module: batch-package-moves</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide">Spring Batch 6.0 Migration Guide</a>
+
+    </div>
+
+    <div class="further-info-facts">Spring Batch 6.0 restructured its domain model into subpackages under org.springframework.batch.core. The classes still exist; only their package changed. With many classes involved, this can mean a large number of import fixes across any codebase that uses Batch domain types directly.</div>
+
+  </div>
+
+
+</div>
+
+<div class="footer">
+
+  <div class="footer-mitigation">
+    <strong>Not ready?</strong>
+    Pin 3.5 and track CVEs · migrate incrementally with <a href="https://docs.openrewrite.org/recipes/java/spring/boot4">OpenRewrite</a> · <a href="https://www.herodevs.com/support/spring-nes">HeroDevs NES</a> for security patches
+  </div>
+
+  <div class="footer-links">
+    <div><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></div>
+    <div><a href="https://www.herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></div>
+  </div>
+</div>
+
+</body>
+</html>

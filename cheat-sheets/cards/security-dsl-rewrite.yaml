@@ -1,0 +1,118 @@
+id: security-dsl-rewrite
+tier: 1
+tier_label: "Won't Build"
+title: "Security DSL Rewrite"
+series: "spring-boot 3.5 → 4.0"
+effort: L
+openrewrite: true
+verify: >
+  App starts and security filter chain initialises without errors
+
+further_info: >
+  Driven by Spring Security 7.0. The authorizeRequests(), antMatchers(), and
+  .and() chaining were deprecated in Security 5.7/6.0 and removed in 7.0.
+  The lambda DSL was introduced in Security 5.2 as the recommended
+  replacement. Affects all spring-boot-starter-security consumers. See also:
+  websecurity-adapter-removed, auth-default-deny.
+
+oneliner: >
+  Spring Security removed authorizeRequests(), antMatchers(), and the
+  .and() chaining method. The entire HTTP security DSL must be rewritten.
+
+error_output: |
+  $ mvn compile
+  [ERROR] /src/main/java/com/example/SecurityConfig.java:[22,14]
+    error: cannot find symbol
+      symbol:   method authorizeRequests()
+      location: variable http of type HttpSecurity
+  [ERROR] /src/main/java/com/example/SecurityConfig.java:[23,18]
+    error: cannot find symbol
+      symbol:   method antMatchers(java.lang.String)
+  [ERROR] /src/main/java/com/example/SecurityConfig.java:[28,10]
+    error: cannot find symbol
+      symbol:   method and()
+
+what_changed: >
+  Spring Security 7.0 (shipped with Boot 4.0) removed the deprecated
+  <code>authorizeRequests()</code> method — use
+  <code>authorizeHttpRequests()</code> instead. <code>antMatchers()</code>,
+  <code>mvcMatchers()</code>, and <code>regexMatchers()</code> are replaced
+  by <code>requestMatchers()</code>. The <code>.and()</code> chaining method
+  is gone — use lambda DSL with separate method calls instead.
+
+why_changed: >
+  The lambda DSL is more readable and avoids a class of configuration
+  bugs where <code>.and()</code> chains silently reset the security
+  context. The new <code>requestMatchers()</code> API auto-detects
+  whether to use Ant or MVC matching based on your classpath.
+
+diffs:
+  - comment: "// Security filter chain — before"
+    removed: |
+      http
+          .authorizeRequests()
+              .antMatchers("/public/**").permitAll()
+              .antMatchers("/admin/**").hasRole("ADMIN")
+              .anyRequest().authenticated()
+              .and()
+          .formLogin()
+              .loginPage("/login")
+              .and()
+          .logout()
+              .logoutSuccessUrl("/");
+    added: |
+      http
+          .authorizeHttpRequests(auth -> auth
+              .requestMatchers("/public/**").permitAll()
+              .requestMatchers("/admin/**").hasRole("ADMIN")
+              .anyRequest().authenticated()
+          )
+          .formLogin(form -> form
+              .loginPage("/login")
+          )
+          .logout(logout -> logout
+              .logoutSuccessUrl("/")
+          );
+  - comment: "// CSRF configuration"
+    removed: |
+      http.csrf().disable();
+    added: |
+      http.csrf(csrf -> csrf.disable());
+
+fixes:
+  - label: "Rewrite to lambda DSL."
+    text: >
+      Replace every <code>.and()</code> chain with a lambda-based
+      configuration block. Each security concern (authorization, form login,
+      logout, CSRF) gets its own lambda. See the
+      <a href="https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html">Spring Security 7 migration guide</a>.
+  - label: "Replace matchers."
+    text: >
+      Change <code>antMatchers()</code> and <code>mvcMatchers()</code> to
+      <code>requestMatchers()</code>. The new method auto-selects the
+      matching strategy. <code>regexMatchers()</code> becomes
+      <code>requestMatchers(new RegexRequestMatcher(...))</code>.
+
+scope_check: >
+  Search for <code>authorizeRequests()</code>, <code>antMatchers()</code>,
+  <code>mvcMatchers()</code>, <code>.and()</code> in security config
+  classes, and <code>.csrf().disable()</code>. Every <code>SecurityFilterChain</code>
+  bean needs reviewing.
+
+watch_out:
+  - >
+    The <code>.and()</code> removal is the most disruptive part. If you
+    have a long chain with 5+ <code>.and()</code> calls, the rewrite
+    changes the entire structure of the method. Review the result carefully
+    — it's easy to accidentally nest a lambda inside the wrong block.
+  - >
+    <code>requestMatchers()</code> auto-detects MVC vs Ant matching. If
+    you have Spring MVC on the classpath, it uses MVC matching (which is
+    stricter). If this changes behaviour, use
+    <code>AntPathRequestMatcher</code> explicitly.
+
+footer_links:
+  - text: "spring-break module: security-removed-apis"
+    url: "https://github.com/spoole167/spring-break/tree/main/security-removed-apis"
+  - text: "Spring Security 7 migration guide"
+    url: "https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html"

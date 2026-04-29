@@ -1,0 +1,153 @@
+id: resttemplate-autoconfig
+tier: 2
+tier_label: "Won't Run"
+title: "RestTemplate Auto-Configuration Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  App starts with explicit RestTemplate bean and HTTP calls succeed
+
+further_info: >
+  RestTemplate has been in maintenance mode since Spring Framework 5.0.
+  RestClient was introduced in Spring Framework 6.1 as the modern
+  replacement. Spring Boot 4.0 removed RestTemplateAutoConfiguration to
+  encourage migration. RestClient.Builder is auto-configured in Boot 4.0.
+  See also: okhttp3-removed.
+
+oneliner: >
+  Spring Boot 4.0 removed RestTemplateAutoConfiguration. Tests and
+  production code that relied on an auto-configured RestTemplateBuilder
+  or RestTemplate bean get NoSuchBeanDefinitionException at startup.
+
+error_output: |
+  org.springframework.beans.factory.NoSuchBeanDefinitionException:
+    No qualifying bean of type
+    'org.springframework.boot.web.client.RestTemplateBuilder' available:
+    expected at least 1 bean which qualifies as autowire candidate.
+  Dependency annotations:
+    {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+   at org.springframework.beans.factory.support
+    .DefaultListableBeanFactory.raiseNoMatchingBeanException(...)
+  ---
+  APPLICATION FAILED TO START
+  ---
+  Description:
+  Parameter 0 of constructor in com.example.OrderClient required a bean
+  of type 'org.springframework.boot.web.client.RestTemplateBuilder' that
+  could not be found.
+
+what_changed: >
+  Spring Boot 4.0 removed <code>RestTemplateAutoConfiguration</code>,
+  which previously provided a <code>RestTemplateBuilder</code> bean and
+  customizers. The auto-configuration for <code>RestClient</code> (the
+  modern replacement) remains. Code that injected
+  <code>RestTemplateBuilder</code> or relied on auto-configured
+  <code>RestTemplate</code> beans no longer finds them.
+
+why_changed: >
+  <code>RestTemplate</code> has been in maintenance mode since Spring 5.
+  Spring Framework 6.1 introduced <code>RestClient</code> as the modern,
+  fluent replacement. Spring Boot 4.0 completed the transition by removing
+  the auto-configuration, encouraging migration to <code>RestClient</code>
+  or <code>WebClient</code>.
+
+diffs:
+  - comment: "// Injecting the HTTP client — service class"
+    removed: |
+      @Service
+      public class OrderClient {
+          private final RestTemplate restTemplate;
+
+          public OrderClient(RestTemplateBuilder builder) {
+              this.restTemplate = builder
+                  .rootUri("https://api.example.com")
+                  .build();
+          }
+
+          public Order getOrder(Long id) {
+              return restTemplate.getForObject(
+                  "/orders/{id}", Order.class, id);
+          }
+      }
+    added: |
+      @Service
+      public class OrderClient {
+          private final RestClient restClient;
+
+          public OrderClient(RestClient.Builder builder) {
+              this.restClient = builder
+                  .baseUrl("https://api.example.com")
+                  .build();
+          }
+
+          public Order getOrder(Long id) {
+              return restClient.get()
+                  .uri("/orders/{id}", id)
+                  .retrieve()
+                  .body(Order.class);
+          }
+      }
+  - comment: "// Test — using @RestClientTest"
+    removed: |
+      @RestClientTest(OrderClient.class)
+      class OrderClientTest {
+          @Autowired
+          private MockRestServiceServer server;
+          @Autowired
+          private OrderClient client;
+    added: |
+      @RestClientTest(OrderClient.class)
+      class OrderClientTest {
+          @Autowired
+          private MockRestServiceServer server;
+          @Autowired
+          private OrderClient client;
+          // Works the same — @RestClientTest supports RestClient
+
+fixes:
+  - label: "Migrate to RestClient (recommended)."
+    text: >
+      Replace <code>RestTemplate</code> usage with <code>RestClient</code>.
+      Inject <code>RestClient.Builder</code> (auto-configured by Spring Boot 4)
+      instead of <code>RestTemplateBuilder</code>. The API is fluent and
+      supports the same customizers.
+  - label: "Define your own RestTemplateBuilder bean."
+    text: >
+      If migration is too large to do immediately, register your own
+      <code>RestTemplateBuilder</code> bean in a <code>@Configuration</code>
+      class. This restores the old behaviour while you plan the migration.
+  - label: "Use WebClient for reactive code."
+    text: >
+      If your application is reactive, use <code>WebClient</code> instead.
+      It remains fully auto-configured in Spring Boot 4.0.
+
+scope_check: >
+  Search for <code>RestTemplate</code>, <code>RestTemplateBuilder</code>,
+  and <code>RestTemplateCustomizer</code> across your codebase. Every
+  injection point is a potential startup failure. Also check test classes
+  that use <code>TestRestTemplate</code> — its auto-configuration may
+  also be affected.
+
+watch_out:
+  - >
+    <code>TestRestTemplate</code> is a separate concern. Check whether it
+    is still auto-configured in your test slices or if you need to provide
+    it manually.
+  - >
+    Third-party libraries that inject <code>RestTemplateBuilder</code>
+    (e.g., Spring Cloud OpenFeign, some tracing libraries) may also break.
+    Check transitive dependencies.
+  - >
+    The <code>RestClient</code> API is different from <code>RestTemplate</code>.
+    Methods like <code>getForObject()</code>, <code>postForEntity()</code>
+    become chained <code>.get().uri().retrieve().body()</code> calls.
+    Plan time for the API change, not just the bean swap.
+
+footer_links:
+  - text: "Spring-Break Demo"
+    url: "https://github.com/spoole167/spring-break/tree/main/resttemplate-autoconfig"
+  - text: "Testing changes in Spring Boot 4.0"
+    url: "https://rieckpil.de/whats-new-for-testing-in-spring-boot-4-0-and-spring-framework-7/"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

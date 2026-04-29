@@ -1,0 +1,64 @@
+id: propertymapping-relocated
+tier: 1
+tier_label: "Won't Build"
+title: "@PropertyMapping Relocated to test.context"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  mvn test-compile — no package does not exist error for @PropertyMapping import
+
+further_info: >
+  @PropertyMapping is used when authoring custom test slice annotations.
+  It binds annotation attributes to Spring Boot auto-configuration properties.
+  The move is part of the same test-infrastructure cleanup that also relocated
+  several other test-autoconfigure classes in Spring Boot 4.0.
+
+oneliner: >
+  @PropertyMapping moved from org.springframework.boot.test.autoconfigure.properties
+  to org.springframework.boot.test.context. Old import doesn't compile.
+
+error_output: |
+  $ mvn test-compile
+  [ERROR] /src/test/java/com/example/CustomTestAnnotation.java:[3,62]
+    error: package org.springframework.boot.test.autoconfigure.properties does not exist
+
+what_changed: >
+  <code>@PropertyMapping</code> moved from
+  <code>org.springframework.boot.test.autoconfigure.properties</code> to
+  <code>org.springframework.boot.test.context</code>.
+  Behaviour is unchanged.
+
+why_changed: >
+  Spring Boot 4.0 consolidated test-context infrastructure into a more
+  coherent package hierarchy. The separate <code>test.autoconfigure.properties</code>
+  package was collapsed into <code>test.context</code>.
+
+diffs:
+  - comment: "// Import on custom test annotation"
+    removed: "import org.springframework.boot.test.autoconfigure.properties.PropertyMapping;"
+    added: "import org.springframework.boot.test.context.PropertyMapping;"
+
+fixes:
+  - label: "Update the import."
+    text: >
+      Replace <code>org.springframework.boot.test.autoconfigure.properties.PropertyMapping</code>
+      with <code>org.springframework.boot.test.context.PropertyMapping</code>.
+      This typically appears only in custom meta-annotations for test slices.
+
+scope_check: >
+  Search for <code>@PropertyMapping</code> and the old import path in your
+  test source tree. Only affects teams that have written custom test slice
+  annotations — most applications won't have this at all.
+
+watch_out:
+  - >
+    If you have a shared test-utilities library that defines custom slices,
+    the fix must be applied there rather than in the consuming projects.
+    A single unfixed library breaks all consumers.
+
+footer_links:
+  - text: "spring-break module: propertymapping-relocated"
+    url: "https://github.com/spoole167/spring-break/tree/main/propertymapping-relocated"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

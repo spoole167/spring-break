@@ -1,0 +1,122 @@
+id: modular-starters
+tier: 2
+tier_label: "Won't Run"
+title: "Modular Auto-Configuration"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  App starts and ObjectMapper, Validator, and other auto-configured beans
+  are present — confirm with a test that autowires each one
+
+further_info: >
+  Spring Boot 4.0 splits the monolithic spring-boot-autoconfigure jar into
+  focused, feature-specific modules. In Boot 3.x every starter dragged in
+  the entire auto-configuration bundle, so features like Jackson, Bean
+  Validation, and Micrometer were configured automatically even without an
+  explicit dependency. In Boot 4.0 each auto-configuration module activates
+  only when its dedicated starter is on the classpath. Features you were
+  getting for free become explicit opt-ins. The app compiles and starts —
+  it just doesn't have the beans you expected.
+
+oneliner: >
+  Spring Boot 4.0 split the monolithic auto-configuration jar into modules.
+  Beans you got for free (ObjectMapper, Validator) are now missing unless you
+  add the explicit starter. The app starts. NoSuchBeanDefinitionException hits
+  at first use.
+
+error_output: |
+  // App compiles and starts. Failure at first injection or endpoint call:
+
+  org.springframework.beans.factory.NoSuchBeanDefinitionException:
+    No qualifying bean of type
+    'com.fasterxml.jackson.databind.ObjectMapper' available
+
+  // Or from a @RestController trying to serialise a response:
+  org.springframework.http.converter.HttpMessageNotWritableException:
+    No converter for [class com.example.OrderDto]
+
+what_changed: >
+  The <code>spring-boot-autoconfigure</code> jar was a single monolithic
+  module that bundled auto-configuration for every Spring Boot feature.
+  In Boot 4.0 it is split into focused modules — one per feature area.
+  Each module's auto-configuration only activates when its corresponding
+  starter is explicitly present. Adding <code>spring-boot-starter-web</code>
+  no longer implicitly enables Jackson, validation, or actuator
+  auto-configuration.
+
+why_changed: >
+  The monolithic auto-configure jar created a hidden coupling problem: adding
+  any Spring Boot starter pulled in auto-configuration for hundreds of features
+  the application never used. The split reduces startup time, lowers memory
+  footprint, and makes dependency management explicit — you only pay for what
+  you declare.
+
+diffs:
+  - comment: "// pom.xml — add starters that were previously implicit"
+    removed: |
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+      </dependency>
+    added: |
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+      </dependency>
+      <!-- Now required explicitly — no longer implicit via web starter -->
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-json</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-validation</artifactId>
+      </dependency>
+
+fixes:
+  - label: "Audit and add missing starters."
+    text: >
+      Run <code>mvn dependency:tree</code> and compare what was transitive on
+      Boot 3.5 with what your Boot 4.0 build pulls in. Add an explicit
+      <code>spring-boot-starter-*</code> dependency for every feature your
+      application uses: <code>spring-boot-starter-json</code> for Jackson,
+      <code>spring-boot-starter-validation</code> for Bean Validation,
+      <code>spring-boot-starter-actuator</code> for Micrometer metrics.
+  - label: "Watch for silent failures in @RestController endpoints."
+    text: >
+      If a controller returns an object that Jackson used to serialise
+      automatically, the endpoint now returns <code>406 Not Acceptable</code>
+      or throws <code>HttpMessageNotWritableException</code> rather than an
+      obvious startup error. Add <code>spring-boot-starter-json</code> to
+      restore the message converter.
+
+scope_check: >
+  Run the app and scan for <code>NoSuchBeanDefinitionException</code> in
+  startup logs. Also grep your code for <code>@Autowired ObjectMapper</code>,
+  <code>@Autowired Validator</code>, and similar injections that relied on
+  implicit auto-configuration. Check <code>@RestController</code> methods
+  that return non-String types — these rely on Jackson message converters.
+
+watch_out:
+  - >
+    The failure is not at startup. Spring context loads successfully; the
+    missing bean is only discovered when something tries to inject it or a
+    converter is needed. Endpoint smoke tests are the fastest way to find gaps.
+  - >
+    <code>spring-boot-starter-web</code> still brings Jackson onto the
+    <em>classpath</em> as a transitive compile dependency — the classes are
+    present, just not auto-configured into a bean. This means the app
+    compiles, no import errors, no obvious signal that anything is wrong.
+  - >
+    Each team's application will hit a different subset of missing beans
+    depending on what features it uses. There is no single fix — it requires
+    an audit. Use the Migration Guide's starter mapping table as a checklist.
+
+footer_links:
+  - text: "spring-break module: modular-starters"
+    url: "https://github.com/spoole167/spring-break/tree/main/modular-starters"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+  - text: "Modularizing Spring Boot (Spring Blog)"
+    url: "https://spring.io/blog/2025/10/28/modularizing-spring-boot"

@@ -1,0 +1,140 @@
+id: test-slice-relocated
+tier: 2
+tier_label: "Won't Run"
+title: "Test-Slice Annotation Starters Relocated"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: true
+verify: >
+  mvn test — all @DataJpaTest/@WebMvcTest slices load correctly
+
+further_info: >
+  Introduced in Spring Boot 4.0 as part of the test auto-configuration
+  restructuring. Standard annotations (@WebMvcTest, @DataJpaTest) still
+  work, but custom test slices referencing old TypeExcludeFilter classes or
+  spring.factories entries need updating. The spring.factories to
+  AutoConfiguration.imports migration is now enforced.
+
+oneliner: >
+  Spring Boot 4.0 relocated test-slice annotations and their
+  auto-configuration metadata. Tests using custom test slices or
+  referencing old packages fail with ClassNotFoundException or silently
+  load the wrong context.
+
+error_output: |
+  java.lang.IllegalStateException: Failed to load ApplicationContext for
+    [MergedContextConfiguration@6f2b5e...
+    testClass = com.example.web.ProductControllerTest]
+  Caused by: java.lang.ClassNotFoundException:
+    org.springframework.boot.test.autoconfigure.web.servlet
+    .WebMvcTypeExcludeFilter
+   at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(...)
+  ---
+  Or silently:
+  ---
+  com.example.web.ProductControllerTest > shouldReturnProduct() FAILED
+    org.springframework.beans.factory.NoSuchBeanDefinitionException:
+    No qualifying bean of type 'com.example.web.ProductController'
+    (expected in thin web-slice context but full context was loaded instead)
+
+what_changed: >
+  Spring Boot 4.0 reorganised the test auto-configuration packages.
+  Several <code>TypeExcludeFilter</code> classes and test-slice support
+  classes moved or were renamed. Custom test-slice annotations that
+  referenced the old filter classes by fully qualified name break at
+  runtime. Standard annotations like <code>@WebMvcTest</code>,
+  <code>@DataJpaTest</code>, and <code>@JsonTest</code> still work, but
+  custom slices that mirrored their structure need updating.
+
+why_changed: >
+  The test auto-configuration was restructured to support the new bean
+  override mechanism and to align the package structure with Spring
+  Framework 7's test context changes. The reorganisation also improved
+  modularity by moving test-slice support into dedicated modules.
+
+diffs:
+  - comment: "// Custom test-slice annotation"
+    removed: |
+      @Target(ElementType.TYPE)
+      @Retention(RetentionPolicy.RUNTIME)
+      @BootstrapWith(SpringBootTestContextBootstrapper.class)
+      @OverrideAutoConfiguration(enabled = false)
+      @TypeExcludeFilters(CustomSliceTypeExcludeFilter.class)
+      @AutoConfigureCache
+      @AutoConfigureCustomService
+      @ImportAutoConfiguration
+      public @interface CustomServiceTest {
+      }
+    added: |
+      @Target(ElementType.TYPE)
+      @Retention(RetentionPolicy.RUNTIME)
+      @BootstrapWith(SpringBootTestContextBootstrapper.class)
+      @OverrideAutoConfiguration(enabled = false)
+      @TypeExcludeFilters(CustomSliceTypeExcludeFilter.class)
+      @AutoConfigureCache
+      @AutoConfigureCustomService
+      @ImportAutoConfiguration
+      public @interface CustomServiceTest {
+          // Annotation structure unchanged, but verify your
+          // TypeExcludeFilter extends the correct base class
+          // and spring.factories / AutoConfiguration.imports are updated
+      }
+  - comment: "// META-INF/spring.factories — test slice registration"
+    removed: |
+      org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc=\
+        com.example.test.CustomWebMvcAutoConfiguration
+    added: |
+      # Moved to META-INF/spring/AutoConfiguration.imports
+      # or updated key in spring.factories
+      org.springframework.boot.autoconfigure.AutoConfiguration.imports=\
+        com.example.test.CustomWebMvcAutoConfiguration
+
+fixes:
+  - label: "Update custom test-slice annotations."
+    text: >
+      If you wrote custom test-slice annotations (like <code>@CustomServiceTest</code>),
+      verify that the <code>TypeExcludeFilter</code>, bootstrapper, and
+      auto-configuration imports still resolve. Update fully qualified class
+      references to match the new package locations.
+  - label: "Migrate spring.factories to AutoConfiguration.imports."
+    text: >
+      Move test auto-configuration entries from
+      <code>META-INF/spring.factories</code> to
+      <code>META-INF/spring/AutoConfiguration.imports</code>. This was
+      deprecated in Boot 3.x and is now enforced.
+  - label: "Re-test standard slices."
+    text: >
+      Even if you only use standard annotations like <code>@WebMvcTest</code>,
+      run your full test suite to verify. The context filtering may behave
+      differently and load or exclude different beans.
+
+scope_check: >
+  Search for custom annotations that use <code>@TypeExcludeFilters</code>,
+  <code>@OverrideAutoConfiguration</code>, or
+  <code>@ImportAutoConfiguration</code>. Also search for
+  <code>spring.factories</code> entries under test source sets. If you only
+  use standard <code>@WebMvcTest</code>, <code>@DataJpaTest</code>, etc.
+  without customisation, you are likely safe — but still run the tests.
+
+watch_out:
+  - >
+    This can be a silent failure: your test may load a full application
+    context instead of a thin slice, making it pass but run much slower
+    and test less precisely.
+  - >
+    Libraries that provide custom test slices (Spring Cloud, Spring
+    Modulith) need to be updated too. Check their Spring Boot 4.0
+    compatibility versions.
+  - >
+    If your test suite uses <code>spring.factories</code> for test
+    auto-configuration and you haven't migrated to
+    <code>AutoConfiguration.imports</code>, those configurations are
+    silently ignored.
+
+footer_links:
+  - text: "Spring-Break Demo"
+    url: "https://github.com/spoole167/spring-break/tree/main/test-slice-relocated"
+  - text: "Testing changes in Spring Boot 4.0"
+    url: "https://rieckpil.de/whats-new-for-testing-in-spring-boot-4-0-and-spring-framework-7/"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

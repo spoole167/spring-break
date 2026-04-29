@@ -1,0 +1,105 @@
+id: hibernate-dialect-removal
+tier: 2
+tier_label: "Won't Run"
+title: "Version-Specific Hibernate Dialects Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: true
+verify: >
+  App starts with no DialectResolutionInfoMissingException
+
+further_info: >
+  Driven by Hibernate 7.0 (upstream of Spring Boot 4.0). Version-specific
+  dialect classes (MySQL57Dialect, PostgreSQL95Dialect, Oracle12cDialect,
+  etc.) were deprecated in Hibernate 6.0 and removed in 7.0 in favour of
+  runtime version auto-detection. Affects spring-boot-starter-data-jpa
+  consumers. See also: hibernate-date-types, cascade-save-update.
+
+oneliner: >
+  Hibernate 7 removed version-specific dialect classes like MySQL57Dialect
+  and PostgreSQL95Dialect. Applications that explicitly configure a dialect
+  fail at startup with ClassNotFoundException.
+
+error_output: |
+  org.springframework.beans.factory.BeanCreationException:
+    Error creating bean with name 'entityManagerFactory'
+  ...
+  Caused by: java.lang.ClassNotFoundException:
+    org.hibernate.dialect.MySQL57Dialect
+   at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+   at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+   ...
+  APPLICATION FAILED TO START
+  ---
+  Description:
+  Failed to configure a DataSource: Hibernate dialect
+  'org.hibernate.dialect.MySQL57Dialect' could not be found.
+
+what_changed: >
+  Hibernate 7 removed all version-specific dialect classes
+  (<code>MySQL57Dialect</code>, <code>MySQL8Dialect</code>,
+  <code>PostgreSQL95Dialect</code>, <code>PostgreSQL10Dialect</code>,
+  <code>Oracle12cDialect</code>, <code>SQLServer2016Dialect</code>, etc.).
+  Only the base dialect classes remain (<code>MySQLDialect</code>,
+  <code>PostgreSQLDialect</code>, <code>OracleDialect</code>,
+  <code>SQLServerDialect</code>). Hibernate now auto-detects the database
+  version from the JDBC connection and configures features accordingly.
+
+why_changed: >
+  Maintaining separate dialect classes for every database version created
+  a combinatorial explosion. Hibernate's new approach detects the database
+  version at runtime and enables the correct features automatically,
+  eliminating the need for users to choose the right dialect class.
+
+diffs:
+  - comment: "// application.properties"
+    removed: "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL57Dialect"
+    added: "# Remove explicit dialect — Hibernate auto-detects from JDBC connection"
+  - comment: "// application.properties — if you must be explicit"
+    removed: "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect"
+    added: "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
+  - comment: "// persistence.xml"
+    removed: '<property name="hibernate.dialect" value="org.hibernate.dialect.Oracle12cDialect"/>'
+    added: '<property name="hibernate.dialect" value="org.hibernate.dialect.OracleDialect"/>'
+
+fixes:
+  - label: "Remove explicit dialect (recommended)."
+    text: >
+      Delete the <code>spring.jpa.properties.hibernate.dialect</code> property
+      entirely. Hibernate 7 auto-detects the correct dialect from the JDBC
+      connection metadata. This is the cleanest fix and the one the Hibernate
+      team recommends.
+  - label: "Switch to base dialect class."
+    text: >
+      If you need an explicit dialect for testing or CI (e.g., H2 in-memory),
+      use the unversioned base class: <code>MySQLDialect</code>,
+      <code>PostgreSQLDialect</code>, <code>OracleDialect</code>, or
+      <code>SQLServerDialect</code>.
+
+scope_check: >
+  Search for <code>hibernate.dialect</code> in <code>application.properties</code>,
+  <code>application.yml</code>, <code>persistence.xml</code>, and any
+  programmatic <code>LocalContainerEntityManagerFactoryBean</code>
+  configuration. Also check test configurations and Docker Compose profiles
+  that may set dialect overrides.
+
+watch_out:
+  - >
+    If you use Testcontainers or H2 for tests, those test configs often
+    set an explicit dialect. Check <code>src/test/resources</code> too.
+  - >
+    Some database connection pools or frameworks set the dialect
+    programmatically. Search for <code>setProperty("hibernate.dialect"</code>
+    in Java code, not just property files.
+  - >
+    The auto-detection requires an active JDBC connection at startup. If
+    your application uses lazy datasource initialization, you may still
+    need an explicit base dialect class.
+
+footer_links:
+  - text: "spring-break module: hibernate-dialect-removal"
+    url: "https://github.com/spoole167/spring-break/tree/main/hibernate-dialect-removal"
+  - text: "Hibernate 7 migration guide"
+    url: "https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

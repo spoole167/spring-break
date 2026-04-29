@@ -1,0 +1,92 @@
+id: spring-retry-bom
+tier: 1
+tier_label: "Won't Build"
+title: "spring-retry Removed from BOM"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  mvn dependency:tree shows aligned Spring Retry version and retry works
+
+further_info: >
+  Spring Retry was removed from the Spring Boot 4.0 managed dependency BOM
+  because its release cadence diverged from Boot's. The library itself still
+  works; you just need an explicit version (2.0.x for Framework 7
+  compatibility). See also: retry-semantics, retryable-transaction-order.
+
+oneliner: >
+  Spring Boot 4.0 removed spring-retry from its managed dependency BOM.
+  Projects that relied on version management must now declare the version explicitly.
+
+error_output: |
+  $ mvn compile
+  [ERROR] 'dependencies.dependency.version' for org.springframework.retry:spring-retry:jar
+    is missing. @ line 42, column 17
+  [ERROR] Failed to execute goal on project my-service:
+    Could not resolve dependencies: Failed to collect dependencies at
+    org.springframework.retry:spring-retry:jar:RELEASE (no version)
+
+what_changed: >
+  <code>org.springframework.retry:spring-retry</code> is no longer
+  version-managed by the Spring Boot BOM. If you declared the dependency
+  without an explicit <code>&lt;version&gt;</code> tag, the build fails
+  because Maven/Gradle can't resolve it. The library itself still works
+  — it just isn't managed anymore.
+
+why_changed: >
+  Spring Retry's release cadence diverged from Spring Boot's. Managing
+  it in the BOM implied a level of compatibility testing that wasn't
+  happening. Removing it from the BOM lets teams pin the version they
+  actually test against.
+
+diffs:
+  - comment: "// pom.xml — add explicit version"
+    removed: |
+      <dependency>
+          <groupId>org.springframework.retry</groupId>
+          <artifactId>spring-retry</artifactId>
+      </dependency>
+    added: |
+      <dependency>
+          <groupId>org.springframework.retry</groupId>
+          <artifactId>spring-retry</artifactId>
+          <version>2.0.11</version>
+      </dependency>
+  - comment: "// build.gradle — add explicit version"
+    removed: "implementation 'org.springframework.retry:spring-retry'"
+    added: "implementation 'org.springframework.retry:spring-retry:2.0.11'"
+
+fixes:
+  - label: "Add an explicit version."
+    text: >
+      Add <code>&lt;version&gt;2.0.11&lt;/version&gt;</code> (or the latest
+      compatible release) to your spring-retry dependency declaration. Check
+      <a href="https://mvnrepository.com/artifact/org.springframework.retry/spring-retry">Maven Central</a>
+      for the latest version.
+  - label: "Import Spring Retry's own BOM."
+    text: >
+      If multiple modules use spring-retry, add its BOM to your
+      <code>&lt;dependencyManagement&gt;</code> section so versions
+      are managed in one place.
+
+scope_check: >
+  Search for <code>spring-retry</code> in POM and Gradle files. Any
+  declaration without an explicit version will fail. Also check for
+  <code>@Retryable</code> and <code>@EnableRetry</code> annotations —
+  these confirm the library is actually in use.
+
+watch_out:
+  - >
+    If you use <code>spring-cloud-starter-circuitbreaker-resilience4j</code>,
+    it may have pulled in spring-retry transitively. With the BOM removal,
+    the transitive version is no longer aligned. Pin it explicitly to
+    avoid classpath surprises.
+  - >
+    Spring Retry 2.x requires Spring Framework 6.0+. Since Boot 4.0 ships
+    Framework 7.0, use Retry 2.0.x — older 1.x versions are incompatible.
+
+footer_links:
+  - text: "spring-break module: spring-retry-removed"
+    url: "https://github.com/spoole167/spring-break/tree/main/spring-retry-removed"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

@@ -1,0 +1,109 @@
+id: observability-dashboard-gaps
+tier: 3
+tier_label: "Wrong Results"
+title: "Controller/View Spans Silently Disabled"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  All Grafana/Jaeger panels show data — no 'No data' gaps
+
+further_info: >
+  Introduced in Spring Boot 4.0 as part of the Micrometer Tracing defaults
+  overhaul. Controller and view rendering spans are disabled by default to
+  reduce trace volume and overhead. This is the dashboard-impact perspective
+  of the same change as controller-spans-disabled. See also:
+  controller-spans-disabled, aspectj-observed.
+
+oneliner: >
+  Spring Boot 4.0 disables automatic controller and view rendering spans
+  by default. Observability dashboards show gaps where traces used to
+  appear — but the app itself works fine.
+
+error_output: |
+  // Grafana / Jaeger trace — before (Spring Boot 3.5)
+  ── HTTP GET /api/orders ─────────────────────────────
+    └── controller: OrderController.getOrders  [12ms]
+        └── view: orders/list                  [3ms]
+            └── jdbc: SELECT * FROM orders     [8ms]
+
+  // Grafana / Jaeger trace — after (Spring Boot 4.0)
+  ── HTTP GET /api/orders ─────────────────────────────
+    └── jdbc: SELECT * FROM orders             [8ms]
+  // controller and view spans MISSING
+
+  // Dashboard alert
+  "No data" for panel "Controller Response Time p99"
+  // SLO breach: "99th percentile latency unknown"
+
+what_changed: >
+  Spring Boot 4.0 disabled the automatic instrumentation for Spring MVC
+  controller method spans and view rendering spans by default. The
+  properties <code>management.observations.http.server.requests.enabled</code>
+  and related <code>spring.mvc.observation</code> settings changed their
+  defaults. The traces still record HTTP and JDBC spans, but the
+  controller-level granularity is gone.
+
+why_changed: >
+  The automatic controller spans added overhead (an extra span per request)
+  and duplicated information already available from the HTTP server span.
+  For high-traffic services, the span volume was significant. The new
+  default reduces overhead and storage costs, with opt-in for teams that
+  need the detail.
+
+diffs:
+  - comment: "// application.properties — re-enable controller spans"
+    removed: "# (default in Boot 3.5: controller spans enabled)"
+    added: |
+      management.tracing.enabled=true
+      spring.mvc.observation.auto-configuration.enabled=true
+  - comment: "// Or enable via ObservationRegistry customiser"
+    removed: "# (auto-instrumentation was on by default)"
+    added: |
+      @Bean
+      public ObservationRegistryCustomizer<ObservationRegistry> serverSpans() {
+          return registry -> registry.observationConfig()
+              .observationHandler(new DefaultMeterObservationHandler(meterRegistry));
+      }
+  - comment: "// Micrometer tracing config"
+    removed: "# (no explicit config needed in Boot 3.5)"
+    added: |
+      management.observations.http.server.requests.enabled=true
+      management.observations.http.client.requests.enabled=true
+
+fixes:
+  - label: "Re-enable controller observation spans."
+    text: >
+      Add <code>spring.mvc.observation.auto-configuration.enabled=true</code>
+      and <code>management.observations.http.server.requests.enabled=true</code>
+      to your <code>application.properties</code>. This restores the
+      controller-level spans in your traces.
+  - label: "Update dashboards to use HTTP spans."
+    text: >
+      If the overhead matters, update your Grafana/Datadog dashboards to
+      use the HTTP server span (<code>http.server.requests</code>) instead
+      of the controller span. This span is still present and includes the
+      handler information as attributes.
+
+scope_check: >
+  Check your observability dashboards, SLO definitions, and alerting rules.
+  Any panel or alert that queries for controller-level span names
+  (e.g. <code>controller.*</code>) or view rendering spans will show
+  "No data" after the upgrade. Also check custom <code>SpanExporter</code>
+  or <code>ObservationHandler</code> beans that filter by span name.
+
+watch_out:
+  - >
+    This is invisible in application logs and functionality. The app works
+    perfectly. The only symptom is missing data in your observability
+    platform — which you might not notice until an incident requires
+    the traces that are no longer there.
+  - >
+    If you have SLO alerting based on controller span latency percentiles,
+    those alerts will fire as "no data" — which some alerting systems
+    treat as "OK" (no data = no violations). You could silently lose SLO
+    monitoring.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

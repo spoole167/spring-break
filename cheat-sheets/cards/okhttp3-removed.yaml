@@ -1,0 +1,105 @@
+id: okhttp3-removed
+tier: 1
+tier_label: "Won't Build"
+title: "OkHttp3 Support Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  mvn dependency:tree shows no okhttp3 and build compiles
+
+further_info: >
+  OkHttp3ClientHttpRequestFactory was removed from Spring Framework 7.0 and
+  the com.squareup.okhttp3 BOM entry was dropped from Spring Boot 4.0. The
+  JDK's java.net.http.HttpClient (since Java 11) and Apache HttpClient 5 are
+  the supported alternatives. Affects spring-boot-starter-web consumers
+  using OkHttp.
+
+oneliner: >
+  Spring Boot 4.0 dropped the OkHttp3 client factory and BOM entry.
+  Projects using OkHttp3RestClient or the managed dependency won't compile.
+
+error_output: |
+  $ mvn compile
+  [ERROR] /src/main/java/com/example/config/RestConfig.java:[5,48]
+    package org.springframework.http.client.OkHttp3ClientHttpRequestFactory does not exist
+  [ERROR] /src/main/java/com/example/config/RestConfig.java:[14,16]
+    cannot find symbol
+      symbol:   class OkHttp3ClientHttpRequestFactory
+      location: class com.example.config.RestConfig
+
+what_changed: >
+  The <code>OkHttp3ClientHttpRequestFactory</code> class was removed from
+  Spring Framework 7.0. Spring Boot 4.0 also removed <code>com.squareup.okhttp3</code>
+  from its managed dependency BOM. Any code creating a <code>RestClient</code>
+  or <code>RestTemplate</code> with the OkHttp3 factory won't compile.
+
+why_changed: >
+  The JDK's built-in <code>java.net.http.HttpClient</code> (since Java 11)
+  and the Apache HttpClient 5 cover the same use cases. Maintaining a
+  third HTTP client integration added complexity without clear benefit.
+
+diffs:
+  - comment: "// RestClient configuration"
+    removed: |
+      import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
+
+      @Bean
+      public RestClient restClient() {
+          return RestClient.builder()
+              .requestFactory(new OkHttp3ClientHttpRequestFactory())
+              .build();
+      }
+    added: |
+      import org.springframework.http.client.JdkClientHttpRequestFactory;
+
+      @Bean
+      public RestClient restClient() {
+          return RestClient.builder()
+              .requestFactory(new JdkClientHttpRequestFactory())
+              .build();
+      }
+  - comment: "// pom.xml — remove OkHttp dependency"
+    removed: |
+      <dependency>
+          <groupId>com.squareup.okhttp3</groupId>
+          <artifactId>okhttp</artifactId>
+      </dependency>
+    added: |
+      <!-- JdkClientHttpRequestFactory uses java.net.http — no extra dependency needed -->
+
+fixes:
+  - label: "Switch to JdkClientHttpRequestFactory (simplest)."
+    text: >
+      Replace <code>OkHttp3ClientHttpRequestFactory</code> with
+      <code>JdkClientHttpRequestFactory</code>. It uses the JDK's built-in
+      HTTP client and requires no additional dependencies.
+  - label: "Switch to Apache HttpClient 5."
+    text: >
+      If you need connection pooling or advanced proxy configuration, use
+      <code>HttpComponentsClientHttpRequestFactory</code> with Apache
+      HttpClient 5. Add <code>org.apache.httpcomponents.client5:httpclient5</code>
+      to your POM.
+
+scope_check: >
+  Search for <code>OkHttp3</code> and <code>com.squareup.okhttp3</code>
+  across your codebase and build files. Check both production code and
+  test configurations — OkHttp's <code>MockWebServer</code> is also
+  affected.
+
+watch_out:
+  - >
+    If you used OkHttp interceptors for logging, retries, or authentication,
+    those don't have a direct equivalent in the JDK client. You'll need to
+    reimplement that logic using Spring's <code>ClientHttpRequestInterceptor</code>
+    instead.
+  - >
+    OkHttp's <code>MockWebServer</code> is popular in tests. If you only
+    use OkHttp for testing, consider switching to
+    <code>MockRestServiceServer</code> or WireMock instead.
+
+footer_links:
+  - text: "Spring-Break Demo"
+    url: "https://github.com/spoole167/spring-break/tree/main/okhttp3-removed"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>JacksonException No Longer Extends IOException — Spring Boot 4.0 Migration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 10mm 16mm 20mm;
+    position: relative;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 2px solid #e67e22;
+  }
+
+  .tier-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    background: #e67e22;
+    padding: 2pt 7pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .series-label {
+    font-size: 7pt;
+    color: #999;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .meta-badges {
+    display: flex;
+    gap: 6pt;
+    align-items: center;
+    margin-bottom: 1.5mm;
+  }
+
+  .effort-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .effort-S { background: #d4edda; color: #155724; }
+  .effort-M { background: #fff3cd; color: #856404; }
+  .effort-L { background: #f8d7da; color: #721c24; }
+
+  .openrewrite-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 600;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    background: #e8f0fe;
+    color: #1a56db;
+    letter-spacing: 0.3px;
+  }
+
+  .verify-box {
+    background: #f0faf0;
+    border: 1px solid #c3e6c3;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    font-size: 8pt;
+    line-height: 1.4;
+  }
+
+  .verify-box strong { font-size: 8pt; color: #155724; }
+  .verify-box code { font-size: 7.5pt; background: #d4edda; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14pt;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1.5mm;
+  }
+
+  .oneliner {
+    font-size: 9pt;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 2mm;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #e67e22;
+    margin-bottom: 1mm;
+    margin-top: 2.5mm;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+
+  p {
+    font-size: 8.5pt;
+    line-height: 1.45;
+    margin-bottom: 1.5mm;
+  }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    line-height: 1.5;
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    overflow: hidden;
+  }
+
+  pre .removed { color: #c0392b; text-decoration: line-through; opacity: 0.7; }
+  pre .added { color: #27713b; font-weight: 500; }
+  pre .comment { color: #999; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    background: #f0f0f0;
+    padding: 0.5pt 3pt;
+    border-radius: 2px;
+  }
+
+  .fix-options { margin: 1mm 0 1.5mm; }
+
+  .fix-option {
+    display: flex;
+    gap: 2.5mm;
+    margin-bottom: 1mm;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .fix-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #e67e22;
+    min-width: 4mm;
+    flex-shrink: 0;
+  }
+
+  .fix-label { font-weight: 600; }
+  .fix-option a { color: #2563eb; text-decoration: none; }
+
+  .scope-box {
+    background: #fef9f2;
+    border: 1px solid #f5e0c0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0;
+    font-size: 8pt;
+    line-height: 1.45;
+  }
+
+  .scope-box strong { font-size: 8pt; }
+
+  /* Further Info — compact single block */
+  .further-info {
+    margin-top: 2.5mm;
+    padding: 1.5mm 2.5mm;
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 3px;
+    font-size: 7.5pt;
+    line-height: 1.45;
+    color: #555;
+  }
+
+  .further-info-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #e67e22;
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links {
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 7.5pt;
+  }
+
+  .further-info-links span.sep {
+    color: #ccc;
+    margin: 0 1mm;
+  }
+
+  .further-info-facts {
+    font-size: 7pt;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  .footer {
+    position: fixed;
+    bottom: 6mm;
+    left: 16mm;
+    right: 16mm;
+    font-size: 6.5pt;
+    color: #999;
+  }
+
+  .footer-mitigation {
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 2px;
+    padding: 2pt 6pt;
+    margin-bottom: 3pt;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .footer-mitigation strong { color: #1a1a1a; }
+  .footer-mitigation a { color: #2563eb; text-decoration: none; }
+
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2pt;
+    border-top: 1px solid #ddd;
+  }
+
+  .footer-links a { color: #2563eb; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <span class="tier-badge">Tier 2 · Won't Run</span>
+    <span class="series-label">spring-boot 3.5 → 4.0</span>
+  </div>
+
+  <h1>JacksonException No Longer Extends IOException</h1>
+  <div class="oneliner">Jackson 3.0 changed the exception hierarchy so JacksonException extends RuntimeException instead of IOException. Existing catch blocks silently miss Jackson errors, and throws clauses become lies.</div>
+
+  <div class="meta-badges">
+    <span class="effort-badge effort-M">Effort: M</span>
+    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+  </div>
+
+  <h2>What You'll See</h2>
+<pre><span class="comment">com.example.OrderController: Unhandled exception in /api/orders
+tools.jackson.core.exc.StreamReadException: Unexpected character (&#x27;x&#x27; (code 120)):
+  expected a valid value (JSON String, Number, Array, Object or token)
+ at [Source: (String)&quot;x]&quot;; line: 1, column: 2]
+ at tools.jackson.core.json.JsonParser._reportUnexpectedChar(JsonParser.java:...)
+ ...
+Caused by: tools.jackson.core.JacksonException (not an IOException!)
+---
+HTTP 500 Internal Server Error
+{&quot;timestamp&quot;:&quot;2026-04-15T10:22:03&quot;,&quot;status&quot;:500,
+ &quot;error&quot;:&quot;Internal Server Error&quot;,&quot;path&quot;:&quot;/api/orders&quot;}</span></pre>
+
+  <h2>What Changed</h2>
+  <p>In Jackson 2.x, <code>JacksonException</code> extended <code>java.io.IOException</code>, so any <code>catch (IOException e)</code> block would also catch malformed-JSON errors. In Jackson 3.0, <code>JacksonException</code> extends <code>RuntimeException</code>. Catch blocks for <code>IOException</code> no longer intercept Jackson parsing failures, and methods that declared <code>throws IOException</code> for Jackson work now throw unchecked exceptions instead.</p>
+
+<pre><span class="comment">// Controller error handling — before</span>
+<span class="removed">try {
+    Order order = objectMapper.readValue(body, Order.class);
+} catch (IOException e) {
+    return ResponseEntity.badRequest().body(&quot;Invalid JSON&quot;);
+}
+</span>
+<span class="added">try {
+    Order order = objectMapper.readValue(body, Order.class);
+} catch (JacksonException e) {
+    return ResponseEntity.badRequest().body(&quot;Invalid JSON&quot;);
+}
+</span>
+
+<span class="comment">// Spring @ExceptionHandler — before</span>
+<span class="removed">@ExceptionHandler(IOException.class)
+public ResponseEntity&lt;String&gt; handleJsonError(IOException ex) {
+</span>
+<span class="added">@ExceptionHandler(JacksonException.class)
+public ResponseEntity&lt;String&gt; handleJsonError(JacksonException ex) {
+</span>
+
+<span class="comment">// Method signature cleanup</span>
+<span class="removed">public Order parseOrder(String json) throws IOException {</span>
+<span class="added">public Order parseOrder(String json) {</span></pre>
+
+
+  <h2>Why This Changed</h2>
+  <p>Jackson parsing errors are not truly I/O errors. The original hierarchy was a design mistake that forced callers to handle checked exceptions even for in-memory parsing. Making <code>JacksonException</code> unchecked aligns with modern Java conventions and removes boilerplate try/catch from code that parses strings or byte arrays.</p>
+
+  <h2>How to Fix</h2>
+  <div class="fix-options">
+    <div class="fix-option">
+      <span class="fix-num">A</span>
+      <div><span class="fix-label">Search for catch blocks.</span> Grep for <code>catch (IOException</code> and <code>catch (JsonProcessingException</code>. Replace with <code>catch (JacksonException</code> where the intent is to handle Jackson parse failures. Keep <code>IOException</code> catches for genuine I/O work (file reads, sockets).</div>
+    </div>
+    <div class="fix-option">
+      <span class="fix-num">B</span>
+      <div><span class="fix-label">Update @ExceptionHandler advice.</span> If your <code>@RestControllerAdvice</code> catches <code>IOException</code> to return 400 on bad JSON, add a separate handler for <code>JacksonException</code>. Otherwise those errors now surface as unhandled 500s.</div>
+    </div>
+    <div class="fix-option">
+      <span class="fix-num">C</span>
+      <div><span class="fix-label">Clean up throws clauses.</span> Methods that declared <code>throws IOException</code> only for Jackson can drop the clause entirely. The compiler won't complain, but the stale declaration misleads readers.</div>
+    </div>
+  </div>
+
+  <div class="verify-box">
+    <strong>✓ Verify:</strong> mvn compile — no JsonMappingException symbol errors
+  </div>
+
+
+  <div class="scope-box">
+    <strong>Scope check:</strong> Search for <code>catch (IOException</code>, <code>catch (JsonProcessingException</code>, and <code>throws IOException</code> near any <code>ObjectMapper</code> usage. Every hit where the catch was meant to intercept Jackson errors is now a silent miss at runtime. REST controllers, message listeners, and integration test assertions are the most common locations.
+  </div>
+
+
+  <h2>Watch Out</h2>
+  <p>This is a silent behaviour change. The code compiles cleanly because <code>JacksonException</code> is now unchecked. You only discover the problem when bad input arrives and the catch block no longer fires, producing 500 errors instead of 400s.</p>
+  <p>If you catch <code>Exception</code> broadly, you are technically still catching Jackson errors, but you lose the ability to return a domain-appropriate error message. Narrow your catch clauses.</p>
+  <p>Spring's built-in <code>HttpMessageNotReadableException</code> still wraps Jackson errors for <code>@RequestBody</code> parsing. The risk is in manual <code>ObjectMapper</code> calls inside your own code.</p>
+
+
+
+  <div class="further-info">
+    <div class="further-info-header">Further Info</div>
+    <div class="further-info-links">
+      <a href="https://github.com/spoole167/spring-break/tree/main/jackson-exception-hierarchy">spring-break module: jackson-exception-hierarchy</a><span class="sep">·</span>
+      <a href="https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md">Jackson 3 migration guide</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
+
+    </div>
+
+    <div class="further-info-facts">Driven by Jackson 3.0 (upstream of Spring Boot 4.0). JacksonException was moved from extending IOException to RuntimeException. The change was announced in 2022 and finalised in Jackson 3.0-rc1. Affects all code with catch(IOException) blocks near ObjectMapper calls. See also: jackson-group-id, jackson-class-renames.</div>
+
+  </div>
+
+
+</div>
+
+<div class="footer">
+
+  <div class="footer-mitigation">
+    <strong>Not ready?</strong>
+    Pin 3.5 and track CVEs · migrate incrementally with <a href="https://docs.openrewrite.org/recipes/java/spring/boot4">OpenRewrite</a> · <a href="https://www.herodevs.com/support/spring-nes">HeroDevs NES</a> for security patches
+  </div>
+
+  <div class="footer-links">
+    <div><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></div>
+    <div><a href="https://www.herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Migration Effort Summary — Spring Boot 4.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    width: 210mm;
+    margin: 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── Page 1: Sizing Methodology ── */
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 12mm 16mm 12mm;
+    position: relative;
+    page-break-after: always;
+  }
+
+  .page:last-child { page-break-after: avoid; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16pt;
+    font-weight: 700;
+    margin-bottom: 2mm;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #c0392b;
+    margin-top: 3.5mm;
+    margin-bottom: 1.2mm;
+  }
+
+  .subtitle {
+    font-size: 9pt;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 3mm;
+  }
+
+  p {
+    font-size: 8pt;
+    line-height: 1.5;
+    margin-bottom: 2mm;
+  }
+
+  .sizing-grid {
+    display: flex;
+    gap: 3mm;
+    margin: 2.5mm 0 3mm;
+  }
+
+  .sizing-card {
+    flex: 1;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 2.5mm;
+    text-align: center;
+  }
+
+  .sizing-card .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    display: inline-block;
+    padding: 1pt 6pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    margin-bottom: 3pt;
+  }
+
+  .sizing-card.s .badge { background: #d4edda; color: #155724; }
+  .sizing-card.m .badge { background: #fff3cd; color: #856404; }
+  .sizing-card.l .badge { background: #f8d7da; color: #721c24; }
+
+  .sizing-card .hours {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13pt;
+    font-weight: 700;
+    display: block;
+    margin: 2pt 0;
+  }
+
+  .sizing-card .desc {
+    font-size: 6.5pt;
+    color: #666;
+    line-height: 1.3;
+  }
+
+  .sizing-card .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    color: #999;
+    margin-top: 2pt;
+  }
+
+  /* Effort source table */
+  .source-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7.5pt;
+    margin: 2mm 0;
+  }
+
+  .source-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: left;
+    padding: 3pt 5pt;
+    border-bottom: 2px solid #333;
+    color: #555;
+  }
+
+  .source-table td {
+    padding: 3pt 5pt;
+    border-bottom: 1px solid #eee;
+    line-height: 1.4;
+  }
+
+  .source-table tr:last-child td { border-bottom: none; }
+
+  /* OpenRewrite coverage bar */
+  .coverage-bar {
+    background: #f0f0f0;
+    border-radius: 3px;
+    height: 5mm;
+    position: relative;
+    margin: 1.2mm 0 2mm;
+    overflow: hidden;
+  }
+
+  .coverage-fill {
+    background: #1a56db;
+    height: 100%;
+    border-radius: 3px 0 0 3px;
+    display: flex;
+    align-items: center;
+    padding-left: 5pt;
+  }
+
+  .coverage-fill span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .coverage-remainder {
+    position: absolute;
+    right: 5pt;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    color: #666;
+  }
+
+  .tier-coverage {
+    display: flex;
+    gap: 3mm;
+    margin: 1.2mm 0;
+  }
+
+  .tier-cov-item {
+    flex: 1;
+    font-size: 7pt;
+    line-height: 1.4;
+    padding: 3pt 5pt;
+    border-radius: 2px;
+  }
+
+  .tier-cov-item strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+  }
+
+  .tier-cov-1 { background: #fdf2f2; border-left: 3px solid #c0392b; }
+  .tier-cov-2 { background: #fef9f2; border-left: 3px solid #e67e22; }
+  .tier-cov-3 { background: #faf2fd; border-left: 3px solid #8e44ad; }
+
+  /* ── Page 2: Callout Table ── */
+  .callout-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7pt;
+    margin: 2mm 0;
+  }
+
+  .callout-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: left;
+    padding: 3pt 4pt;
+    border-bottom: 2px solid #333;
+    color: #555;
+  }
+
+  .callout-table td {
+    padding: 3pt 4pt;
+    border-bottom: 1px solid #eee;
+    line-height: 1.35;
+    vertical-align: top;
+  }
+
+  .callout-table tr:last-child td { border-bottom: none; }
+
+  .callout-table .card-name {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .callout-table .risk-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6pt;
+    font-weight: 700;
+    padding: 0.5pt 3pt;
+    border-radius: 1.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .risk-high { background: #f8d7da; color: #721c24; }
+  .risk-mod { background: #fff3cd; color: #856404; }
+
+  .badge-inline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6pt;
+    font-weight: 700;
+    padding: 0.5pt 3pt;
+    border-radius: 1.5px;
+    display: inline-block;
+  }
+
+  .badge-s { background: #d4edda; color: #155724; }
+  .badge-m { background: #fff3cd; color: #856404; }
+
+  .note-box {
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin-top: 2.5mm;
+    font-size: 7pt;
+    line-height: 1.45;
+    color: #555;
+  }
+
+  .note-box strong { color: #1a1a1a; }
+
+  .footer-line {
+    position: absolute;
+    bottom: 8mm;
+    left: 16mm;
+    right: 16mm;
+    font-size: 6.5pt;
+    color: #999;
+    border-top: 1px solid #ddd;
+    padding-top: 3pt;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .footer-line a { color: #2563eb; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ PAGE 1: Sizing Methodology ════════════════ -->
+<div class="page">
+
+  <h1>Migration Effort Estimates</h1>
+  <div class="subtitle">How we sized the 45 breaking changes — and what the numbers mean.</div>
+
+  <h2>T-Shirt Sizes</h2>
+  <p>Each card carries an effort badge — <strong>S</strong>, <strong>M</strong>, or <strong>L</strong> — representing the typical engineering effort <em>per card</em>, for a medium-sized codebase (~50k LOC).</p>
+
+  <div class="sizing-grid">
+    <div class="sizing-card s">
+      <span class="badge">Small</span>
+      <span class="hours">2–6 h</span>
+      <div class="desc">Config change, dependency swap, or one-line fix. Low risk of follow-on work.</div>
+      <div class="count">17 cards</div>
+    </div>
+    <div class="sizing-card m">
+      <span class="badge">Medium</span>
+      <span class="hours">6–16 h</span>
+      <div class="desc">API migration, code rewrite, or multi-file refactor. May need testing and validation.</div>
+      <div class="count">24 cards</div>
+    </div>
+    <div class="sizing-card l">
+      <span class="badge">Large</span>
+      <span class="hours">16–40 h</span>
+      <div class="desc">Major subsystem migration. Touches many files, requires security review or arch decisions.</div>
+      <div class="count">4 cards</div>
+    </div>
+  </div>
+
+  <h2>How We Calculated</h2>
+  <p>Estimates are based on the HeroDevs Spring Boot migration research, validated against the <strong>Spring I/O 2026 quiz</strong> (88 developers, mean score 66%), production migration audits, and per-subsystem breakdowns:</p>
+
+  <table class="source-table">
+    <tr><th>Subsystem</th><th>Typical hours</th><th>Key driver</th></tr>
+    <tr><td>Jackson 3.0</td><td>16–40 h</td><td>Group ID + class renames across every file that imports Jackson</td></tr>
+    <tr><td>Spring Security 7</td><td>8–16 h</td><td>DSL rewrite, OAuth removal, default-deny policy</td></tr>
+    <tr><td>Hibernate 7</td><td>4–8 h</td><td>Dialect removal, Session API changes, date type shifts</td></tr>
+    <tr><td>Testing (JUnit 6+)</td><td>16–32 h</td><td>@MockBean removal, test slice relocation, Testcontainers package</td></tr>
+    <tr><td>Build tooling</td><td>8–32 h</td><td>Java 17 minimum, Gradle 8.x, Maven AOT plugin</td></tr>
+    <tr><td>Observability</td><td>4–8 h</td><td>Controller spans disabled, OTLP endpoint flip</td></tr>
+  </table>
+
+  <p>Total for a medium app: <strong>120–230+ hours</strong> (weeks, not days). Minor version bumps (3.2→3.3, 3.3→3.4) averaged 6–8 hours each. The 4.0 jump is 15–30× that.</p>
+
+  <h2>OpenRewrite Coverage</h2>
+  <p>17 of 45 cards (38%) have an OpenRewrite recipe that can automate all or most of the fix.</p>
+
+  <div class="coverage-bar">
+    <div class="coverage-fill" style="width: 38%;">
+      <span>17 automated</span>
+    </div>
+    <span class="coverage-remainder">28 manual</span>
+  </div>
+
+  <div class="tier-coverage">
+    <div class="tier-cov-item tier-cov-1"><strong>Tier 1:</strong> 9 of 19 (47%) — best coverage, mostly dependency/import swaps</div>
+    <div class="tier-cov-item tier-cov-2"><strong>Tier 2:</strong> 7 of 13 (54%) — good coverage for config and security rewrites</div>
+    <div class="tier-cov-item tier-cov-3"><strong>Tier 3:</strong> 1 of 13 (8%) — behavioural changes are hardest to automate</div>
+  </div>
+
+  <p><strong>Key insight:</strong> OpenRewrite handles the loud failures well (Tiers 1–2), but Tier 3 "wrong results" bugs — the ones customers find — are almost entirely manual detective work.</p>
+
+  <div class="footer-line">
+    <span>Effort estimates: HeroDevs migration research · <a href="https://herodevs.com/calculator">herodevs.com/calculator</a></span>
+    <span>spring-boot 3.5 → 4.0</span>
+  </div>
+</div>
+
+<!-- ════════════════ PAGE 2: Harder Than It Looks ════════════════ -->
+<div class="page">
+
+  <h1>Harder Than It Looks</h1>
+  <div class="subtitle">These changes are sized Small or Medium — but carry hidden complexity that can blow up the estimate.</div>
+
+  <h2>High Risk — Effort Likely Understated</h2>
+
+  <table class="callout-table">
+    <tr>
+      <th>Card</th>
+      <th>Size</th>
+      <th>Risk</th>
+      <th>Why it's worse than it looks</th>
+    </tr>
+    <tr>
+      <td class="card-name">AspectJ @Observed</td>
+      <td><span class="badge-inline badge-s">S</span></td>
+      <td><span class="risk-tag risk-high">HIGH</span></td>
+      <td><strong>Completely silent.</strong> Observability via @Observed stops working. No errors, no warnings. You find out when dashboards go blank in production.</td>
+    </tr>
+    <tr>
+      <td class="card-name">OTLP HTTP Primary</td>
+      <td><span class="badge-inline badge-s">S</span></td>
+      <td><span class="risk-tag risk-high">HIGH</span></td>
+      <td><strong>Silent production failure.</strong> Traces/metrics vanish. Requires network policy changes (port 4317→4318) and possibly different vendor endpoints.</td>
+    </tr>
+    <tr>
+      <td class="card-name">Batch Schema Rename</td>
+      <td><span class="badge-inline badge-s">S</span></td>
+      <td><span class="risk-tag risk-high">HIGH</span></td>
+      <td><strong>Not just a rename.</strong> Column types and table structures changed. Rolling deploys break. Tests pass on H2 while production fails on real databases.</td>
+    </tr>
+    <tr>
+      <td class="card-name">spring-jcl Removed</td>
+      <td><span class="badge-inline badge-s">S</span></td>
+      <td><span class="risk-tag risk-high">HIGH</span></td>
+      <td><strong>Enterprise POM cascade.</strong> The commons-logging exclusion pattern used for a decade is now harmful. Corporate parent POMs break downstream.</td>
+    </tr>
+    <tr>
+      <td class="card-name">Hibernate Processor</td>
+      <td><span class="badge-inline badge-s">S</span></td>
+      <td><span class="risk-tag risk-high">HIGH</span></td>
+      <td><strong>Unbounded compile failures.</strong> New processor validates HQL at build time. A one-line GAV change surfaces every broken query in the codebase.</td>
+    </tr>
+    <tr>
+      <td class="card-name">Jackson Locale Format</td>
+      <td><span class="badge-inline badge-s">S</span></td>
+      <td><span class="risk-tag risk-high">HIGH</span></td>
+      <td><strong>Silent data corruption.</strong> Locale strings flip from <code>zh_CN</code> to <code>zh-CN</code>. DB equality checks silently fail in i18n-heavy apps.</td>
+    </tr>
+    <tr>
+      <td class="card-name">Gradle Version</td>
+      <td><span class="badge-inline badge-s">S</span></td>
+      <td><span class="risk-tag risk-mod">MOD</span></td>
+      <td><strong>Multi-step upgrade.</strong> Can't jump straight to 8.14. Staged through major boundaries; Gradle 9 enables config cache by default.</td>
+    </tr>
+    <tr>
+      <td class="card-name">Path Matching Engine</td>
+      <td><span class="badge-inline badge-m">M</span></td>
+      <td><span class="risk-tag risk-high">HIGH</span></td>
+      <td><strong>Security hole.</strong> URL patterns that silently stop matching can expose previously-protected endpoints. Not just a broken feature — a vulnerability.</td>
+    </tr>
+    <tr>
+      <td class="card-name">Auth Default Deny</td>
+      <td><span class="badge-inline badge-m">M</span></td>
+      <td><span class="risk-tag risk-high">HIGH</span></td>
+      <td><strong>Infra breakage.</strong> Actuator endpoints silently blocked. Health checks, readiness probes, and load balancer monitoring fail in production.</td>
+    </tr>
+    <tr>
+      <td class="card-name">Retryable Txn Order</td>
+      <td><span class="badge-inline badge-m">M</span></td>
+      <td><span class="risk-tag risk-high">HIGH</span></td>
+      <td><strong>Near-impossible to test.</strong> AOP ordering change causes rolled-back data before retry. Subtle data consistency issues that unit tests won't catch.</td>
+    </tr>
+    <tr>
+      <td class="card-name">Jackson Dates/Timestamps</td>
+      <td><span class="badge-inline badge-m">M</span></td>
+      <td><span class="risk-tag risk-mod">MOD</span></td>
+      <td><strong>Compounding changes.</strong> Interacts with the separate date-format change. Two Jackson date shifts at once makes debugging doubly confusing.</td>
+    </tr>
+    <tr>
+      <td class="card-name">Test Slice Relocated</td>
+      <td><span class="badge-inline badge-s">S</span></td>
+      <td><span class="risk-tag risk-mod">MOD</span></td>
+      <td><strong>Silent test degradation.</strong> Tests may load full application context instead of a thin slice. Tests pass but are slower and less precise.</td>
+    </tr>
+  </table>
+
+  <div class="note-box">
+    <strong>Pattern:</strong> The most dangerous changes are Tier 3 "Wrong Results" and Tier 2 silent failures.
+    They don't break your build — they break your production data, your observability,
+    or your security posture. Budget extra time for these even when the per-card effort is small.
+  </div>
+
+  <div class="footer-line">
+    <span>Effort estimates: HeroDevs migration research · <a href="https://herodevs.com/calculator">herodevs.com/calculator</a></span>
+    <span>spring-boot 3.5 → 4.0</span>
+  </div>
+</div>
+
+</body>
+</html>

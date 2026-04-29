@@ -1,0 +1,95 @@
+id: session-delete-removed
+tier: 1
+tier_label: "Won't Build"
+title: "Session.delete() Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: true
+verify: >
+  mvn compile — no Session.delete() symbol errors
+
+further_info: >
+  Driven by Hibernate 7.0 (upstream of Spring Boot 4.0). Session.delete(),
+  Session.save(), Session.update(), and Session.saveOrUpdate() were
+  deprecated in Hibernate 6.0 and removed in 7.0 as part of the alignment
+  with the JPA EntityManager API. See also: cascade-save-update,
+  hibernate-dialect-removal.
+
+oneliner: >
+  Hibernate 7.0 removed Session.delete() — use Session.remove() instead.
+  Any direct Hibernate Session usage for deleting entities won't compile.
+
+error_output: |
+  $ mvn compile
+  [ERROR] /src/main/java/com/example/repo/CustomRepoImpl.java:[28,16]
+    error: cannot find symbol
+      symbol:   method delete(com.example.model.Order)
+      location: variable session of type org.hibernate.Session
+
+what_changed: >
+  Hibernate 7.0 removed the legacy <code>Session.delete()</code> method.
+  The JPA-standard <code>EntityManager.remove()</code> (which maps to
+  <code>Session.remove()</code>) is the only way to delete entities.
+  Similarly, <code>Session.save()</code>, <code>Session.update()</code>,
+  and <code>Session.saveOrUpdate()</code> were also removed — use
+  <code>persist()</code> and <code>merge()</code> instead.
+
+why_changed: >
+  These methods were Hibernate-proprietary duplicates of the JPA standard
+  API. Having two ways to do the same thing caused confusion about
+  cascade behaviour and flush timing. The JPA methods have clearer
+  semantics.
+
+diffs:
+  - comment: "// Deleting an entity"
+    removed: "session.delete(order);"
+    added: "session.remove(order);"
+  - comment: "// Saving an entity"
+    removed: "session.save(newOrder);"
+    added: "session.persist(newOrder);"
+  - comment: "// Updating an entity"
+    removed: "session.update(existingOrder);"
+    added: "session.merge(existingOrder);"
+  - comment: "// Save-or-update pattern"
+    removed: "session.saveOrUpdate(order);"
+    added: "session.merge(order);"
+
+fixes:
+  - label: "Replace with JPA standard methods."
+    text: >
+      <code>delete()</code> becomes <code>remove()</code>,
+      <code>save()</code> becomes <code>persist()</code>,
+      <code>update()</code> becomes <code>merge()</code>,
+      <code>saveOrUpdate()</code> becomes <code>merge()</code>.
+  - label: "Prefer EntityManager over Session."
+    text: >
+      If you're unwrapping the <code>Session</code> just to call these
+      methods, consider using <code>EntityManager</code> directly. It
+      has the same <code>persist()</code>, <code>merge()</code>, and
+      <code>remove()</code> methods.
+
+scope_check: >
+  Search for <code>session.delete(</code>, <code>session.save(</code>,
+  <code>session.update(</code>, and <code>session.saveOrUpdate(</code>.
+  Also search for <code>Session.delete</code> in any utility or base
+  repository classes.
+
+watch_out:
+  - >
+    <code>merge()</code> returns the managed instance;
+    <code>saveOrUpdate()</code> did not. If your code ignores the return
+    value of <code>saveOrUpdate()</code>, the switch to <code>merge()</code>
+    works fine. But if you used the original reference after the call,
+    you need to use the returned instance from <code>merge()</code>
+    instead.
+  - >
+    <code>remove()</code> requires the entity to be in a managed state.
+    If you were calling <code>delete()</code> on a detached entity, you
+    need to <code>merge()</code> it first or re-fetch it. Otherwise
+    you'll get an <code>IllegalArgumentException</code> at runtime.
+
+footer_links:
+  - text: "spring-break module: hibernate-session-delete"
+    url: "https://github.com/spoole167/spring-break/tree/main/hibernate-session-delete"
+  - text: "Hibernate 7 migration guide"
+    url: "https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html"

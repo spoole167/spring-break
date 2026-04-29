@@ -1,0 +1,71 @@
+id: kafka-streams-customizer-removed
+tier: 1
+tier_label: "Won't Build"
+title: "Kafka StreamsBuilderFactoryBeanCustomizer Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  mvn compile — no cannot find symbol for StreamsBuilderFactoryBeanCustomizer
+
+further_info: >
+  Spring Boot's StreamsBuilderFactoryBeanCustomizer was always a thin wrapper
+  around Spring Kafka's own configurer interface. Spring Boot 4.0 removed the
+  duplicate and directs users to the upstream interface directly, reducing
+  the surface area of Boot's Kafka autoconfiguration.
+
+oneliner: >
+  Spring Boot's StreamsBuilderFactoryBeanCustomizer is gone. Replace it with
+  Spring Kafka's StreamsBuilderFactoryBeanConfigurer.
+
+error_output: |
+  $ mvn compile
+  [ERROR] /src/main/java/com/example/KafkaCustomizerUsage.java:[3,60]
+    error: package org.springframework.boot.autoconfigure.kafka does not contain
+    StreamsBuilderFactoryBeanCustomizer
+
+what_changed: >
+  <code>org.springframework.boot.autoconfigure.kafka.StreamsBuilderFactoryBeanCustomizer</code>
+  has been removed. The replacement is
+  <code>org.springframework.kafka.config.StreamsBuilderFactoryBeanConfigurer</code>
+  from Spring Kafka itself.
+
+why_changed: >
+  Spring Boot's interface was a duplicate of an equivalent already provided
+  by Spring Kafka. Removing the Boot-specific version eliminates redundancy
+  and removes an unnecessary indirection.
+
+diffs:
+  - comment: "// Import"
+    removed: "import org.springframework.boot.autoconfigure.kafka.StreamsBuilderFactoryBeanCustomizer;"
+    added: "import org.springframework.kafka.config.StreamsBuilderFactoryBeanConfigurer;"
+  - comment: "// Bean method signature"
+    removed: "@Bean\npublic StreamsBuilderFactoryBeanCustomizer customizer() { ... }"
+    added: "@Bean\npublic StreamsBuilderFactoryBeanConfigurer configurer() { ... }"
+  - comment: "// implements clause"
+    removed: "public class MyCustomizer implements StreamsBuilderFactoryBeanCustomizer {"
+    added: "public class MyCustomizer implements StreamsBuilderFactoryBeanConfigurer {"
+
+fixes:
+  - label: "Switch to StreamsBuilderFactoryBeanConfigurer."
+    text: >
+      Replace the import and the implements / return type declaration.
+      The interface method signature is compatible — the method you override
+      is <code>configure(StreamsBuilderFactoryBean)</code> in both cases.
+
+scope_check: >
+  Search for <code>StreamsBuilderFactoryBeanCustomizer</code> in all Java/Kotlin
+  sources. Only Kafka Streams applications are affected.
+
+watch_out:
+  - >
+    The method name on <code>StreamsBuilderFactoryBeanConfigurer</code> is
+    <code>configure</code>, same as the old <code>customize</code>. Verify the
+    exact method name in the Spring Kafka version you're using — it differs
+    between minor versions.
+
+footer_links:
+  - text: "spring-break module: kafka-streams-customizer-removed"
+    url: "https://github.com/spoole167/spring-break/tree/main/kafka-streams-customizer-removed"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

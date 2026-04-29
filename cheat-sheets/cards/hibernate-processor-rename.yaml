@@ -1,0 +1,106 @@
+id: hibernate-processor-rename
+tier: 1
+tier_label: "Won't Build"
+title: "hibernate-jpamodelgen Renamed"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: true
+verify: >
+  mvn compile uses hibernate-processor and metamodel generates
+
+further_info: >
+  Driven by Hibernate 7.0. The hibernate-jpamodelgen artifact was renamed to
+  hibernate-processor to reflect its expanded scope: it now validates
+  HQL/JPQL queries at compile time in addition to generating the JPA static
+  metamodel. Version is managed by the Spring Boot BOM. See also:
+  cascade-save-update, session-delete-removed.
+
+oneliner: >
+  Hibernate renamed its annotation processor artifact from
+  hibernate-jpamodelgen to hibernate-processor. Metamodel generation breaks.
+
+error_output: |
+  $ mvn compile
+  [WARNING] The POM for org.hibernate.orm:hibernate-jpamodelgen:jar:7.0.0 is missing, no dependency
+    information available
+  [ERROR] Failed to execute goal on project my-service: Could not resolve dependencies:
+    Could not find artifact org.hibernate.orm:hibernate-jpamodelgen:jar:7.0.0
+    in central (https://repo.maven.apache.org/maven2)
+
+what_changed: >
+  Hibernate 7.0 (shipped with Spring Boot 4.0) renamed the annotation
+  processor artifact from <code>org.hibernate.orm:hibernate-jpamodelgen</code>
+  to <code>org.hibernate.orm:hibernate-processor</code>. The processor
+  now handles both JPA static metamodel generation and Hibernate's new
+  query validation.
+
+why_changed: >
+  The processor does more than JPA metamodel generation now. It also
+  validates HQL/JPQL queries at compile time and generates type-safe
+  query methods. The new name reflects its broader scope.
+
+diffs:
+  - comment: "// pom.xml — annotation processor dependency"
+    removed: |
+      <dependency>
+          <groupId>org.hibernate.orm</groupId>
+          <artifactId>hibernate-jpamodelgen</artifactId>
+          <scope>provided</scope>
+      </dependency>
+    added: |
+      <dependency>
+          <groupId>org.hibernate.orm</groupId>
+          <artifactId>hibernate-processor</artifactId>
+          <scope>provided</scope>
+      </dependency>
+  - comment: "// build.gradle — annotation processor"
+    removed: "annotationProcessor 'org.hibernate.orm:hibernate-jpamodelgen'"
+    added: "annotationProcessor 'org.hibernate.orm:hibernate-processor'"
+  - comment: "// maven-compiler-plugin annotationProcessorPaths"
+    removed: |
+      <path>
+          <groupId>org.hibernate.orm</groupId>
+          <artifactId>hibernate-jpamodelgen</artifactId>
+      </path>
+    added: |
+      <path>
+          <groupId>org.hibernate.orm</groupId>
+          <artifactId>hibernate-processor</artifactId>
+      </path>
+
+fixes:
+  - label: "Rename the artifact."
+    text: >
+      Replace <code>hibernate-jpamodelgen</code> with
+      <code>hibernate-processor</code> in your POM or Gradle build file.
+      The version is managed by the Spring Boot BOM — just change the
+      artifact ID.
+  - label: "Check compiler plugin configuration."
+    text: >
+      If you declared the processor in
+      <code>maven-compiler-plugin</code>'s
+      <code>annotationProcessorPaths</code>, update it there too. Both
+      the dependency and the processor path must use the new name.
+
+scope_check: >
+  Search for <code>hibernate-jpamodelgen</code> in all POM and Gradle
+  files. Also check <code>annotationProcessorPaths</code> in
+  <code>maven-compiler-plugin</code> configuration.
+
+watch_out:
+  - >
+    The new <code>hibernate-processor</code> will try to validate your
+    HQL queries at compile time by default. If you have invalid queries
+    that previously only failed at runtime, they'll now fail at build
+    time. This is a feature, but it may surface hidden bugs.
+  - >
+    If your IDE configures annotation processors separately (e.g.,
+    IntelliJ's annotation processor settings), update that configuration
+    too. Otherwise you'll get metamodel generation in Maven but not in
+    the IDE.
+
+footer_links:
+  - text: "Spring-Break Demo"
+    url: "https://github.com/spoole167/spring-break/tree/main/hibernate-processor-rename"
+  - text: "Hibernate 7 migration guide"
+    url: "https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html"

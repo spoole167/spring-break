@@ -77,6 +77,9 @@
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
+                        <compilerArgs>
+                            <arg>-parameters</arg>
+                        </compilerArgs>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -95,6 +98,7 @@
              Real imports / artifacts / starters that vanish on 4.0.
              Build fails at compile or dependency-resolution time. -->
         <module>jackson-group-id</module>
+        <module>jackson-class-renames</module>
         <module>undertow-removed</module>
         <module>security-removed-apis</module>
         <module>deprecated-classes-removed</module>
@@ -114,7 +118,6 @@
         <module>bootstrap-registry-relocated</module>
         <module>testrest-template-removed</module>
         <module>httpheaders-multivaluemap</module>
-        <module>javax-annotation-removed</module>
         <module>elasticsearch-rest5client</module>
         <module>entityscan-relocated</module>
         <module>propertymapping-relocated</module>
@@ -124,14 +127,12 @@
         <module>apacheds-ldap-removed</module>
         <module>spring-security-access-relocated</module>
         <module>propertymapper-alwaysapplyingnonnull</module>
-        <module>httpcomponents-setconnecttimeout-removed</module>
         <module>hibernate-query-setorder-removed</module>
         <module>hibernate-empty-interceptor-removed</module>
         <module>hibernate-where-orderby-removed</module>
         <module>batch-job-builder-string-constructor</module>
         <module>batch-package-moves</module>
         <module>batch-chunkhandler-renamed</module>
-        <module>actuator-nullable-removed</module>
 
         <!-- Category (c) — Runtime Errors on 4.0  (12 modules)
              Compiles on both versions, throws at runtime on 4.0. -->
@@ -147,6 +148,9 @@
         <module>resttemplate-autoconfig</module>
         <module>test-slice-relocated</module>
         <module>mockito-test-execution-listener</module>
+        <module>javax-annotation-removed</module>
+        <module>javax-inject-removed</module>
+        <module>actuator-nullable-removed</module>
 
         <!-- Category (d) — Different Results on 4.0  (3 modules)
              Compiles and runs on both, output/behaviour differs silently. -->

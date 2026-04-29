@@ -1,0 +1,77 @@
+id: batch-package-moves
+tier: 1
+tier_label: "Won't Build"
+title: "Spring Batch Core Package Relocations"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  mvn compile — no package does not exist errors for org.springframework.batch.core classes
+
+further_info: >
+  Spring Batch 6.0 restructured its domain model into subpackages under
+  org.springframework.batch.core. The classes still exist; only their
+  package changed. With many classes involved, this can mean a large number
+  of import fixes across any codebase that uses Batch domain types directly.
+
+oneliner: >
+  Core Spring Batch domain classes (Job, JobExecution, etc.) moved from
+  org.springframework.batch.core to org.springframework.batch.core.job.
+
+error_output: |
+  $ mvn compile
+  [ERROR] /src/main/java/com/example/BatchCoreUsage.java:[3,44]
+    error: package org.springframework.batch.core does not contain class Job
+  [ERROR] /src/main/java/com/example/BatchCoreUsage.java:[4,44]
+    error: package org.springframework.batch.core does not contain class JobExecution
+
+what_changed: >
+  Core domain classes have moved from <code>org.springframework.batch.core</code>
+  to subpackages, primarily <code>org.springframework.batch.core.job</code>.
+  Affected classes include <code>Job</code>, <code>JobExecution</code>,
+  <code>JobInstance</code>, and <code>JobParameters</code> among others.
+
+why_changed: >
+  Spring Batch 6.0 redesigned the domain model to give each concern its own
+  subpackage, making the module boundaries clearer and aligning with the
+  broader Spring Batch 6.0 architectural goals.
+
+diffs:
+  - comment: "// Core domain imports"
+    removed: |
+      import org.springframework.batch.core.Job;
+      import org.springframework.batch.core.JobExecution;
+      import org.springframework.batch.core.JobInstance;
+      import org.springframework.batch.core.JobParameters;
+    added: |
+      import org.springframework.batch.core.job.Job;
+      import org.springframework.batch.core.job.JobExecution;
+      import org.springframework.batch.core.job.JobInstance;
+      import org.springframework.batch.core.job.JobParameters;
+
+fixes:
+  - label: "Update imports to include the job subpackage."
+    text: >
+      Add <code>.job</code> to the package path for the affected classes.
+      This is a mechanical find-and-replace: <code>org.springframework.batch.core.Job</code>
+      becomes <code>org.springframework.batch.core.job.Job</code>, and so on.
+      Check the Spring Batch 6.0 Migration Guide for the complete list of
+      moved classes.
+
+scope_check: >
+  Search for <code>import org.springframework.batch.core.</code> across
+  all Java/Kotlin sources. Any import that resolves directly to a class
+  in the root <code>core</code> package is likely affected. The scope
+  is proportional to how deeply your code interacts with Batch domain objects.
+
+watch_out:
+  - >
+    Not all classes in <code>org.springframework.batch.core</code> moved.
+    Some remain at the root level. Verify each import against the 6.0 Javadoc
+    rather than bulk-replacing all root-level imports.
+
+footer_links:
+  - text: "spring-break module: batch-package-moves"
+    url: "https://github.com/spoole167/spring-break/tree/main/batch-package-moves"
+  - text: "Spring Batch 6.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide"

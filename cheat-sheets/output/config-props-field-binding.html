@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>@ConfigurationProperties Field Binding Removed — Spring Boot 4.0 Migration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 10mm 16mm 20mm;
+    position: relative;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 2px solid #c0392b;
+  }
+
+  .tier-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    background: #c0392b;
+    padding: 2pt 7pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .series-label {
+    font-size: 7pt;
+    color: #999;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .meta-badges {
+    display: flex;
+    gap: 6pt;
+    align-items: center;
+    margin-bottom: 1.5mm;
+  }
+
+  .effort-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .effort-S { background: #d4edda; color: #155724; }
+  .effort-M { background: #fff3cd; color: #856404; }
+  .effort-L { background: #f8d7da; color: #721c24; }
+
+  .openrewrite-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 600;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    background: #e8f0fe;
+    color: #1a56db;
+    letter-spacing: 0.3px;
+  }
+
+  .verify-box {
+    background: #f0faf0;
+    border: 1px solid #c3e6c3;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    font-size: 8pt;
+    line-height: 1.4;
+  }
+
+  .verify-box strong { font-size: 8pt; color: #155724; }
+  .verify-box code { font-size: 7.5pt; background: #d4edda; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14pt;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1.5mm;
+  }
+
+  .oneliner {
+    font-size: 9pt;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 2mm;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #c0392b;
+    margin-bottom: 1mm;
+    margin-top: 2.5mm;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+
+  p {
+    font-size: 8.5pt;
+    line-height: 1.45;
+    margin-bottom: 1.5mm;
+  }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    line-height: 1.5;
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    overflow: hidden;
+  }
+
+  pre .removed { color: #c0392b; text-decoration: line-through; opacity: 0.7; }
+  pre .added { color: #27713b; font-weight: 500; }
+  pre .comment { color: #999; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    background: #f0f0f0;
+    padding: 0.5pt 3pt;
+    border-radius: 2px;
+  }
+
+  .fix-options { margin: 1mm 0 1.5mm; }
+
+  .fix-option {
+    display: flex;
+    gap: 2.5mm;
+    margin-bottom: 1mm;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .fix-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #c0392b;
+    min-width: 4mm;
+    flex-shrink: 0;
+  }
+
+  .fix-label { font-weight: 600; }
+  .fix-option a { color: #2563eb; text-decoration: none; }
+
+  .scope-box {
+    background: #fdf2f2;
+    border: 1px solid #f0d0d0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0;
+    font-size: 8pt;
+    line-height: 1.45;
+  }
+
+  .scope-box strong { font-size: 8pt; }
+
+  /* Further Info — compact single block */
+  .further-info {
+    margin-top: 2.5mm;
+    padding: 1.5mm 2.5mm;
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 3px;
+    font-size: 7.5pt;
+    line-height: 1.45;
+    color: #555;
+  }
+
+  .further-info-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #c0392b;
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links {
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 7.5pt;
+  }
+
+  .further-info-links span.sep {
+    color: #ccc;
+    margin: 0 1mm;
+  }
+
+  .further-info-facts {
+    font-size: 7pt;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  .footer {
+    position: fixed;
+    bottom: 6mm;
+    left: 16mm;
+    right: 16mm;
+    font-size: 6.5pt;
+    color: #999;
+  }
+
+  .footer-mitigation {
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 2px;
+    padding: 2pt 6pt;
+    margin-bottom: 3pt;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .footer-mitigation strong { color: #1a1a1a; }
+  .footer-mitigation a { color: #2563eb; text-decoration: none; }
+
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2pt;
+    border-top: 1px solid #ddd;
+  }
+
+  .footer-links a { color: #2563eb; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="series-label">spring-boot 3.5 → 4.0</span>
+  </div>
+
+  <h1>@ConfigurationProperties Field Binding Removed</h1>
+  <div class="oneliner">Spring Boot 4.0 no longer binds @ConfigurationProperties to public fields. Only JavaBean setters or constructor binding work now.</div>
+
+  <div class="meta-badges">
+    <span class="effort-badge effort-M">Effort: M</span>
+
+  </div>
+
+  <h2>What You'll See</h2>
+<pre><span class="comment">$ mvn spring-boot:run
+***************************
+APPLICATION FAILED TO START
+***************************
+Description:
+Failed to bind properties under &#x27;app.mail&#x27; to com.example.config.MailProperties:
+
+    Property: app.mail.host
+    Value: &quot;smtp.example.com&quot;
+    Reason: No setter found for property &#x27;host&#x27; on class
+            com.example.config.MailProperties. Public field binding
+            is no longer supported. Add a setter method or use
+            constructor binding.</span></pre>
+
+  <h2>What Changed</h2>
+  <p>Spring Boot 4.0 removed support for binding <code>@ConfigurationProperties</code> values to public fields. The property binding mechanism now requires either JavaBean-style setter methods or constructor binding (via <code>@ConstructorBinding</code> or a single constructor). Classes that relied on direct public field access fail at startup.</p>
+
+<pre><span class="comment">// ConfigurationProperties class — field binding (broken)</span>
+<span class="removed">@ConfigurationProperties(prefix = &quot;app.mail&quot;)
+public class MailProperties {
+    public String host;
+    public int port;
+    public boolean ssl;
+}
+</span>
+<span class="added">@ConfigurationProperties(prefix = &quot;app.mail&quot;)
+public class MailProperties {
+    private String host;
+    private int port;
+    private boolean ssl;
+
+    public String getHost() { return host; }
+    public void setHost(String host) { this.host = host; }
+    public int getPort() { return port; }
+    public void setPort(int port) { this.port = port; }
+    public boolean isSsl() { return ssl; }
+    public void setSsl(boolean ssl) { this.ssl = ssl; }
+}
+</span>
+
+<span class="comment">// Or use constructor binding (immutable, recommended)</span>
+<span class="removed">@ConfigurationProperties(prefix = &quot;app.mail&quot;)
+public class MailProperties {
+    public String host;
+    public int port;
+    public boolean ssl;
+}
+</span>
+<span class="added">@ConfigurationProperties(prefix = &quot;app.mail&quot;)
+public record MailProperties(String host, int port, boolean ssl) {
+}
+</span></pre>
+
+
+  <h2>Why This Changed</h2>
+  <p>Public field binding bypassed validation, made immutability impossible, and broke encapsulation. Setter-based and constructor-based binding both support <code>@Validated</code> constraints and are consistent with the rest of Spring's binding model.</p>
+
+  <h2>How to Fix</h2>
+  <div class="fix-options">
+    <div class="fix-option">
+      <span class="fix-num">A</span>
+      <div><span class="fix-label">Add getter/setter methods.</span> Convert public fields to private fields with standard JavaBean getter and setter methods. Your IDE can generate these automatically.</div>
+    </div>
+    <div class="fix-option">
+      <span class="fix-num">B</span>
+      <div><span class="fix-label">Use a Java record (recommended).</span> Convert the class to a <code>record</code>. Records use constructor binding automatically and are immutable by design. This is the cleanest option for configuration properties.</div>
+    </div>
+    <div class="fix-option">
+      <span class="fix-num">C</span>
+      <div><span class="fix-label">Use Lombok @Data.</span> If you prefer fewer boilerplate lines, annotate the class with <code>@Data</code> or <code>@Getter @Setter</code> from Lombok.</div>
+    </div>
+  </div>
+
+  <div class="verify-box">
+    <strong>✓ Verify:</strong> Config props bind correctly — no BindException on startup
+  </div>
+
+
+  <div class="scope-box">
+    <strong>Scope check:</strong> Search for <code>@ConfigurationProperties</code> classes and check if any have public fields without setters. Look for the pattern <code>public String</code>, <code>public int</code>, etc. in those classes.
+  </div>
+
+
+  <h2>Watch Out</h2>
+  <p>This is a startup failure, not a compile error. Your code will compile fine — it fails when Spring Boot tries to bind properties at runtime. If you have good test coverage with <code>@SpringBootTest</code>, you'll catch it in tests. Otherwise it hits production.</p>
+  <p>If you switch to records, remember that records are immutable. Code that previously mutated the properties object after injection will break. That code was probably wrong anyway, but review it.</p>
+
+
+
+  <div class="further-info">
+    <div class="further-info-header">Further Info</div>
+    <div class="further-info-links">
+      <a href="https://github.com/spoole167/spring-break/tree/main/config-props-field-binding">Spring-Break Demo</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
+
+    </div>
+
+    <div class="further-info-facts">Introduced in Spring Boot 4.0. Field binding was never officially recommended but was silently supported since Boot 1.x. Constructor binding (added in Boot 2.2, improved in 3.0) and Java records are the preferred alternatives. Affects all spring-boot-starter consumers that use @ConfigurationProperties.</div>
+
+  </div>
+
+
+</div>
+
+<div class="footer">
+
+  <div class="footer-mitigation">
+    <strong>Not ready?</strong>
+    Pin 3.5 and track CVEs · migrate incrementally with <a href="https://docs.openrewrite.org/recipes/java/spring/boot4">OpenRewrite</a> · <a href="https://www.herodevs.com/support/spring-nes">HeroDevs NES</a> for security patches
+  </div>
+
+  <div class="footer-links">
+    <div><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></div>
+    <div><a href="https://www.herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></div>
+  </div>
+</div>
+
+</body>
+</html>

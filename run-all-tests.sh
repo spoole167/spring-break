@@ -52,6 +52,7 @@ fi
 #     On 4.0 the script runs "mvn compile" and EXPECTS failure.
 CATEGORY_A=(
   jackson-group-id
+  jackson-class-renames
   undertow-removed
   security-removed-apis
   deprecated-classes-removed
@@ -71,7 +72,6 @@ CATEGORY_A=(
   bootstrap-registry-relocated
   testrest-template-removed
   httpheaders-multivaluemap
-  javax-annotation-removed
   elasticsearch-rest5client
   entityscan-relocated
   propertymapping-relocated
@@ -81,6 +81,12 @@ CATEGORY_A=(
   apacheds-ldap-removed
   spring-security-access-relocated
   propertymapper-alwaysapplyingnonnull
+  hibernate-query-setorder-removed
+  hibernate-empty-interceptor-removed
+  hibernate-where-orderby-removed
+  batch-job-builder-string-constructor
+  batch-package-moves
+  batch-chunkhandler-renamed
   webjars-locator-core-removed
 )
 
@@ -98,6 +104,9 @@ CATEGORY_C=(
   resttemplate-autoconfig
   test-slice-relocated
   mockito-test-execution-listener
+  javax-annotation-removed
+  javax-inject-removed
+  actuator-nullable-removed
 )
 
 # (d) Different Results: runs on both, assertions detect different behaviour.
@@ -188,8 +197,8 @@ for module in "${MODULES[@]}"; do
   # even if they are categorized as (a) because they use reflection or are Tier 2 style.
   # We force CATEGORY_A to compile only on 4.x to catch Tier 1 breaks.
   if [ "$cat" = "a" ] && [ "$IS_4X" -eq 1 ]; then
-    # Special case: javax-annotation-removed is in CATEGORY_A but fails at runtime
-    if [ "$module" = "javax-annotation-removed" ]; then
+    if false; then
+      # (placeholder — no CATEGORY_A runtime-only special cases currently)
       GOAL="clean test"
     else
       GOAL="clean compile test-compile"

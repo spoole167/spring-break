@@ -1,0 +1,115 @@
+id: auth-default-deny
+tier: 3
+tier_label: "Wrong Results"
+title: "Authorisation Default: Implicit Access → Explicit Deny"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  All endpoints return 403 unless explicitly permitted in security config
+
+further_info: >
+  Driven by Spring Security 7.0 (upstream of Spring Boot 4.0). The
+  implicit-permit to explicit-deny change was tracked in
+  spring-security#14597. Deprecated the old behaviour in Security 6.2 with a
+  multi-release migration path. See also: security-dsl-rewrite,
+  websecurity-adapter-removed.
+
+oneliner: >
+  Spring Security 7 denies access to all endpoints not explicitly
+  listed in your security configuration. Endpoints that worked via
+  implicit permit now silently return 403.
+
+error_output: |
+  // SecurityFilterChain — unchanged from Boot 3.5
+  http.authorizeHttpRequests(auth -> auth
+      .requestMatchers("/api/admin/**").hasRole("ADMIN")
+      .requestMatchers("/api/public/**").permitAll()
+  );
+  // Note: no .anyRequest() rule
+
+  // Before (Spring Boot 3.5) — unlisted paths implicitly allowed
+  GET /api/health → 200 OK
+  GET /api/users/me → 200 OK
+
+  // After (Spring Boot 4.0) — unlisted paths denied
+  GET /api/health → 403 Forbidden
+  GET /api/users/me → 403 Forbidden
+
+  // Integration test failures
+  Expected status: 200
+    Actual status: 403
+
+what_changed: >
+  Spring Security 7 changed the default policy for endpoints not covered
+  by any <code>requestMatchers</code> rule. Previously, unconfigured paths
+  were implicitly accessible (depending on your filter chain setup). Now,
+  any request that doesn't match an explicit rule is denied with 403
+  Forbidden. This is an "explicit deny by default" model.
+
+why_changed: >
+  Implicit access was a security risk — developers would add new endpoints
+  and forget to add corresponding security rules, accidentally exposing
+  them. Denying by default is the safer posture: every endpoint must be
+  explicitly allowed, so new endpoints are locked down until deliberately
+  opened.
+
+diffs:
+  - comment: "// Add explicit anyRequest() rule"
+    removed: |
+      http.authorizeHttpRequests(auth -> auth
+          .requestMatchers("/api/admin/**").hasRole("ADMIN")
+          .requestMatchers("/api/public/**").permitAll()
+      );
+    added: |
+      http.authorizeHttpRequests(auth -> auth
+          .requestMatchers("/api/admin/**").hasRole("ADMIN")
+          .requestMatchers("/api/public/**").permitAll()
+          .anyRequest().authenticated()  // explicit catch-all
+      );
+  - comment: "// Or if you had truly open endpoints"
+    removed: "// /api/health was implicitly accessible"
+    added: ".requestMatchers(\"/api/health\", \"/api/info\").permitAll()"
+  - comment: "// Static resources"
+    removed: "// /css/**, /js/** implicitly served"
+    added: ".requestMatchers(\"/css/**\", \"/js/**\", \"/favicon.ico\").permitAll()"
+
+fixes:
+  - label: "Add an explicit .anyRequest() rule (recommended)."
+    text: >
+      End every <code>authorizeHttpRequests</code> chain with
+      <code>.anyRequest().authenticated()</code> or
+      <code>.anyRequest().denyAll()</code>. This makes your policy complete
+      and explicit. Then add <code>permitAll()</code> rules for truly public
+      endpoints.
+  - label: "Audit all endpoints."
+    text: >
+      List every <code>@RequestMapping</code> / <code>@GetMapping</code> /
+      <code>@PostMapping</code> in your app and verify each has a matching
+      security rule. Use Spring Boot Actuator's <code>/mappings</code>
+      endpoint to get the full list.
+
+scope_check: >
+  Check every <code>SecurityFilterChain</code> bean in your app. If any
+  <code>authorizeHttpRequests</code> block is missing an
+  <code>anyRequest()</code> catch-all rule, all unlisted endpoints are now
+  silently returning 403. Also check for actuator endpoints, static
+  resources, and health checks.
+
+watch_out:
+  - >
+    Actuator endpoints like <code>/actuator/health</code> and
+    <code>/actuator/info</code> may be silently blocked. If your load
+    balancer health checks use these, your app will look unhealthy
+    immediately after deployment.
+  - >
+    This interacts with CORS preflight requests. <code>OPTIONS</code>
+    requests to unlisted paths now get 403, which browsers interpret as
+    a CORS failure. You may see "CORS error" in the browser console when
+    the real issue is the missing security rule.
+
+footer_links:
+  - text: "Spring-Break Demo"
+    url: "https://github.com/spoole167/spring-break/tree/main/auth-default-deny"
+  - text: "Spring Security 7 migration guide"
+    url: "https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html"

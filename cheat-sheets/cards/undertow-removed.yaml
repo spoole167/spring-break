@@ -1,0 +1,113 @@
+id: undertow-removed
+tier: 1
+tier_label: "Won't Build"
+title: "Undertow Embedded Server Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  App starts on Tomcat/Jetty with no Undertow class errors
+
+further_info: >
+  Spring Boot 4.0 dropped spring-boot-starter-undertow. Undertow's Jakarta
+  EE 11 support lagged behind Tomcat and Jetty. Tomcat (default) and Jetty
+  are the remaining embedded servlet container options; Netty remains
+  available for reactive. Server-specific properties under server.undertow.*
+  are silently ignored.
+
+oneliner: >
+  Spring Boot 4.0 dropped Undertow as an embedded server option.
+  Projects depending on spring-boot-starter-undertow won't resolve.
+
+error_output: |
+  $ mvn compile
+  [ERROR] Failed to execute goal on project my-service:
+    Could not resolve dependencies for project com.example:my-service:jar:1.0.0:
+    The following artifacts could not be resolved:
+      org.springframework.boot:spring-boot-starter-undertow:jar:4.0.0 (not found)
+
+what_changed: >
+  The <code>spring-boot-starter-undertow</code> module was removed from
+  Spring Boot 4.0. Undertow is no longer a supported embedded servlet
+  container. The supported options are Tomcat (default), Jetty, and
+  Netty (for reactive).
+
+why_changed: >
+  Undertow's development has slowed and its Jakarta EE support lagged
+  behind Tomcat and Jetty. Maintaining three servlet container
+  integrations was a support burden. Tomcat and Jetty cover the same
+  use cases with better Jakarta EE 11 compatibility.
+
+diffs:
+  - comment: "// pom.xml — remove Undertow starter"
+    removed: |
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+          <exclusions>
+              <exclusion>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-tomcat</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-undertow</artifactId>
+      </dependency>
+    added: |
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+      </dependency>
+      <!-- Uses Tomcat by default. For Jetty, add spring-boot-starter-jetty
+           and exclude spring-boot-starter-tomcat -->
+  - comment: "// application.yml — Undertow-specific config"
+    removed: |
+      server:
+        undertow:
+          io-threads: 8
+          worker-threads: 64
+          buffer-size: 1024
+    added: |
+      server:
+        tomcat:
+          threads:
+            max: 200
+            min-spare: 10
+
+fixes:
+  - label: "Switch to Tomcat (default)."
+    text: >
+      Remove the <code>spring-boot-starter-undertow</code> dependency and
+      the Tomcat exclusion. Tomcat is the default — just use
+      <code>spring-boot-starter-web</code> without modifications.
+  - label: "Switch to Jetty."
+    text: >
+      If you need a non-Tomcat server, use
+      <code>spring-boot-starter-jetty</code> instead. Exclude the Tomcat
+      starter and add the Jetty starter.
+
+scope_check: >
+  Search for <code>spring-boot-starter-undertow</code> in POM and Gradle
+  files. Also search for <code>server.undertow</code> in application
+  properties/YAML files — those properties won't cause a build failure
+  but will be silently ignored.
+
+watch_out:
+  - >
+    Undertow-specific configuration properties under
+    <code>server.undertow.*</code> have no Tomcat or Jetty equivalent.
+    Review your <code>application.yml</code> and translate settings like
+    <code>io-threads</code>, <code>worker-threads</code>, and
+    <code>buffer-size</code> to the new server's configuration model.
+  - >
+    If you chose Undertow for its non-blocking I/O on the servlet side,
+    consider switching to Spring WebFlux with Netty instead of forcing
+    the same architecture onto Tomcat.
+
+footer_links:
+  - text: "spring-break module: undertow-removed"
+    url: "https://github.com/spoole167/spring-break/tree/main/undertow-removed"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

@@ -1,0 +1,115 @@
+id: mockbean-removed
+tier: 2
+tier_label: "Won't Run"
+title: "@MockBean / @SpyBean Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: true
+verify: >
+  mvn test — no @MockBean compile errors
+
+further_info: >
+  The @MockBean and @SpyBean annotations were deprecated in Spring Boot 3.4
+  and removed in 4.0. Their replacements (@MockitoBean, @MockitoSpyBean)
+  live in Spring Framework 7's test context
+  (org.springframework.test.context.bean.override.mockito), not in Spring
+  Boot. The new implementation uses a cleaner bean override mechanism.
+
+oneliner: >
+  Spring Boot 4.0 removed the @MockBean and @SpyBean annotations.
+  Tests using them fail at runtime with annotation-not-found errors.
+  Replace with @MockitoBean and @MockitoSpyBean.
+
+error_output: |
+  java.lang.NoClassDefFoundError:
+    org/springframework/boot/test/mock/mockito/MockBean
+   at com.example.OrderServiceTest.<clinit>(OrderServiceTest.java:18)
+  Caused by: java.lang.ClassNotFoundException:
+    org.springframework.boot.test.mock.mockito.MockBean
+  ---
+  java.lang.IllegalStateException: Failed to load ApplicationContext for
+    [MergedContextConfiguration@4a5905...
+    testClass = com.example.OrderServiceTest]
+  ...
+  Tests run: 1, Failures: 0, Errors: 1, Skipped: 0
+
+what_changed: >
+  The <code>@MockBean</code> and <code>@SpyBean</code> annotations from
+  <code>org.springframework.boot.test.mock.mockito</code> were deprecated
+  in Spring Boot 3.4 and removed in 4.0. They are replaced by
+  <code>@MockitoBean</code> and <code>@MockitoSpyBean</code> from
+  <code>org.springframework.test.context.bean.override.mockito</code>,
+  which live in Spring Framework 7 itself rather than Spring Boot.
+
+why_changed: >
+  The new annotations are part of Spring Framework's test context, not
+  Spring Boot. This means they work in plain Spring Framework tests too,
+  not just Boot tests. The new implementation also uses a cleaner bean
+  override mechanism that avoids some of the context caching issues that
+  plagued <code>@MockBean</code>.
+
+diffs:
+  - comment: "// Import change"
+    removed: "import org.springframework.boot.test.mock.mockito.MockBean;"
+    added: "import org.springframework.test.context.bean.override.mockito.MockitoBean;"
+  - removed: "import org.springframework.boot.test.mock.mockito.SpyBean;"
+    added: "import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;"
+  - comment: "// Annotation usage"
+    removed: |
+      @MockBean
+      private OrderRepository orderRepository;
+
+      @SpyBean
+      private NotificationService notificationService;
+    added: |
+      @MockitoBean
+      private OrderRepository orderRepository;
+
+      @MockitoSpyBean
+      private NotificationService notificationService;
+
+fixes:
+  - label: "Find-and-replace annotations."
+    text: >
+      Replace <code>@MockBean</code> with <code>@MockitoBean</code> and
+      <code>@SpyBean</code> with <code>@MockitoSpyBean</code>. Update the
+      imports from <code>org.springframework.boot.test.mock.mockito</code>
+      to <code>org.springframework.test.context.bean.override.mockito</code>.
+  - label: "OpenRewrite recipe."
+    text: >
+      The Spring Boot 4.0 OpenRewrite migration recipe handles this rename
+      automatically across the entire test codebase.
+  - label: "Check for @MockBean attributes."
+    text: >
+      If you used <code>@MockBean(name = "...")</code> or
+      <code>@MockBean(classes = ...)</code>, verify the equivalent attributes
+      exist on <code>@MockitoBean</code>. The attribute names may differ
+      slightly.
+
+scope_check: >
+  Search for <code>@MockBean</code> and <code>@SpyBean</code> across
+  <code>src/test</code>. Every test class using these annotations needs
+  updating. In a typical Spring Boot project, this can be dozens or
+  hundreds of test files. Count them before starting.
+
+watch_out:
+  - >
+    The <code>@MockitoBean</code> reset behaviour between tests may differ
+    from <code>@MockBean</code>. If you relied on mocks being reset between
+    test methods, verify that behaviour is preserved.
+  - >
+    The new annotations are in the Spring Framework package, not Spring
+    Boot. If you have test utility classes that reference the old annotation
+    by fully qualified name (e.g., in custom annotations or reflection),
+    those references need updating too.
+  - >
+    IDE templates and test generators may still produce <code>@MockBean</code>.
+    Update your IDE templates after migrating.
+
+footer_links:
+  - text: "spring-break module: mockbean-removed"
+    url: "https://github.com/spoole167/spring-break/tree/main/mockbean-removed"
+  - text: "Testing changes in Spring Boot 4.0"
+    url: "https://rieckpil.de/whats-new-for-testing-in-spring-boot-4-0-and-spring-framework-7/"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

@@ -1,0 +1,75 @@
+id: aop-starter-rename
+tier: 1
+tier_label: "Won't Build"
+title: "AOP Starter Renamed to spring-boot-starter-aspectj"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  mvn validate — no version is missing error for the AOP starter
+
+further_info: >
+  The rename reflects what the starter actually provides — AspectJ weaving
+  support. The old name spring-boot-starter-aop was considered misleading
+  because Spring AOP (proxy-based) is available without any starter.
+  This is a T1B (artifact no longer in BOM) failure: the build fails at
+  dependency resolution, before any source compiles.
+
+oneliner: >
+  spring-boot-starter-aop is no longer in the Spring Boot 4.0 BOM.
+  Replace it with spring-boot-starter-aspectj.
+
+error_output: |
+  $ mvn validate
+  [ERROR] 'dependencies.dependency.version' for
+    org.springframework.boot:spring-boot-starter-aop:jar is missing.
+
+what_changed: >
+  <code>spring-boot-starter-aop</code> has been removed from the Spring Boot
+  BOM. The replacement starter is <code>spring-boot-starter-aspectj</code>.
+  The new starter provides the same AspectJ weaving capabilities under a name
+  that better describes what it does.
+
+why_changed: >
+  Spring AOP (interface-proxy and CGLIB-proxy based AOP) works without any
+  starter. The old name implied you needed this starter for any AOP — you
+  only need it for AspectJ load-time or compile-time weaving. The rename
+  makes the distinction clear.
+
+diffs:
+  - comment: "// pom.xml dependency"
+    removed: |
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-aop</artifactId>
+      </dependency>
+    added: |
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-aspectj</artifactId>
+      </dependency>
+
+fixes:
+  - label: "Replace the starter in pom.xml / build.gradle."
+    text: >
+      Find <code>spring-boot-starter-aop</code> in all build files and
+      replace with <code>spring-boot-starter-aspectj</code>. No code changes
+      are needed — the classpath content is equivalent.
+
+scope_check: >
+  Search all <code>pom.xml</code> and <code>build.gradle</code> files for
+  <code>spring-boot-starter-aop</code>. Multi-module projects may declare
+  it in several places.
+
+watch_out:
+  - >
+    If you only use Spring's proxy-based AOP (<code>@Aspect</code> beans,
+    <code>@Transactional</code>, etc.) you may not need this starter at all.
+    Proxy-based AOP is included in <code>spring-boot-starter</code> transitively.
+    The aspectj starter is only required if you use AspectJ weaving agents.
+
+footer_links:
+  - text: "spring-break module: aop-starter-rename"
+    url: "https://github.com/spoole167/spring-break/tree/main/aop-starter-rename"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

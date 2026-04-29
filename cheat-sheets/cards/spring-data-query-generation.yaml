@@ -1,0 +1,101 @@
+id: spring-data-query-generation
+tier: 3
+tier_label: "Wrong Results"
+title: "Spring Data Default Query Generation Changed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  Repository methods return correct results (especially nulls and empties)
+
+further_info: >
+  Introduced in Spring Data JPA 4.0 (upstream of Spring Boot 4.0). The
+  property resolution strategy change favours nested entity traversal over
+  flat property matching for derived query methods. Affects
+  spring-boot-starter-data-jpa consumers with compound camelCase property
+  names in repository method names.
+
+oneliner: >
+  Spring Data's derived query method resolution changed how it interprets
+  compound property names. Queries that worked before now silently resolve
+  to wrong columns or return wrong results.
+
+error_output: |
+  // Repository method
+  List<Order> findByOrderStatusCode(String code);
+
+  // Before (Spring Boot 3.5) — resolved as:
+  // order.statusCode (single property traversal)
+  SELECT * FROM orders WHERE status_code = ?
+
+  // After (Spring Boot 4.0) — resolved as:
+  // order.status.code (nested property traversal)
+  SELECT * FROM orders o JOIN order_status s ON o.status_id = s.id
+    WHERE s.code = ?
+
+  // Result: different rows returned, wrong data
+  // Test failure
+  Expected result size: 5
+    Actual result size: 0  // no matching join path exists
+
+what_changed: >
+  Spring Data JPA changed its property resolution strategy for derived query
+  methods. The parser now favours nested property traversal (splitting
+  camelCase into entity associations) over flat property matching. A method
+  like <code>findByOrderStatusCode</code> is now parsed as
+  <code>order → status → code</code> instead of <code>order → statusCode</code>.
+
+why_changed: >
+  The new resolution strategy is more consistent with JPA's entity graph
+  model and handles deeply nested associations correctly. The old strategy
+  had ambiguous cases where it was impossible to tell whether
+  <code>StatusCode</code> was one property or two.
+
+diffs:
+  - comment: "// Fix: use underscore separator for explicit splitting"
+    removed: "List<Order> findByOrderStatusCode(String code);"
+    added: "List<Order> findByStatusCode(String code);  // flat property"
+  - comment: "// Or use underscore to force traversal boundary"
+    removed: "List<Order> findByOrderStatusCode(String code);"
+    added: "List<Order> findByOrder_StatusCode(String code);  // explicit nesting"
+  - comment: "// Safest: use @Query annotation"
+    removed: "List<Order> findByOrderStatusCode(String code);"
+    added: |
+      @Query("SELECT o FROM Order o WHERE o.statusCode = :code")
+      List<Order> findByOrderStatusCode(@Param("code") String code);
+
+fixes:
+  - label: "Add explicit @Query annotations (recommended)."
+    text: >
+      For any derived query method with compound property names, add an
+      explicit <code>@Query</code> annotation. This removes all ambiguity
+      and is immune to parser changes.
+  - label: "Use underscore separators."
+    text: >
+      Spring Data uses <code>_</code> as an explicit property boundary
+      marker. <code>findByStatus_Code</code> unambiguously means
+      <code>status.code</code> (nested), while <code>findByStatusCode</code>
+      means the flat property.
+
+scope_check: >
+  Review every Spring Data repository interface. Any derived query method
+  with two or more camelCase words after <code>findBy</code>,
+  <code>countBy</code>, <code>deleteBy</code>, etc. is a candidate for
+  changed resolution. Methods with simple single-word properties are safe.
+
+watch_out:
+  - >
+    The wrong resolution may still produce valid SQL — just against the
+    wrong columns or join paths. The query runs, returns results, and
+    your app looks fine. Only the data is wrong.
+  - >
+    If your entity has both a flat property <code>statusCode</code> and a
+    nested association <code>status.code</code>, the parser's choice between
+    them has changed. The old behaviour preferred the flat property; the new
+    behaviour prefers the association.
+
+footer_links:
+  - text: "spring-break module: hibernate-query-type-required"
+    url: "https://github.com/spoole167/spring-break/tree/main/hibernate-query-type-required"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

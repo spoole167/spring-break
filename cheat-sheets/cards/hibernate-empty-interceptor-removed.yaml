@@ -1,0 +1,91 @@
+id: hibernate-empty-interceptor-removed
+tier: 1
+tier_label: "Won't Build"
+title: "Hibernate EmptyInterceptor Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  mvn compile — no cannot find symbol for EmptyInterceptor
+
+further_info: >
+  EmptyInterceptor was a convenience class that gave you no-op implementations
+  of all Interceptor methods. Since Hibernate 6.0 the Interceptor interface
+  uses default methods for everything, so EmptyInterceptor became a pointless
+  intermediate. Hibernate 7.0 cleaned it up.
+
+oneliner: >
+  Hibernate's EmptyInterceptor is gone. Implement Interceptor directly —
+  it has default methods for everything you don't need to override.
+
+error_output: |
+  $ mvn compile
+  [ERROR] /src/main/java/com/example/MyHibernateInterceptor.java:[5,43]
+    error: cannot find symbol
+      symbol: class EmptyInterceptor
+      location: package org.hibernate
+
+what_changed: >
+  <code>org.hibernate.EmptyInterceptor</code> has been removed.
+  The <code>org.hibernate.Interceptor</code> interface now has default
+  (no-op) implementations for all its methods, so the abstract base class
+  serves no purpose.
+
+why_changed: >
+  When Hibernate 6.0 added default methods to <code>Interceptor</code>,
+  <code>EmptyInterceptor</code> became redundant. Hibernate 7.0 removed it
+  as part of the overall API cleanup.
+
+diffs:
+  - comment: "// Before — extending EmptyInterceptor"
+    removed: |
+      import org.hibernate.EmptyInterceptor;
+
+      public class MyInterceptor extends EmptyInterceptor {
+          @Override
+          public boolean onLoad(Object entity, Object id,
+                  Object[] state, String[] propertyNames, Type[] types) {
+              // custom logic
+              return false;
+          }
+      }
+  - comment: "// After — implementing Interceptor directly"
+    added: |
+      import org.hibernate.Interceptor;
+
+      public class MyInterceptor implements Interceptor {
+          @Override
+          public boolean onLoad(Object entity, Object id,
+                  Object[] state, String[] propertyNames, Type[] types) {
+              // custom logic
+              return false;
+          }
+          // All other methods have default no-op implementations
+      }
+
+fixes:
+  - label: "Implement Interceptor directly."
+    text: >
+      Replace <code>extends EmptyInterceptor</code> with
+      <code>implements Interceptor</code>. Remove the import for
+      <code>EmptyInterceptor</code>. You only need to override the methods
+      you actually use — all others have default no-op implementations
+      on the interface itself.
+
+scope_check: >
+  Search for <code>EmptyInterceptor</code> and
+  <code>extends EmptyInterceptor</code> across all Java/Kotlin sources.
+
+watch_out:
+  - >
+    Some method signatures on <code>Interceptor</code> changed in Hibernate 6.x
+    (e.g., <code>Serializable id</code> became <code>Object id</code>).
+    When switching from <code>extends EmptyInterceptor</code> to
+    <code>implements Interceptor</code>, verify your overridden method
+    signatures match exactly or the override will be silently ignored.
+
+footer_links:
+  - text: "spring-break module: hibernate-empty-interceptor-removed"
+    url: "https://github.com/spoole167/spring-break/tree/main/hibernate-empty-interceptor-removed"
+  - text: "Hibernate 7.0 Migration Guide"
+    url: "https://docs.hibernate.org/orm/7.0/migration-guide/migration-guide.html"

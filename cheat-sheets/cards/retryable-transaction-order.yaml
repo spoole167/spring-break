@@ -1,0 +1,123 @@
+id: retryable-transaction-order
+tier: 3
+tier_label: "Wrong Results"
+title: "@Retryable + @Transactional AOP Ordering Change"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  Retried transactional methods execute retries outside the transaction
+
+further_info: >
+  Driven by a Spring Framework 7.0 change in default AOP advice ordering.
+  @Retryable now has higher precedence than @Transactional, so retry wraps
+  outside the transaction. The old default (retry inside transaction) led to
+  Hibernate session corruption. See also: retry-semantics, spring-retry-bom.
+
+oneliner: >
+  The default AOP advice ordering flipped: retry now wraps outside the
+  transaction. A retried method gets a new transaction each attempt instead
+  of retrying inside the same one.
+
+error_output: |
+  // Before (Spring Boot 3.5) — retry inside transaction
+  DEBUG Opening transaction
+  DEBUG  Attempt 1: inserting order
+  WARN   Optimistic lock failure, retrying...
+  DEBUG  Attempt 2: inserting order
+  DEBUG  Attempt 2: success
+  DEBUG Committing transaction (1 commit total)
+
+  // After (Spring Boot 4.0) — retry outside transaction
+  DEBUG Opening transaction #1
+  DEBUG  Attempt 1: inserting order
+  WARN   Optimistic lock failure
+  DEBUG Rolling back transaction #1
+  DEBUG Opening transaction #2
+  DEBUG  Attempt 2: inserting order
+  DEBUG  Attempt 2: success
+  DEBUG Committing transaction #2
+
+  // Symptom: partial writes visible between retries
+  // Symptom: retry sees stale data from previous transaction
+
+what_changed: >
+  The default ordering of Spring AOP advice changed so that
+  <code>@Retryable</code> has a higher precedence (runs first) than
+  <code>@Transactional</code>. This means the retry logic wraps the
+  transaction, not the other way around. Each retry attempt runs in its
+  own transaction.
+
+why_changed: >
+  Retrying outside the transaction is generally safer — a failed transaction
+  is fully rolled back before the next attempt starts, avoiding stale
+  persistence context and dirty session state. The old default led to subtle
+  Hibernate session corruption when retrying inside a failed transaction.
+
+diffs:
+  - comment: "// Force retry inside transaction (old behaviour)"
+    removed: |
+      @Retryable(maxAttempts = 3)
+      @Transactional
+      public void placeOrder(Order order) {
+    added: |
+      @Retryable(maxAttempts = 3)
+      @Transactional
+      @Order(Ordered.HIGHEST_PRECEDENCE)  // force tx to wrap retry
+      public void placeOrder(Order order) {
+  - comment: "// Or set global ordering in configuration"
+    removed: "# (default ordering in Boot 3.5: tx outside, retry inside)"
+    added: |
+      @EnableRetry(order = Ordered.LOWEST_PRECEDENCE)
+      // Ensures retry runs inside the transaction
+  - comment: "// Best practice: separate the concerns"
+    removed: |
+      @Retryable @Transactional
+      public void placeOrder(Order order) { ... }
+    added: |
+      // Outer bean: handles retry
+      @Retryable(maxAttempts = 3)
+      public void placeOrderWithRetry(Order order) {
+          orderService.placeOrder(order);
+      }
+      // Inner bean: handles transaction
+      @Transactional
+      public void placeOrder(Order order) { ... }
+
+fixes:
+  - label: "Separate retry and transaction into different beans (recommended)."
+    text: >
+      Move <code>@Retryable</code> to an outer service and
+      <code>@Transactional</code> to an inner service. This makes the
+      ordering explicit, avoids AOP precedence surprises, and works the
+      same regardless of framework defaults.
+  - label: "Set explicit advice ordering."
+    text: >
+      Use <code>@EnableRetry(order = ...)</code> and
+      <code>@EnableTransactionManagement(order = ...)</code> to explicitly
+      control which advice runs first. Document the intended order.
+
+scope_check: >
+  Search for any method annotated with both <code>@Retryable</code> and
+  <code>@Transactional</code>. Each one has silently changed its
+  transactional behaviour. Also check for <code>@Retryable</code> methods
+  that call <code>@Transactional</code> methods on the same bean
+  (self-invocation doesn't go through the proxy).
+
+watch_out:
+  - >
+    If your retry logic depends on reading data written earlier in the
+    same transaction, that data is now rolled back before the retry.
+    The second attempt starts with a clean slate, which may cause
+    duplicate inserts or missing context.
+  - >
+    Optimistic locking exceptions (<code>OptimisticLockException</code>)
+    are now handled differently. Previously the retry happened inside the
+    same persistence context. Now each retry gets a fresh EntityManager,
+    which is usually better but changes the behaviour.
+
+footer_links:
+  - text: "Spring-Break Demo"
+    url: "https://github.com/spoole167/spring-break/tree/main/retryable-transaction-order"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

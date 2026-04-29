@@ -1,0 +1,74 @@
+id: elasticsearch-rest5client
+tier: 1
+tier_label: "Won't Build"
+title: "Elasticsearch RestClient Renamed to Rest5Client"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  mvn compile — no cannot find symbol errors for RestClient auto-config injection
+
+further_info: >
+  Spring Boot 4.0 aligns with the Elasticsearch client library's own evolution.
+  Rest5Client is the new low-level client type in Spring Data Elasticsearch.
+  The high-level RestHighLevelClient was already removed in Spring Boot 3.x;
+  this is the next step in that same direction.
+
+oneliner: >
+  Spring Boot 4.0 auto-configures Rest5Client instead of RestClient for
+  Elasticsearch. Code injecting the old type won't compile.
+
+error_output: |
+  $ mvn compile
+  [ERROR] /src/main/java/com/example/ElasticsearchUsage.java:[5,35]
+    error: cannot find symbol
+      symbol:   class RestClient
+      location: package org.elasticsearch.client
+
+what_changed: >
+  Spring Boot 4.0 auto-configures <code>org.elasticsearch.client.Rest5Client</code>
+  instead of <code>org.elasticsearch.client.RestClient</code>. Components that
+  inject <code>RestClient</code> directly will fail because the auto-configured
+  bean is now of type <code>Rest5Client</code>.
+
+why_changed: >
+  The Elasticsearch Java client library introduced <code>Rest5Client</code> as
+  the successor to the original <code>RestClient</code>. Spring Boot 4.0 adopted
+  the newer type to track the upstream library and align with current
+  Elasticsearch client best practices.
+
+diffs:
+  - comment: "// Import"
+    removed: "import org.elasticsearch.client.RestClient;"
+    added: "import org.elasticsearch.client.Rest5Client;"
+  - comment: "// Injection"
+    removed: "@Autowired\nprivate RestClient restClient;"
+    added: "@Autowired\nprivate Rest5Client restClient;"
+  - comment: "// Customizer bean (if used)"
+    removed: "@Bean\npublic RestClientBuilderCustomizer customizer() { ... }"
+    added: "@Bean\npublic Rest5ClientBuilderCustomizer customizer() { ... }"
+
+fixes:
+  - label: "Rename RestClient to Rest5Client."
+    text: >
+      Replace <code>RestClient</code> with <code>Rest5Client</code> in all
+      injection points, customizer beans, and direct usages. The API is
+      broadly compatible — method signatures are similar but check the
+      Elasticsearch client changelog for any subtle differences.
+
+scope_check: >
+  Search for <code>org.elasticsearch.client.RestClient</code> and
+  <code>RestClientBuilderCustomizer</code> in your Java sources.
+  Any direct injection of the low-level client is affected.
+
+watch_out:
+  - >
+    Do not confuse Elasticsearch's <code>RestClient</code> with Spring
+    Framework's <code>org.springframework.web.client.RestClient</code> —
+    these are entirely different classes. Only the Elasticsearch one changed.
+
+footer_links:
+  - text: "spring-break module: elasticsearch-rest5client"
+    url: "https://github.com/spoole167/spring-break/tree/main/elasticsearch-rest5client"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

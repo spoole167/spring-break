@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Controller/View Spans Silently Disabled — Spring Boot 4.0 Migration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 10mm 16mm 20mm;
+    position: relative;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 2px solid #8e44ad;
+  }
+
+  .tier-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    background: #8e44ad;
+    padding: 2pt 7pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .series-label {
+    font-size: 7pt;
+    color: #999;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .meta-badges {
+    display: flex;
+    gap: 6pt;
+    align-items: center;
+    margin-bottom: 1.5mm;
+  }
+
+  .effort-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .effort-S { background: #d4edda; color: #155724; }
+  .effort-M { background: #fff3cd; color: #856404; }
+  .effort-L { background: #f8d7da; color: #721c24; }
+
+  .openrewrite-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 600;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    background: #e8f0fe;
+    color: #1a56db;
+    letter-spacing: 0.3px;
+  }
+
+  .verify-box {
+    background: #f0faf0;
+    border: 1px solid #c3e6c3;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    font-size: 8pt;
+    line-height: 1.4;
+  }
+
+  .verify-box strong { font-size: 8pt; color: #155724; }
+  .verify-box code { font-size: 7.5pt; background: #d4edda; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14pt;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1.5mm;
+  }
+
+  .oneliner {
+    font-size: 9pt;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 2mm;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #8e44ad;
+    margin-bottom: 1mm;
+    margin-top: 2.5mm;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+
+  p {
+    font-size: 8.5pt;
+    line-height: 1.45;
+    margin-bottom: 1.5mm;
+  }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    line-height: 1.5;
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    overflow: hidden;
+  }
+
+  pre .removed { color: #c0392b; text-decoration: line-through; opacity: 0.7; }
+  pre .added { color: #27713b; font-weight: 500; }
+  pre .comment { color: #999; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    background: #f0f0f0;
+    padding: 0.5pt 3pt;
+    border-radius: 2px;
+  }
+
+  .fix-options { margin: 1mm 0 1.5mm; }
+
+  .fix-option {
+    display: flex;
+    gap: 2.5mm;
+    margin-bottom: 1mm;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .fix-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #8e44ad;
+    min-width: 4mm;
+    flex-shrink: 0;
+  }
+
+  .fix-label { font-weight: 600; }
+  .fix-option a { color: #2563eb; text-decoration: none; }
+
+  .scope-box {
+    background: #faf2fd;
+    border: 1px solid #e0d0f0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0;
+    font-size: 8pt;
+    line-height: 1.45;
+  }
+
+  .scope-box strong { font-size: 8pt; }
+
+  /* Further Info — compact single block */
+  .further-info {
+    margin-top: 2.5mm;
+    padding: 1.5mm 2.5mm;
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 3px;
+    font-size: 7.5pt;
+    line-height: 1.45;
+    color: #555;
+  }
+
+  .further-info-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #8e44ad;
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links {
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 7.5pt;
+  }
+
+  .further-info-links span.sep {
+    color: #ccc;
+    margin: 0 1mm;
+  }
+
+  .further-info-facts {
+    font-size: 7pt;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  .footer {
+    position: fixed;
+    bottom: 6mm;
+    left: 16mm;
+    right: 16mm;
+    font-size: 6.5pt;
+    color: #999;
+  }
+
+  .footer-mitigation {
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 2px;
+    padding: 2pt 6pt;
+    margin-bottom: 3pt;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .footer-mitigation strong { color: #1a1a1a; }
+  .footer-mitigation a { color: #2563eb; text-decoration: none; }
+
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2pt;
+    border-top: 1px solid #ddd;
+  }
+
+  .footer-links a { color: #2563eb; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <span class="tier-badge">Tier 3 · Wrong Results</span>
+    <span class="series-label">spring-boot 3.5 → 4.0</span>
+  </div>
+
+  <h1>Controller/View Spans Silently Disabled</h1>
+  <div class="oneliner">Spring Boot 4.0 disables automatic controller and view rendering spans by default. Observability dashboards show gaps where traces used to appear — but the app itself works fine.</div>
+
+  <div class="meta-badges">
+    <span class="effort-badge effort-M">Effort: M</span>
+
+  </div>
+
+  <h2>What You'll See</h2>
+<pre><span class="comment">// Grafana / Jaeger trace — before (Spring Boot 3.5)
+── HTTP GET /api/orders ─────────────────────────────
+  └── controller: OrderController.getOrders  [12ms]
+      └── view: orders/list                  [3ms]
+          └── jdbc: SELECT * FROM orders     [8ms]
+
+// Grafana / Jaeger trace — after (Spring Boot 4.0)
+── HTTP GET /api/orders ─────────────────────────────
+  └── jdbc: SELECT * FROM orders             [8ms]
+// controller and view spans MISSING
+
+// Dashboard alert
+&quot;No data&quot; for panel &quot;Controller Response Time p99&quot;
+// SLO breach: &quot;99th percentile latency unknown&quot;</span></pre>
+
+  <h2>What Changed</h2>
+  <p>Spring Boot 4.0 disabled the automatic instrumentation for Spring MVC controller method spans and view rendering spans by default. The properties <code>management.observations.http.server.requests.enabled</code> and related <code>spring.mvc.observation</code> settings changed their defaults. The traces still record HTTP and JDBC spans, but the controller-level granularity is gone.</p>
+
+<pre><span class="comment">// application.properties — re-enable controller spans</span>
+<span class="removed"># (default in Boot 3.5: controller spans enabled)</span>
+<span class="added">management.tracing.enabled=true
+spring.mvc.observation.auto-configuration.enabled=true
+</span>
+
+<span class="comment">// Or enable via ObservationRegistry customiser</span>
+<span class="removed"># (auto-instrumentation was on by default)</span>
+<span class="added">@Bean
+public ObservationRegistryCustomizer&lt;ObservationRegistry&gt; serverSpans() {
+    return registry -&gt; registry.observationConfig()
+        .observationHandler(new DefaultMeterObservationHandler(meterRegistry));
+}
+</span>
+
+<span class="comment">// Micrometer tracing config</span>
+<span class="removed"># (no explicit config needed in Boot 3.5)</span>
+<span class="added">management.observations.http.server.requests.enabled=true
+management.observations.http.client.requests.enabled=true
+</span></pre>
+
+
+  <h2>Why This Changed</h2>
+  <p>The automatic controller spans added overhead (an extra span per request) and duplicated information already available from the HTTP server span. For high-traffic services, the span volume was significant. The new default reduces overhead and storage costs, with opt-in for teams that need the detail.</p>
+
+  <h2>How to Fix</h2>
+  <div class="fix-options">
+    <div class="fix-option">
+      <span class="fix-num">A</span>
+      <div><span class="fix-label">Re-enable controller observation spans.</span> Add <code>spring.mvc.observation.auto-configuration.enabled=true</code> and <code>management.observations.http.server.requests.enabled=true</code> to your <code>application.properties</code>. This restores the controller-level spans in your traces.</div>
+    </div>
+    <div class="fix-option">
+      <span class="fix-num">B</span>
+      <div><span class="fix-label">Update dashboards to use HTTP spans.</span> If the overhead matters, update your Grafana/Datadog dashboards to use the HTTP server span (<code>http.server.requests</code>) instead of the controller span. This span is still present and includes the handler information as attributes.</div>
+    </div>
+  </div>
+
+  <div class="verify-box">
+    <strong>✓ Verify:</strong> All Grafana/Jaeger panels show data — no 'No data' gaps
+  </div>
+
+
+  <div class="scope-box">
+    <strong>Scope check:</strong> Check your observability dashboards, SLO definitions, and alerting rules. Any panel or alert that queries for controller-level span names (e.g. <code>controller.*</code>) or view rendering spans will show "No data" after the upgrade. Also check custom <code>SpanExporter</code> or <code>ObservationHandler</code> beans that filter by span name.
+  </div>
+
+
+  <h2>Watch Out</h2>
+  <p>This is invisible in application logs and functionality. The app works perfectly. The only symptom is missing data in your observability platform — which you might not notice until an incident requires the traces that are no longer there.</p>
+  <p>If you have SLO alerting based on controller span latency percentiles, those alerts will fire as "no data" — which some alerting systems treat as "OK" (no data = no violations). You could silently lose SLO monitoring.</p>
+
+
+
+  <div class="further-info">
+    <div class="further-info-header">Further Info</div>
+    <div class="further-info-links">
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
+
+    </div>
+
+    <div class="further-info-facts">Introduced in Spring Boot 4.0 as part of the Micrometer Tracing defaults overhaul. Controller and view rendering spans are disabled by default to reduce trace volume and overhead. This is the dashboard-impact perspective of the same change as controller-spans-disabled. See also: controller-spans-disabled, aspectj-observed.</div>
+
+  </div>
+
+
+</div>
+
+<div class="footer">
+
+  <div class="footer-mitigation">
+    <strong>Not ready?</strong>
+    Pin 3.5 and track CVEs · migrate incrementally with <a href="https://docs.openrewrite.org/recipes/java/spring/boot4">OpenRewrite</a> · <a href="https://www.herodevs.com/support/spring-nes">HeroDevs NES</a> for security patches
+  </div>
+
+  <div class="footer-links">
+    <div><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></div>
+    <div><a href="https://www.herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></div>
+  </div>
+</div>
+
+</body>
+</html>

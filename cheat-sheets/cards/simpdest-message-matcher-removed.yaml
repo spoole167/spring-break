@@ -1,0 +1,78 @@
+id: simpdest-message-matcher-removed
+tier: 1
+tier_label: "Won't Build"
+title: "SimpDestinationMessageMatcher Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  mvn compile — no cannot find symbol for SimpDestinationMessageMatcher
+
+further_info: >
+  Part of Spring Security 7.0's overhaul of WebSocket security. The old
+  matcher-based API for STOMP message authorisation has been replaced by
+  the AuthorizationManager pattern. Teams using WebSocket security need
+  to migrate to MessageMatcherDelegatingAuthorizationManager.
+
+oneliner: >
+  SimpDestinationMessageMatcher is gone in Spring Security 7.0.
+  WebSocket security now uses the AuthorizationManager pattern.
+
+error_output: |
+  $ mvn compile
+  [ERROR] /src/main/java/com/example/SimpDestUsage.java:[3,66]
+    error: package org.springframework.security.messaging.util.matcher
+    does not contain SimpDestinationMessageMatcher
+
+what_changed: >
+  <code>org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher</code>
+  has been removed. Spring Security 7.0 replaces the old
+  <code>AbstractSecurityWebSocketMessageBrokerConfigurer</code> /
+  matcher-based approach with <code>MessageMatcherDelegatingAuthorizationManager</code>.
+
+why_changed: >
+  Spring Security 7.0 completed the migration to the AuthorizationManager
+  pattern across all areas including messaging. The old configurer and
+  matcher classes were deprecated in 6.x and removed in 7.0.
+
+diffs:
+  - comment: "// Old — matcher-based WebSocket security config"
+    removed: |
+      import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
+      // ...
+      new SimpDestinationMessageMatcher("/topic/**");
+  - comment: "// New — AuthorizationManager-based config"
+    added: |
+      import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
+      // ...
+      MessageMatcherDelegatingAuthorizationManager.builder()
+          .simpDestMatchers("/topic/**").authenticated()
+          .anyMessage().denyAll()
+          .build();
+
+fixes:
+  - label: "Migrate to MessageMatcherDelegatingAuthorizationManager."
+    text: >
+      Replace any use of <code>SimpDestinationMessageMatcher</code> and
+      <code>AbstractSecurityWebSocketMessageBrokerConfigurer</code> with a
+      <code>MessageMatcherDelegatingAuthorizationManager</code> bean registered
+      on your message broker. See the Spring Security 7 messaging migration guide
+      for the full configuration pattern.
+
+scope_check: >
+  Search for <code>SimpDestinationMessageMatcher</code> and
+  <code>AbstractSecurityWebSocketMessageBrokerConfigurer</code>. Both are
+  removed. Only applications using STOMP over WebSocket with Spring Security
+  are affected.
+
+watch_out:
+  - >
+    The new AuthorizationManager approach requires explicitly wiring the
+    manager into the message broker configuration. There is no auto-migration
+    path — the configuration structure changes substantially.
+
+footer_links:
+  - text: "spring-break module: simpdest-message-matcher-removed"
+    url: "https://github.com/spoole167/spring-break/tree/main/simpdest-message-matcher-removed"
+  - text: "Spring Security 7 messaging migration"
+    url: "https://docs.spring.io/spring-security/reference/6.5/migration-7/messaging.html"

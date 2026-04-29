@@ -1,0 +1,97 @@
+id: maven-aot-plugin
+tier: 1
+tier_label: "Won't Build"
+title: "Maven Plugin Version Alignment for AOT"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: true
+verify: >
+  mvn spring-boot:aot-generate runs without plugin errors
+
+further_info: >
+  The spring-boot-maven-plugin must exactly match the Spring Boot version.
+  In 4.0 the AOT processing API was refactored for GraalVM 25 compatibility
+  and Spring Framework 7.0's code generation model. AOT is enabled by
+  default in Boot 4.0 even for non-native builds. See also: graalvm-25.
+
+oneliner: >
+  The Spring Boot Maven plugin's AOT processing goals changed in 4.0.
+  Mismatched plugin versions or stale AOT configuration breaks the build.
+
+error_output: |
+  $ mvn spring-boot:process-aot
+  [ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:4.0.0:process-aot
+    on project my-service: Execution default of goal
+    org.springframework.boot:spring-boot-maven-plugin:4.0.0:process-aot failed:
+    An API incompatibility was encountered while executing
+    org.springframework.boot:spring-boot-maven-plugin:4.0.0:process-aot:
+    java.lang.NoSuchMethodError:
+      'void org.springframework.aot.generate.GenerationContext.<init>(java.lang.ClassLoader)'
+
+what_changed: >
+  The <code>spring-boot-maven-plugin</code> must match the Spring Boot
+  version exactly. In 4.0 the AOT processing API changed — the
+  <code>process-aot</code> and <code>process-test-aot</code> goals use
+  new generation context methods. A plugin version mismatch causes
+  <code>NoSuchMethodError</code> at build time.
+
+why_changed: >
+  AOT processing was refactored for GraalVM 25 compatibility and to
+  support the new Spring Framework 7.0 code generation model. The plugin
+  version must be kept in lock-step with the framework.
+
+diffs:
+  - comment: "// pom.xml — plugin version"
+    removed: |
+      <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>3.4.1</version>
+      </plugin>
+    added: |
+      <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>4.0.0</version>
+      </plugin>
+  - comment: "// pom.xml — remove explicit AOT execution if using parent POM"
+    removed: |
+      <execution>
+          <id>process-aot</id>
+          <goals><goal>process-aot</goal></goals>
+      </execution>
+    added: |
+      <!-- AOT goals are now configured automatically by the parent POM -->
+
+fixes:
+  - label: "Align the plugin version with Spring Boot."
+    text: >
+      If you inherit from <code>spring-boot-starter-parent</code>, the
+      plugin version is managed automatically — remove any explicit
+      <code>&lt;version&gt;</code> tag. If you use a BOM without the
+      parent POM, set the plugin version to <code>4.0.0</code> explicitly.
+  - label: "Remove manual AOT execution blocks."
+    text: >
+      The parent POM now binds the AOT goals automatically. Keeping an
+      explicit <code>&lt;execution&gt;</code> block can cause the goal
+      to run twice or with stale configuration.
+
+scope_check: >
+  Search for <code>spring-boot-maven-plugin</code> across all POM files.
+  Check for explicit <code>&lt;version&gt;</code> tags and manual AOT
+  <code>&lt;execution&gt;</code> blocks. Multi-module projects need every
+  module's POM checked.
+
+watch_out:
+  - >
+    If you're not using native images, AOT processing is still enabled by
+    default in 4.0 for startup optimisation. You may hit this error even
+    if you never intentionally configured AOT.
+  - >
+    Parent POM version and plugin version must match. If your
+    <code>&lt;parent&gt;</code> points to 4.0.0 but a plugin override
+    still says 3.x, the build will fail with cryptic reflection errors.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ title }} — Spring Boot 4.0 Migration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 10mm 16mm 20mm;
+    position: relative;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 2px solid {{ tier_color }};
+  }
+
+  .tier-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    background: {{ tier_color }};
+    padding: 2pt 7pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .series-label {
+    font-size: 7pt;
+    color: #999;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .meta-badges {
+    display: flex;
+    gap: 6pt;
+    align-items: center;
+    margin-bottom: 1.5mm;
+  }
+
+  .effort-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .effort-S { background: #d4edda; color: #155724; }
+  .effort-M { background: #fff3cd; color: #856404; }
+  .effort-L { background: #f8d7da; color: #721c24; }
+
+  .openrewrite-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 600;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    background: #e8f0fe;
+    color: #1a56db;
+    letter-spacing: 0.3px;
+  }
+
+  .verify-box {
+    background: #f0faf0;
+    border: 1px solid #c3e6c3;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    font-size: 8pt;
+    line-height: 1.4;
+  }
+
+  .verify-box strong { font-size: 8pt; color: #155724; }
+  .verify-box code { font-size: 7.5pt; background: #d4edda; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14pt;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1.5mm;
+  }
+
+  .oneliner {
+    font-size: 9pt;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 2mm;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: {{ tier_color }};
+    margin-bottom: 1mm;
+    margin-top: 2.5mm;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+
+  p {
+    font-size: 8.5pt;
+    line-height: 1.45;
+    margin-bottom: 1.5mm;
+  }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    line-height: 1.5;
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    overflow: hidden;
+  }
+
+  pre .removed { color: #c0392b; text-decoration: line-through; opacity: 0.7; }
+  pre .added { color: #27713b; font-weight: 500; }
+  pre .comment { color: #999; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    background: #f0f0f0;
+    padding: 0.5pt 3pt;
+    border-radius: 2px;
+  }
+
+  .fix-options { margin: 1mm 0 1.5mm; }
+
+  .fix-option {
+    display: flex;
+    gap: 2.5mm;
+    margin-bottom: 1mm;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .fix-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    font-weight: 700;
+    color: {{ tier_color }};
+    min-width: 4mm;
+    flex-shrink: 0;
+  }
+
+  .fix-label { font-weight: 600; }
+  .fix-option a { color: #2563eb; text-decoration: none; }
+
+  .scope-box {
+    background: {{ scope_bg }};
+    border: 1px solid {{ scope_border }};
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0;
+    font-size: 8pt;
+    line-height: 1.45;
+  }
+
+  .scope-box strong { font-size: 8pt; }
+
+  /* Further Info — compact single block */
+  .further-info {
+    margin-top: 2.5mm;
+    padding: 1.5mm 2.5mm;
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 3px;
+    font-size: 7.5pt;
+    line-height: 1.45;
+    color: #555;
+  }
+
+  .further-info-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: {{ tier_color }};
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links {
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 7.5pt;
+  }
+
+  .further-info-links span.sep {
+    color: #ccc;
+    margin: 0 1mm;
+  }
+
+  .further-info-facts {
+    font-size: 7pt;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  .footer {
+    position: fixed;
+    bottom: 6mm;
+    left: 16mm;
+    right: 16mm;
+    font-size: 6.5pt;
+    color: #999;
+  }
+
+  .footer-mitigation {
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 2px;
+    padding: 2pt 6pt;
+    margin-bottom: 3pt;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .footer-mitigation strong { color: #1a1a1a; }
+  .footer-mitigation a { color: #2563eb; text-decoration: none; }
+
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2pt;
+    border-top: 1px solid #ddd;
+  }
+
+  .footer-links a { color: #2563eb; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <span class="tier-badge">Tier {{ tier }} · {{ tier_label }}</span>
+    <span class="series-label">{{ series }}</span>
+  </div>
+
+  <h1>{{ title }}</h1>
+  <div class="oneliner">{{ oneliner | trim }}</div>
+
+  <div class="meta-badges">
+{% if effort %}    <span class="effort-badge effort-{{ effort }}">Effort: {{ effort }}</span>{% endif %}
+{% if openrewrite %}    <span class="openrewrite-badge">⚙ OpenRewrite</span>{% endif %}
+  </div>
+
+  <h2>What You'll See</h2>
+<pre><span class="comment">{{ error_output | trim }}</span></pre>
+
+  <h2>What Changed</h2>
+  <p>{{ what_changed | trim }}</p>
+
+<pre>{% for d in diffs %}{% if d.comment %}<span class="comment">{{ d.comment }}</span>
+{% endif %}<span class="removed">{{ d.removed }}</span>
+<span class="added">{{ d.added }}</span>{% if not loop.last %}
+
+{% endif %}{% endfor %}</pre>
+
+{% if why_changed %}
+  <h2>Why This Changed</h2>
+  <p>{{ why_changed | trim }}</p>
+{% endif %}
+  <h2>How to Fix</h2>
+  <div class="fix-options">{% for fix in fixes %}
+    <div class="fix-option">
+      <span class="fix-num">{{ loop_letters[loop.index0] }}</span>
+      <div><span class="fix-label">{{ fix.label }}</span> {{ fix.text | trim }}</div>
+    </div>{% endfor %}
+  </div>
+{% if verify %}
+  <div class="verify-box">
+    <strong>✓ Verify:</strong> {{ verify | trim }}
+  </div>
+{% endif %}
+{% if scope_check %}
+  <div class="scope-box">
+    <strong>Scope check:</strong> {{ scope_check | trim }}
+  </div>
+{% endif %}
+{% if watch_out %}
+  <h2>Watch Out</h2>
+{% for w in watch_out %}  <p>{{ w | trim }}</p>
+{% endfor %}{% endif %}
+
+{% if footer_links or further_info %}
+  <div class="further-info">
+    <div class="further-info-header">Further Info</div>
+    <div class="further-info-links">
+{% for link in footer_links %}      <a href="{{ link.url }}">{{ link.text }}</a>{% if not loop.last %}<span class="sep">·</span>{% endif %}
+{% endfor %}
+    </div>
+{% if further_info %}
+    <div class="further-info-facts">{{ further_info | trim }}</div>
+{% endif %}
+  </div>
+{% endif %}
+
+</div>
+
+<div class="footer">
+{% if show_mitigation %}
+  <div class="footer-mitigation">
+    <strong>Not ready?</strong>
+    Pin 3.5 and track CVEs · migrate incrementally with <a href="https://docs.openrewrite.org/recipes/java/spring/boot4">OpenRewrite</a> · <a href="https://www.herodevs.com/support/spring-nes">HeroDevs NES</a> for security patches
+  </div>
+{% endif %}
+  <div class="footer-links">
+    <div><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></div>
+    <div><a href="https://www.herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></div>
+  </div>
+</div>
+
+</body>
+</html>

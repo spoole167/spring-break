@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>javax.inject Removed — Spring Boot 4.0 Migration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 10mm 16mm 20mm;
+    position: relative;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 2px solid #c0392b;
+  }
+
+  .tier-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    background: #c0392b;
+    padding: 2pt 7pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .series-label {
+    font-size: 7pt;
+    color: #999;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .meta-badges {
+    display: flex;
+    gap: 6pt;
+    align-items: center;
+    margin-bottom: 1.5mm;
+  }
+
+  .effort-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .effort-S { background: #d4edda; color: #155724; }
+  .effort-M { background: #fff3cd; color: #856404; }
+  .effort-L { background: #f8d7da; color: #721c24; }
+
+  .openrewrite-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 600;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    background: #e8f0fe;
+    color: #1a56db;
+    letter-spacing: 0.3px;
+  }
+
+  .verify-box {
+    background: #f0faf0;
+    border: 1px solid #c3e6c3;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    font-size: 8pt;
+    line-height: 1.4;
+  }
+
+  .verify-box strong { font-size: 8pt; color: #155724; }
+  .verify-box code { font-size: 7.5pt; background: #d4edda; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14pt;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1.5mm;
+  }
+
+  .oneliner {
+    font-size: 9pt;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 2mm;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #c0392b;
+    margin-bottom: 1mm;
+    margin-top: 2.5mm;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+
+  p {
+    font-size: 8.5pt;
+    line-height: 1.45;
+    margin-bottom: 1.5mm;
+  }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    line-height: 1.5;
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    overflow: hidden;
+  }
+
+  pre .removed { color: #c0392b; text-decoration: line-through; opacity: 0.7; }
+  pre .added { color: #27713b; font-weight: 500; }
+  pre .comment { color: #999; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    background: #f0f0f0;
+    padding: 0.5pt 3pt;
+    border-radius: 2px;
+  }
+
+  .fix-options { margin: 1mm 0 1.5mm; }
+
+  .fix-option {
+    display: flex;
+    gap: 2.5mm;
+    margin-bottom: 1mm;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .fix-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #c0392b;
+    min-width: 4mm;
+    flex-shrink: 0;
+  }
+
+  .fix-label { font-weight: 600; }
+  .fix-option a { color: #2563eb; text-decoration: none; }
+
+  .scope-box {
+    background: #fdf2f2;
+    border: 1px solid #f0d0d0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0;
+    font-size: 8pt;
+    line-height: 1.45;
+  }
+
+  .scope-box strong { font-size: 8pt; }
+
+  /* Further Info — compact single block */
+  .further-info {
+    margin-top: 2.5mm;
+    padding: 1.5mm 2.5mm;
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 3px;
+    font-size: 7.5pt;
+    line-height: 1.45;
+    color: #555;
+  }
+
+  .further-info-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #c0392b;
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links {
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 7.5pt;
+  }
+
+  .further-info-links span.sep {
+    color: #ccc;
+    margin: 0 1mm;
+  }
+
+  .further-info-facts {
+    font-size: 7pt;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  .footer {
+    position: fixed;
+    bottom: 6mm;
+    left: 16mm;
+    right: 16mm;
+    font-size: 6.5pt;
+    color: #999;
+  }
+
+  .footer-mitigation {
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 2px;
+    padding: 2pt 6pt;
+    margin-bottom: 3pt;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .footer-mitigation strong { color: #1a1a1a; }
+  .footer-mitigation a { color: #2563eb; text-decoration: none; }
+
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2pt;
+    border-top: 1px solid #ddd;
+  }
+
+  .footer-links a { color: #2563eb; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="series-label">spring-boot 3.5 → 4.0</span>
+  </div>
+
+  <h1>javax.inject Removed</h1>
+  <div class="oneliner">Spring Boot 4.0 no longer provides javax.inject on the classpath. Code using @Inject or @Named from javax.inject won't compile.</div>
+
+  <div class="meta-badges">
+    <span class="effort-badge effort-S">Effort: S</span>
+    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+  </div>
+
+  <h2>What You'll See</h2>
+<pre><span class="comment">$ mvn compile
+[ERROR] /src/main/java/com/example/service/OrderService.java:[3,20]
+  error: package javax.inject does not exist
+[ERROR] /src/main/java/com/example/service/OrderService.java:[12,6]
+  error: cannot find symbol
+    symbol: class Inject</span></pre>
+
+  <h2>What Changed</h2>
+  <p>The <code>javax.inject:javax.inject</code> dependency is no longer on the Spring Boot classpath. Annotations like <code>@javax.inject.Inject</code>, <code>@javax.inject.Named</code>, and <code>@javax.inject.Singleton</code> are unavailable. The Jakarta equivalent is <code>jakarta.inject:jakarta.inject-api</code>.</p>
+
+<pre><span class="comment">// Java imports</span>
+<span class="removed">import javax.inject.Inject;
+import javax.inject.Named;
+</span>
+<span class="added">import jakarta.inject.Inject;
+import jakarta.inject.Named;
+</span>
+
+<span class="comment">// pom.xml — if you had an explicit dependency</span>
+<span class="removed">&lt;dependency&gt;
+    &lt;groupId&gt;javax.inject&lt;/groupId&gt;
+    &lt;artifactId&gt;javax.inject&lt;/artifactId&gt;
+    &lt;version&gt;1&lt;/version&gt;
+&lt;/dependency&gt;
+</span>
+<span class="added">&lt;dependency&gt;
+    &lt;groupId&gt;jakarta.inject&lt;/groupId&gt;
+    &lt;artifactId&gt;jakarta.inject-api&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</span>
+
+<span class="comment">// Or just use Spring annotations</span>
+<span class="removed">@Named(&quot;orderService&quot;)
+public class OrderService {
+    @Inject
+    private OrderRepository repo;
+</span>
+<span class="added">@Service(&quot;orderService&quot;)
+public class OrderService {
+    @Autowired
+    private OrderRepository repo;
+</span></pre>
+
+
+  <h2>Why This Changed</h2>
+  <p>The Jakarta EE transition moved all <code>javax.*</code> APIs to <code>jakarta.*</code>. Spring Framework 7.0 completed this transition by dropping support for the legacy <code>javax.inject</code> artifact. Only <code>jakarta.inject</code> is supported.</p>
+
+  <h2>How to Fix</h2>
+  <div class="fix-options">
+    <div class="fix-option">
+      <span class="fix-num">A</span>
+      <div><span class="fix-label">Switch to jakarta.inject.</span> Replace <code>javax.inject</code> imports with <code>jakarta.inject</code>. The annotations are identical — only the package name changed. The <code>jakarta.inject-api</code> artifact is managed by the Spring Boot BOM.</div>
+    </div>
+    <div class="fix-option">
+      <span class="fix-num">B</span>
+      <div><span class="fix-label">Switch to Spring annotations (recommended).</span> Replace <code>@Inject</code> with <code>@Autowired</code> and <code>@Named</code> with <code>@Component</code> / <code>@Service</code> / <code>@Qualifier</code>. This removes the dependency on the inject API entirely.</div>
+    </div>
+  </div>
+
+  <div class="verify-box">
+    <strong>✓ Verify:</strong> mvn compile — no javax.inject import errors
+  </div>
+
+
+  <div class="scope-box">
+    <strong>Scope check:</strong> Search for <code>javax.inject</code> in all Java/Kotlin sources and build files. Every <code>import javax.inject</code> statement needs updating. Also check for <code>javax.inject:javax.inject</code> in POM files.
+  </div>
+
+
+  <h2>Watch Out</h2>
+  <p>If you're using <code>@Inject</code> for CDI compatibility (e.g., shared code between Spring and a Jakarta EE server), switch to <code>jakarta.inject</code> — it works in both environments. Don't switch to Spring-specific annotations if portability matters.</p>
+  <p>Constructor injection with <code>@Inject</code> on a single-constructor class can simply remove the annotation entirely. Spring auto-detects single-constructor injection since 4.3.</p>
+
+
+
+  <div class="further-info">
+    <div class="further-info-header">Further Info</div>
+    <div class="further-info-links">
+      <a href="https://github.com/spoole167/spring-break/tree/main/javax-annotation-removed">spring-break module: javax-annotation-removed</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
+
+    </div>
+
+    <div class="further-info-facts">Driven by the Jakarta EE transition completed in Spring Framework 7.0. The javax.inject:javax.inject:1 artifact was a JSR-330 reference implementation. Its jakarta.inject:jakarta.inject-api replacement is managed by the Spring Boot BOM. Deprecated since the javax-to-jakarta migration in Boot 3.0.</div>
+
+  </div>
+
+
+</div>
+
+<div class="footer">
+
+  <div class="footer-mitigation">
+    <strong>Not ready?</strong>
+    Pin 3.5 and track CVEs · migrate incrementally with <a href="https://docs.openrewrite.org/recipes/java/spring/boot4">OpenRewrite</a> · <a href="https://www.herodevs.com/support/spring-nes">HeroDevs NES</a> for security patches
+  </div>
+
+  <div class="footer-links">
+    <div><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></div>
+    <div><a href="https://www.herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></div>
+  </div>
+</div>
+
+</body>
+</html>

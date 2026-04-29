@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 210mm;
+    height: 297mm;
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+  }
+  .page {
+    width: 210mm;
+    height: 297mm;
+    position: relative;
+    overflow: hidden;
+  }
+  .accent-bar {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 8mm;
+    background: #8e44ad;
+  }
+  .content {
+    margin-left: 16mm;
+    margin-right: 12mm;
+    padding-top: 15mm;
+  }
+  .badge {
+    display: inline-block;
+    background: #8e44ad;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 13pt;
+    padding: 6pt 16pt;
+    border-radius: 4pt;
+    letter-spacing: 0.5pt;
+    text-transform: uppercase;
+  }
+  .tier-title {
+    margin-top: 10pt;
+    font-size: 22pt;
+    font-weight: 900;
+    color: #8e44ad;
+    line-height: 1.15;
+  }
+  .tier-subtitle {
+    margin-top: 4pt;
+    font-size: 11pt;
+    font-weight: 600;
+    color: #444;
+    letter-spacing: 0.3pt;
+  }
+  .description {
+    margin-top: 12pt;
+    font-size: 9pt;
+    line-height: 1.5;
+    color: #333;
+    max-width: 140mm;
+  }
+  .divider {
+    margin-top: 16pt;
+    margin-bottom: 14pt;
+    border: none;
+    border-top: 1.5pt solid #8e44ad;
+    opacity: 0.35;
+  }
+  .index-heading {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1pt;
+    color: #999;
+    margin-bottom: 10pt;
+  }
+  .subsystem {
+    margin-bottom: 8pt;
+  }
+  .subsystem-name {
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #8e44ad;
+    margin-bottom: 2pt;
+  }
+  .card-list {
+    font-size: 8pt;
+    line-height: 1.55;
+    color: #444;
+    padding-left: 10pt;
+  }
+  .card-list li {
+    margin-bottom: 1pt;
+    list-style-type: none;
+    position: relative;
+    padding-left: 8pt;
+  }
+  .card-list li::before {
+    content: "\2022";
+    position: absolute;
+    left: 0;
+    color: #8e44ad;
+    font-size: 8pt;
+  }
+  .card-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    color: #999;
+    margin-top: 18pt;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="accent-bar"></div>
+  <div class="content">
+    <div class="badge">Tier 3</div>
+    <div class="tier-title">Wrong Results</div>
+    <div class="tier-subtitle">Subtle Behavioural Changes</div>
+    <p class="description">
+      Your code runs but produces wrong output. Subtle behavioural changes
+      in serialization, queries, and observability.
+    </p>
+    <hr class="divider">
+    <div class="index-heading">Subsystem Index &middot; 13 Cards</div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Jackson</div>
+      <ul class="card-list">
+        <li>Date Format</li>
+        <li>Locale Format</li>
+        <li>Property Inclusion</li>
+        <li>Dates &amp; Timestamps</li>
+      </ul>
+    </div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Hibernate</div>
+      <ul class="card-list">
+        <li>Hibernate Date Types</li>
+        <li>LIKE Pattern Escaping</li>
+      </ul>
+    </div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Testing</div>
+      <ul class="card-list">
+        <li>Test Slice Relocated</li>
+      </ul>
+    </div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Observability</div>
+      <ul class="card-list">
+        <li>Controller Spans Disabled</li>
+        <li>Dashboard Gaps</li>
+        <li>OTLP HTTP Primary</li>
+      </ul>
+    </div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Spring Framework</div>
+      <ul class="card-list">
+        <li>Null-Marked Default</li>
+        <li>Retryable Transaction Order</li>
+        <li>AspectJ @Observed</li>
+      </ul>
+    </div>
+
+    <div class="card-count">13 cards in this tier</div>
+  </div>
+</div>
+</body>
+</html>

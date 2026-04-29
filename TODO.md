@@ -444,7 +444,6 @@ Build these in order. Each line: master-list-entry · suggested module name · p
 |---|---|---|---|
 | 1.13 | `bootstrap-registry-relocated` | T1A | [x] `BootstrapRegistry` and `EnvironmentPostProcessor` package move |
 | 1.40 | `testrest-template-removed` | T1A | [x] `TestRestTemplate` removed from `org.springframework.boot.test.web.client`. High-impact for migrating teams. |
-| 1.41 | `springboottest-no-mockmvc` | T2A | (cross-tier — register as Tier 2 or fold into 1.40) |
 | 1.39 | `mockito-test-execution-listener` | T2A | [x] `@Mock` / `@Captor` need `MockitoExtension` |
 | 1.36 | `httpheaders-multivaluemap` | T1C | [x] `HttpHeaders` no longer extends `MultiValueMap` |
 | 1.30 | `javax-annotation-removed` | T1A | [x] `javax.inject.Inject` / `javax.annotation.PostConstruct` no longer supported |
@@ -452,7 +451,7 @@ Build these in order. Each line: master-list-entry · suggested module name · p
 | 1.47 | `entityscan-relocated` | T1A | [x] `@EntityScan` package moved to `org.springframework.boot.persistence.autoconfigure` |
 | 1.43 | `propertymapping-relocated` | T1A | [x] `@PropertyMapping` annotation moved |
 | 1.44 | `kafka-streams-customizer-removed` | T1A | [x] `StreamBuilderFactoryBeanCustomizer` → `StreamsBuilderFactoryBeanConfigurer` |
-| 1.32 | `webjars-locator-core-removed` | T1B | [x] `webjars-locator-core` → `webjars-locator-lite` (Note: managed in 4.0.6, so skipping for now) |
+| 1.32 | `webjars-locator-core-removed` | T1B | [!] `webjars-locator-core` → `webjars-locator-lite` — no mention in Boot 4.0 Migration Guide or Release Notes; master list claim lacks primary source. Do not build until a verbatim source quote is found. |
 | 1.59 | `simpdest-message-matcher-removed` | T1A | [x] Spring Security messaging matcher removed |
 | 1.60 | `apacheds-ldap-removed` | T1B | [x] ApacheDS embedded LDAP support removed; use UnboundId |
 | 1.62 | `spring-security-access-relocated` | T1B | [x] Access API moved to legacy `spring-security-access` module |
@@ -471,6 +470,7 @@ Build these in order. Each line: master-list-entry · suggested module name · p
 
 | ML # | Suggested module name | Pattern | Notes |
 |---|---|---|---|
+| 1.41 | `springboottest-no-mockmvc` | T2A | `@SpringBootTest` no longer auto-configures `MockMvc`; inject fails without `@AutoConfigureMockMvc` |
 | 2.6 | `batch-in-memory-default` | T2A | Spring Batch defaults to in-memory; need `spring-boot-starter-batch-jdbc` for old behaviour. High-impact silent change. |
 | 2.2 | `health-probes-default-on` | T2B | Liveness/readiness probes enabled by default; new health groups appear |
 | 2.3 | `httpmessageconverters-deprecated` | T2A | Custom converter beans no longer accepted |

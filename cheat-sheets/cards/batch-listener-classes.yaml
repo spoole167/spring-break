@@ -1,0 +1,112 @@
+id: batch-listener-classes
+tier: 1
+tier_label: "Won't Build"
+title: "Batch Listener Base Classes Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: true
+verify: >
+  mvn compile and Batch job completes with listener callbacks firing
+
+further_info: >
+  Driven by Spring Batch 6.0 (upstream of Spring Boot 4.0). The
+  *ListenerSupport classes were deprecated in Spring Batch 5.0 when the
+  interfaces gained Java 8 default methods. Affects
+  spring-boot-starter-batch consumers. See also: batch-schema-rename.
+
+oneliner: >
+  Spring Batch 6.0 removed the abstract listener base classes like
+  JobExecutionListenerSupport and StepExecutionListenerSupport.
+
+error_output: |
+  $ mvn compile
+  [ERROR] /src/main/java/com/example/batch/JobCompletionListener.java:[4,52]
+    error: cannot find symbol
+      symbol:   class JobExecutionListenerSupport
+      location: package org.springframework.batch.core.listener
+  [ERROR] /src/main/java/com/example/batch/StepLoggingListener.java:[4,52]
+    error: cannot find symbol
+      symbol:   class StepExecutionListenerSupport
+
+what_changed: >
+  Spring Batch 6.0 deleted the <code>*ListenerSupport</code> abstract
+  classes: <code>JobExecutionListenerSupport</code>,
+  <code>StepExecutionListenerSupport</code>,
+  <code>ChunkListenerSupport</code>, <code>ItemReadListenerSupport</code>,
+  and others. Listeners must now implement the interfaces directly, which
+  have had default methods since Batch 5.0.
+
+why_changed: >
+  Java 8 default methods made the support classes unnecessary. The
+  interfaces now provide no-op defaults for every callback, so there's
+  nothing to inherit from. Removing the support classes simplifies the
+  class hierarchy.
+
+diffs:
+  - comment: "// Job listener"
+    removed: |
+      import org.springframework.batch.core.listener.JobExecutionListenerSupport;
+
+      public class JobCompletionListener extends JobExecutionListenerSupport {
+          @Override
+          public void afterJob(JobExecution jobExecution) {
+              log.info("Job completed: {}", jobExecution.getStatus());
+          }
+      }
+    added: |
+      import org.springframework.batch.core.JobExecutionListener;
+
+      public class JobCompletionListener implements JobExecutionListener {
+          @Override
+          public void afterJob(JobExecution jobExecution) {
+              log.info("Job completed: {}", jobExecution.getStatus());
+          }
+      }
+  - comment: "// Step listener"
+    removed: |
+      import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+
+      public class StepLogger extends StepExecutionListenerSupport {
+    added: |
+      import org.springframework.batch.core.StepExecutionListener;
+
+      public class StepLogger implements StepExecutionListener {
+
+fixes:
+  - label: "Change extends to implements."
+    text: >
+      Replace <code>extends JobExecutionListenerSupport</code> with
+      <code>implements JobExecutionListener</code>. Same for all other
+      <code>*ListenerSupport</code> classes. The interfaces have default
+      methods, so you only need to override the callbacks you use.
+  - label: "Use @BeforeJob / @AfterJob annotations."
+    text: >
+      Spring Batch also supports annotation-based listeners. Annotate
+      methods with <code>@BeforeJob</code>, <code>@AfterJob</code>,
+      <code>@BeforeStep</code>, <code>@AfterStep</code> etc. on any
+      POJO — no interface needed.
+
+scope_check: >
+  Search for <code>ListenerSupport</code> and
+  <code>extends.*ListenerSupport</code> across your batch job classes.
+  Common hits include <code>JobExecutionListenerSupport</code>,
+  <code>StepExecutionListenerSupport</code>, and
+  <code>ChunkListenerSupport</code>.
+
+watch_out:
+  - >
+    If your listener extends a support class and calls
+    <code>super.afterJob()</code> or <code>super.beforeStep()</code>,
+    remove those super calls. The interface default methods are no-ops,
+    but calling <code>super</code> on an interface method looks wrong
+    and may confuse static analysis tools.
+  - >
+    The <code>ItemWriter</code> and <code>ItemProcessor</code> interfaces
+    also changed in Batch 6.0. If you're fixing listeners, audit your
+    entire batch configuration while you're at it.
+
+footer_links:
+  - text: "spring-break module: batch-job-serialisation"
+    url: "https://github.com/spoole167/spring-break/tree/main/batch-job-serialisation"
+  - text: "Spring Batch 6 migration guide"
+    url: "https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide"

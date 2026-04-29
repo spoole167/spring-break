@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>What's Next — Spring Boot 4.0 Migration Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #fafafa;
+    color: #1a1a1a;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 14mm 15mm 10mm;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Risk Summary ── */
+
+  .risk-section {
+    margin-bottom: 8mm;
+  }
+
+  .risk-headline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16pt;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4.5mm;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 3.5mm;
+    margin-bottom: 4.5mm;
+  }
+
+  .stat-box {
+    flex: 1;
+    padding: 3.5mm 3mm;
+    border-radius: 4px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+  }
+
+  .stat-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18pt;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .stat-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 7pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #555;
+    margin-top: 2pt;
+  }
+
+  .stat-box.red    { border-left: 4px solid #c0392b; }
+  .stat-box.red    .stat-number { color: #c0392b; }
+  .stat-box.orange { border-left: 4px solid #e67e22; }
+  .stat-box.orange .stat-number { color: #e67e22; }
+  .stat-box.purple { border-left: 4px solid #8e44ad; }
+  .stat-box.purple .stat-number { color: #8e44ad; }
+
+  .risk-paragraph {
+    font-size: 8.5pt;
+    line-height: 1.5;
+    color: #333;
+  }
+
+  /* ── Divider ── */
+
+  .divider {
+    border: none;
+    border-top: 2px solid #1a1a1a;
+    margin: 6mm 0;
+  }
+
+  /* ── Options ── */
+
+  .options-section {
+    flex: 1;
+  }
+
+  .option {
+    margin-bottom: 5mm;
+  }
+
+  .option-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5pt;
+    font-weight: 700;
+    margin-bottom: 1mm;
+  }
+
+  .option-num {
+    font-weight: 700;
+  }
+
+  .option p {
+    font-size: 8pt;
+    line-height: 1.5;
+    color: #444;
+  }
+
+  .option.nes {
+    background: #f8f4fc;
+    border: 1px solid #d5c4e0;
+    border-left: 4px solid #8e44ad;
+    border-radius: 4px;
+    padding: 3mm 4mm;
+  }
+
+  .option.nes .option-header {
+    color: #8e44ad;
+  }
+
+  /* ── CTA ── */
+
+  .cta-section {
+    margin-top: 4.5mm;
+    padding: 5mm 5.5mm;
+    background: #fff;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+  }
+
+  .cta-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 2.5mm;
+  }
+
+  .cta-links {
+    font-size: 8pt;
+    line-height: 1.7;
+    color: #333;
+  }
+
+  .cta-links a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .cta-links .url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+  }
+
+  .cta-note {
+    margin-top: 2.5mm;
+    font-size: 7.5pt;
+    line-height: 1.5;
+    color: #666;
+    font-style: italic;
+  }
+
+  /* ── Footer ── */
+
+  .footer {
+    margin-top: auto;
+    padding-top: 4.5mm;
+    border-top: 1px solid #d0d0d0;
+    text-align: center;
+    font-size: 7pt;
+    color: #999;
+    font-family: 'Inter', sans-serif;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Risk Summary -->
+    <div class="risk-section">
+      <div class="risk-headline">What's At Stake</div>
+
+      <div class="stat-row">
+        <div class="stat-box red">
+          <div class="stat-number">19</div>
+          <div class="stat-label">build failures</div>
+        </div>
+        <div class="stat-box orange">
+          <div class="stat-number">13</div>
+          <div class="stat-label">runtime crashes</div>
+        </div>
+        <div class="stat-box purple">
+          <div class="stat-number">13</div>
+          <div class="stat-label">silent bugs</div>
+        </div>
+      </div>
+
+      <p class="risk-paragraph">Spring Boot 3.5 reaches end of support in November 2026. After that date, no security patches, no CVE fixes, no bug fixes. Every unpatched vulnerability is a compliance risk.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Three Options -->
+    <div class="options-section">
+      <div class="option">
+        <div class="option-header"><span class="option-num">Option 1:</span> Migrate Now</div>
+        <p>Start the migration while you still have time. Use this guide and OpenRewrite to move systematically.</p>
+      </div>
+
+      <div class="option">
+        <div class="option-header"><span class="option-num">Option 2:</span> Migrate Incrementally</div>
+        <p>Use OpenRewrite recipes to automate what you can. Fix the rest module by module. Track progress against this checklist.</p>
+      </div>
+
+      <div class="option nes">
+        <div class="option-header"><span class="option-num">Option 3:</span> Stay on 3.5 Safely</div>
+        <p>HeroDevs Never-Ending Support (NES) provides security patches, CVE fixes, and compliance certifications for Spring Boot after end-of-life. Same SLAs, same API — no migration required.</p>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <div class="cta-title">Talk to HeroDevs</div>
+      <div class="cta-links">
+        <span class="url"><a href="https://herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></span><br>
+        <a href="mailto:spring-nes@herodevs.com">spring-nes@herodevs.com</a>
+      </div>
+      <p class="cta-note">Free migration assessment available — we'll estimate your specific migration effort.</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">© 2026 HeroDevs · herodevs.com</div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+id: hibernate-date-types
+tier: 3
+tier_label: "Wrong Results"
+title: "Hibernate Native Query Date Return Types Changed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  SELECT queries return correct date/time types (check ResultSet)
+
+further_info: >
+  Driven by Hibernate 7.0 (upstream of Spring Boot 4.0). The switch from
+  java.sql date/time types to java.time (JSR 310) in native query results
+  was announced in the Hibernate 7.0 migration guide. Only affects native
+  queries returning raw Object[] rows; JPQL typed queries are unaffected.
+  See also: hibernate-dialect-removal.
+
+oneliner: >
+  Native SQL queries now return <code>java.time.LocalDate</code> instead
+  of <code>java.sql.Date</code>. Code casting to the old types throws
+  ClassCastException or silently loses time components.
+
+error_output: |
+  // Native query — same code, different result type
+  Object result = em.createNativeQuery("SELECT created_date FROM orders WHERE id = 1")
+                    .getSingleResult();
+
+  // Before (Spring Boot 3.5)
+  result.getClass() → java.sql.Date
+
+  // After (Spring Boot 4.0)
+  result.getClass() → java.time.LocalDate
+
+  // ClassCastException at runtime
+  java.lang.ClassCastException:
+    java.time.LocalDate cannot be cast to java.sql.Date
+
+  // Or subtler: time component silently lost
+  java.sql.Timestamp ts = (java.sql.Timestamp) result;  // was Timestamp
+  // Now: java.time.LocalDateTime — no getTime() method
+
+what_changed: >
+  Hibernate 7 (used by Spring Boot 4.0) changed the default Java types
+  returned for SQL <code>DATE</code>, <code>TIME</code>, and
+  <code>TIMESTAMP</code> columns in native queries. <code>java.sql.Date</code>
+  became <code>java.time.LocalDate</code>, <code>java.sql.Time</code> became
+  <code>java.time.LocalTime</code>, and <code>java.sql.Timestamp</code> became
+  <code>java.time.LocalDateTime</code>.
+
+why_changed: >
+  The <code>java.sql</code> date/time classes are legacy wrappers around
+  <code>java.util.Date</code> with known bugs (timezone handling, nanosecond
+  truncation). The <code>java.time</code> API is immutable, thread-safe, and
+  the modern standard. Hibernate aligned its defaults with the JSR 310 types.
+
+diffs:
+  - comment: "// Fix native query result handling"
+    removed: |
+      java.sql.Date date = (java.sql.Date) row[2];
+      long millis = date.getTime();
+    added: |
+      LocalDate date = (LocalDate) row[2];
+      long millis = date.atStartOfDay(ZoneOffset.UTC)
+                        .toInstant().toEpochMilli();
+  - comment: "// Typed native query"
+    removed: |
+      @Query(value = "SELECT created_date FROM orders", nativeQuery = true)
+      List<java.sql.Date> findAllDates();
+    added: |
+      @Query(value = "SELECT created_date FROM orders", nativeQuery = true)
+      List<java.time.LocalDate> findAllDates();
+  - comment: "// Timestamp results"
+    removed: "java.sql.Timestamp ts = (java.sql.Timestamp) row[3];"
+    added: "LocalDateTime ts = (LocalDateTime) row[3];"
+
+fixes:
+  - label: "Update result type casts to java.time (recommended)."
+    text: >
+      Replace all <code>java.sql.Date</code> casts with
+      <code>java.time.LocalDate</code>, <code>java.sql.Time</code> with
+      <code>java.time.LocalTime</code>, and <code>java.sql.Timestamp</code>
+      with <code>java.time.LocalDateTime</code>. This is the correct
+      modern approach.
+  - label: "Force old types with explicit addScalar()."
+    text: >
+      For legacy code that can't be updated, use Hibernate's
+      <code>addScalar("col", StandardBasicTypes.DATE)</code> to force
+      the old <code>java.sql</code> return types on specific queries.
+
+scope_check: >
+  Search for <code>nativeQuery = true</code>, <code>createNativeQuery</code>,
+  and any cast to <code>java.sql.Date</code>, <code>java.sql.Time</code>, or
+  <code>java.sql.Timestamp</code> in query result handling code. JPQL queries
+  with typed results are unaffected — only native queries and untyped
+  result sets change.
+
+watch_out:
+  - >
+    This only affects native queries that return raw <code>Object[]</code>
+    rows. JPQL queries with entity mappings or <code>@ColumnResult</code>
+    type mappings are unaffected because the type is explicit.
+  - >
+    <code>java.time.LocalDate</code> has no time component. If your code
+    relied on <code>java.sql.Date.getTime()</code> returning midnight
+    epoch millis, the replacement requires an explicit timezone conversion.
+
+footer_links:
+  - text: "spring-break module: hibernate-native-datetime"
+    url: "https://github.com/spoole167/spring-break/tree/main/hibernate-native-datetime"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

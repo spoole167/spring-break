@@ -1,0 +1,86 @@
+id: java-17-minimum
+tier: 1
+tier_label: "Won't Build"
+title: "Java 17 Minimum Requirement"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  java -version shows 17+ and mvn compile succeeds
+
+further_info: >
+  Spring Boot 4.0 requires Java 17 as the minimum (Spring Framework 7.0
+  baseline). Java 21 is recommended. The framework uses sealed classes,
+  records, and pattern matching internally. Java 11 support was dropped in
+  Spring Boot 3.0; this change raises the floor from 17 (Boot 3.x) to 17 as
+  a hard minimum with 21 recommended.
+
+oneliner: >
+  Spring Boot 4.0 requires Java 17 as the minimum language level, with 21 recommended.
+  Projects still on Java 11 or earlier won't compile at all.
+
+error_output: |
+  $ mvn compile
+  [ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.13.0:compile
+    on project my-service: Fatal error compiling: error: release version 17 not supported
+  [ERROR]
+  [ERROR] -> [Help 1] Check that your JAVA_HOME points to a JDK 17+ installation.
+
+what_changed: >
+  Spring Boot 4.0 sets <code>java.version</code> to <code>17</code> as the
+  baseline. The framework bytecode and all starters are compiled at the
+  Java 17 language level. Java 11 and earlier are no longer supported.
+
+why_changed: >
+  Java 17 is the oldest LTS release still receiving public updates.
+  Targeting it lets the framework use sealed classes, records, pattern
+  matching, and text blocks throughout the codebase.
+
+diffs:
+  - comment: "// pom.xml — Java version property"
+    removed: "<java.version>11</java.version>"
+    added: "<java.version>17</java.version>"
+  - comment: "// build.gradle — toolchain"
+    removed: |
+      java {
+          sourceCompatibility = JavaVersion.VERSION_11
+      }
+    added: |
+      java {
+          toolchain {
+              languageVersion = JavaLanguageVersion.of(17)
+          }
+      }
+  - comment: "// Dockerfile"
+    removed: "FROM eclipse-temurin:11-jre"
+    added: "FROM eclipse-temurin:17-jre"
+
+fixes:
+  - label: "Upgrade your JDK."
+    text: >
+      Install JDK 17 or (recommended) JDK 21 and set <code>JAVA_HOME</code>
+      accordingly. Update <code>java.version</code> in your POM or
+      <code>toolchain</code> block in Gradle.
+  - label: "Update CI and container base images."
+    text: >
+      Change your CI pipeline and Dockerfiles to use a 17+ base image.
+      <code>eclipse-temurin:21-jre</code> is a good default.
+
+scope_check: >
+  Check <code>java.version</code> in your POM, <code>sourceCompatibility</code>
+  in build.gradle, <code>JAVA_HOME</code> in CI scripts, and base images in
+  Dockerfiles. Any reference to Java 8, 11, or earlier needs updating.
+
+watch_out:
+  - >
+    Java 17 is the minimum, but 21 is recommended. If you're going to
+    upgrade anyway, go straight to 21 to avoid a second migration. Virtual
+    threads and the latest GC improvements are worth the jump.
+  - >
+    Third-party libraries compiled against Java 8 or 11 will still work on
+    a Java 17+ runtime. The issue is your own source code and build
+    toolchain, not your transitive dependencies.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

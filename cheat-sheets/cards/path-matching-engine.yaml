@@ -1,0 +1,112 @@
+id: path-matching-engine
+tier: 3
+tier_label: "Wrong Results"
+title: "Path Matching Engine: AntPathMatcher → PathPattern"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  All API endpoints respond (especially wildcard/regex patterns)
+
+further_info: >
+  Spring Boot 4.0 unified on PathPatternParser (already the default in
+  WebFlux since 5.0) for both MVC and Security. AntPathMatcher is still
+  available as a per-rule fallback. The key difference is that ** is only
+  supported at the end of patterns in PathPattern. See also:
+  security-dsl-rewrite, auth-default-deny.
+
+oneliner: >
+  Spring Security now uses <code>PathPattern</code> instead of
+  <code>AntPathMatcher</code>. Some wildcard patterns match differently,
+  causing silent authorisation gaps or false denials.
+
+error_output: |
+  // Security configuration — unchanged
+  http.authorizeHttpRequests(auth -> auth
+      .requestMatchers("/api/**/admin").hasRole("ADMIN")
+  );
+
+  // Before (AntPathMatcher — Spring Boot 3.5)
+  GET /api/v1/admin         → 403 (matched, requires ADMIN)
+  GET /api/v1/users/admin   → 403 (matched, ** crosses segments)
+
+  // After (PathPattern — Spring Boot 4.0)
+  GET /api/v1/admin         → 403 (still matched)
+  GET /api/v1/users/admin   → 200 (NOT matched — pattern behaves differently)
+
+  // Security test failure
+  Expected: request denied (403)
+    Actual: request allowed (200)
+  // Potential security hole: endpoint exposed without authorisation
+
+what_changed: >
+  Spring Boot 4.0 switched the default URL path matching engine from
+  <code>AntPathMatcher</code> to <code>PathPatternParser</code> for both
+  MVC request mapping and Security request matchers. While most patterns
+  work identically, edge cases around <code>**</code> in the middle of
+  patterns, trailing slashes, and encoded path segments differ.
+
+why_changed: >
+  <code>PathPatternParser</code> is significantly faster (pre-parsed at
+  startup, no runtime string manipulation), handles path variables and
+  matrix parameters correctly, and is the default in Spring WebFlux.
+  Unifying on one engine simplifies the framework.
+
+diffs:
+  - comment: "// Fix: use PathPattern syntax for multi-segment match"
+    removed: ".requestMatchers(\"/api/**/admin\").hasRole(\"ADMIN\")"
+    added: ".requestMatchers(\"/api/{*path}/admin\").hasRole(\"ADMIN\")"
+  - comment: "// Trailing slash no longer matches by default"
+    removed: ".requestMatchers(\"/api/users\").authenticated()"
+    added: ".requestMatchers(\"/api/users\", \"/api/users/\").authenticated()"
+  - comment: "// Fall back to AntPathMatcher if needed"
+    removed: "// using default PathPatternParser"
+    added: |
+      @Bean
+      public WebSecurityCustomizer legacyMatching() {
+          return web -> web.httpFirewall(new StrictHttpFirewall());
+      }
+      // In security config:
+      .requestMatchers(new AntPathRequestMatcher("/api/**/admin"))
+          .hasRole("ADMIN")
+
+fixes:
+  - label: "Audit all path patterns in security config."
+    text: >
+      Review every <code>requestMatchers()</code> pattern for uses of
+      <code>**</code> in the middle (not at the end), trailing slashes,
+      and URL-encoded segments. Test each pattern with PathPattern
+      semantics. Use <code>{*varName}</code> for capturing multi-segment
+      path variables.
+  - label: "Use AntPathRequestMatcher for legacy patterns."
+    text: >
+      For patterns that can't be rewritten, wrap them in
+      <code>new AntPathRequestMatcher(pattern)</code> to use the old
+      matching engine on a per-rule basis.
+
+scope_check: >
+  Check every <code>.requestMatchers()</code> call in your security
+  configuration and every <code>@RequestMapping</code> pattern in your
+  controllers. Patterns with <code>**</code> in the middle, trailing
+  slashes, or regex segments are the most likely to break. Simple patterns
+  like <code>/api/users/**</code> (at the end) are generally safe.
+
+watch_out:
+  - >
+    A pattern that no longer matches is a potential security hole, not
+    just a broken feature. If <code>/api/**/admin</code> stops matching
+    certain paths, those paths become unprotected. This is a Tier 3
+    change with Tier 0 security implications.
+  - >
+    <code>PathPattern</code> does not support <code>**</code> in the
+    middle of a pattern (e.g. <code>/api/**/admin</code>). It only supports
+    <code>**</code> at the end (e.g. <code>/api/**</code>). Use
+    <code>{*path}</code> for variable-length segment capture in the middle.
+
+footer_links:
+  - text: "Spring-Break Demo"
+    url: "https://github.com/spoole167/spring-break/tree/main/path-matching-engine"
+  - text: "Spring Security 7 migration guide"
+    url: "https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

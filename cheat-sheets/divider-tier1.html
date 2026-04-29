@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 210mm;
+    height: 297mm;
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+  }
+  .page {
+    width: 210mm;
+    height: 297mm;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Left accent bar */
+  .accent-bar {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 8mm;
+    background: #c0392b;
+  }
+  .content {
+    margin-left: 16mm;
+    margin-right: 12mm;
+    padding-top: 15mm;
+  }
+  /* Badge */
+  .badge {
+    display: inline-block;
+    background: #c0392b;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 13pt;
+    padding: 6pt 16pt;
+    border-radius: 4pt;
+    letter-spacing: 0.5pt;
+    text-transform: uppercase;
+  }
+  .tier-title {
+    margin-top: 10pt;
+    font-size: 22pt;
+    font-weight: 900;
+    color: #c0392b;
+    line-height: 1.15;
+  }
+  .tier-subtitle {
+    margin-top: 4pt;
+    font-size: 11pt;
+    font-weight: 600;
+    color: #444;
+    letter-spacing: 0.3pt;
+  }
+  .description {
+    margin-top: 12pt;
+    font-size: 9pt;
+    line-height: 1.5;
+    color: #333;
+    max-width: 140mm;
+  }
+  /* Divider line */
+  .divider {
+    margin-top: 16pt;
+    margin-bottom: 14pt;
+    border: none;
+    border-top: 1.5pt solid #c0392b;
+    opacity: 0.35;
+  }
+  /* Index section */
+  .index-heading {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1pt;
+    color: #999;
+    margin-bottom: 10pt;
+  }
+  .subsystem {
+    margin-bottom: 8pt;
+  }
+  .subsystem-name {
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #c0392b;
+    margin-bottom: 2pt;
+  }
+  .card-list {
+    font-size: 8pt;
+    line-height: 1.55;
+    color: #444;
+    padding-left: 10pt;
+  }
+  .card-list li {
+    margin-bottom: 1pt;
+    list-style-type: none;
+    position: relative;
+    padding-left: 8pt;
+  }
+  .card-list li::before {
+    content: "\2022";
+    position: absolute;
+    left: 0;
+    color: #c0392b;
+    font-size: 8pt;
+  }
+  /* Card count */
+  .card-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    color: #999;
+    margin-top: 18pt;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="accent-bar"></div>
+  <div class="content">
+    <div class="badge">Tier 1</div>
+    <div class="tier-title">Won't Build</div>
+    <div class="tier-subtitle">Compilation &amp; Dependency Failures</div>
+    <p class="description">
+      Your code won't compile. These are import, dependency, and API changes
+      that produce immediate build failures.
+    </p>
+    <hr class="divider">
+    <div class="index-heading">Subsystem Index &middot; 19 Cards</div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Jackson</div>
+      <ul class="card-list">
+        <li>Jackson 3.0 Group ID &amp; Class Renames</li>
+        <li>Jackson Exception Hierarchy</li>
+        <li>Jackson Class Renames</li>
+      </ul>
+    </div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Build Tools</div>
+      <ul class="card-list">
+        <li>Java 17 Minimum</li>
+        <li>Gradle Version</li>
+        <li>Maven AOT Plugin</li>
+        <li>GraalVM 25</li>
+      </ul>
+    </div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Hibernate</div>
+      <ul class="card-list">
+        <li>Hibernate Dialect Removal</li>
+        <li>Cascade Save-Update</li>
+        <li>Hibernate Processor Rename</li>
+        <li>Session.delete() Removed</li>
+      </ul>
+    </div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Spring Security</div>
+      <ul class="card-list">
+        <li>WebSecurityConfigurerAdapter Removed</li>
+        <li>OpenSAML 4 Removed</li>
+      </ul>
+    </div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Spring Framework</div>
+      <ul class="card-list">
+        <li>ListenableFuture Removed</li>
+        <li>OkHttp3 Removed</li>
+        <li>javax.inject Removed</li>
+        <li>spring-jcl Removed</li>
+        <li>Undertow Removed</li>
+      </ul>
+    </div>
+
+    <div class="subsystem">
+      <div class="subsystem-name">Testing</div>
+      <ul class="card-list">
+        <li>@MockBean Removed</li>
+      </ul>
+    </div>
+
+    <div class="card-count">19 cards in this tier</div>
+  </div>
+</div>
+</body>
+</html>

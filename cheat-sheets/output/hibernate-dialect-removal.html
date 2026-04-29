@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Version-Specific Hibernate Dialects Removed — Spring Boot 4.0 Migration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 10mm 16mm 20mm;
+    position: relative;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 2px solid #e67e22;
+  }
+
+  .tier-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    background: #e67e22;
+    padding: 2pt 7pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .series-label {
+    font-size: 7pt;
+    color: #999;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .meta-badges {
+    display: flex;
+    gap: 6pt;
+    align-items: center;
+    margin-bottom: 1.5mm;
+  }
+
+  .effort-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .effort-S { background: #d4edda; color: #155724; }
+  .effort-M { background: #fff3cd; color: #856404; }
+  .effort-L { background: #f8d7da; color: #721c24; }
+
+  .openrewrite-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 600;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    background: #e8f0fe;
+    color: #1a56db;
+    letter-spacing: 0.3px;
+  }
+
+  .verify-box {
+    background: #f0faf0;
+    border: 1px solid #c3e6c3;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    font-size: 8pt;
+    line-height: 1.4;
+  }
+
+  .verify-box strong { font-size: 8pt; color: #155724; }
+  .verify-box code { font-size: 7.5pt; background: #d4edda; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14pt;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1.5mm;
+  }
+
+  .oneliner {
+    font-size: 9pt;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 2mm;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #e67e22;
+    margin-bottom: 1mm;
+    margin-top: 2.5mm;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+
+  p {
+    font-size: 8.5pt;
+    line-height: 1.45;
+    margin-bottom: 1.5mm;
+  }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    line-height: 1.5;
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    overflow: hidden;
+  }
+
+  pre .removed { color: #c0392b; text-decoration: line-through; opacity: 0.7; }
+  pre .added { color: #27713b; font-weight: 500; }
+  pre .comment { color: #999; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    background: #f0f0f0;
+    padding: 0.5pt 3pt;
+    border-radius: 2px;
+  }
+
+  .fix-options { margin: 1mm 0 1.5mm; }
+
+  .fix-option {
+    display: flex;
+    gap: 2.5mm;
+    margin-bottom: 1mm;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .fix-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #e67e22;
+    min-width: 4mm;
+    flex-shrink: 0;
+  }
+
+  .fix-label { font-weight: 600; }
+  .fix-option a { color: #2563eb; text-decoration: none; }
+
+  .scope-box {
+    background: #fef9f2;
+    border: 1px solid #f5e0c0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0;
+    font-size: 8pt;
+    line-height: 1.45;
+  }
+
+  .scope-box strong { font-size: 8pt; }
+
+  /* Further Info — compact single block */
+  .further-info {
+    margin-top: 2.5mm;
+    padding: 1.5mm 2.5mm;
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 3px;
+    font-size: 7.5pt;
+    line-height: 1.45;
+    color: #555;
+  }
+
+  .further-info-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #e67e22;
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links {
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 7.5pt;
+  }
+
+  .further-info-links span.sep {
+    color: #ccc;
+    margin: 0 1mm;
+  }
+
+  .further-info-facts {
+    font-size: 7pt;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  .footer {
+    position: fixed;
+    bottom: 6mm;
+    left: 16mm;
+    right: 16mm;
+    font-size: 6.5pt;
+    color: #999;
+  }
+
+  .footer-mitigation {
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 2px;
+    padding: 2pt 6pt;
+    margin-bottom: 3pt;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .footer-mitigation strong { color: #1a1a1a; }
+  .footer-mitigation a { color: #2563eb; text-decoration: none; }
+
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2pt;
+    border-top: 1px solid #ddd;
+  }
+
+  .footer-links a { color: #2563eb; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <span class="tier-badge">Tier 2 · Won't Run</span>
+    <span class="series-label">spring-boot 3.5 → 4.0</span>
+  </div>
+
+  <h1>Version-Specific Hibernate Dialects Removed</h1>
+  <div class="oneliner">Hibernate 7 removed version-specific dialect classes like MySQL57Dialect and PostgreSQL95Dialect. Applications that explicitly configure a dialect fail at startup with ClassNotFoundException.</div>
+
+  <div class="meta-badges">
+    <span class="effort-badge effort-S">Effort: S</span>
+    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+  </div>
+
+  <h2>What You'll See</h2>
+<pre><span class="comment">org.springframework.beans.factory.BeanCreationException:
+  Error creating bean with name &#x27;entityManagerFactory&#x27;
+...
+Caused by: java.lang.ClassNotFoundException:
+  org.hibernate.dialect.MySQL57Dialect
+ at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+ at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+ ...
+APPLICATION FAILED TO START
+---
+Description:
+Failed to configure a DataSource: Hibernate dialect
+&#x27;org.hibernate.dialect.MySQL57Dialect&#x27; could not be found.</span></pre>
+
+  <h2>What Changed</h2>
+  <p>Hibernate 7 removed all version-specific dialect classes (<code>MySQL57Dialect</code>, <code>MySQL8Dialect</code>, <code>PostgreSQL95Dialect</code>, <code>PostgreSQL10Dialect</code>, <code>Oracle12cDialect</code>, <code>SQLServer2016Dialect</code>, etc.). Only the base dialect classes remain (<code>MySQLDialect</code>, <code>PostgreSQLDialect</code>, <code>OracleDialect</code>, <code>SQLServerDialect</code>). Hibernate now auto-detects the database version from the JDBC connection and configures features accordingly.</p>
+
+<pre><span class="comment">// application.properties</span>
+<span class="removed">spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL57Dialect</span>
+<span class="added"># Remove explicit dialect — Hibernate auto-detects from JDBC connection</span>
+
+<span class="comment">// application.properties — if you must be explicit</span>
+<span class="removed">spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect</span>
+<span class="added">spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</span>
+
+<span class="comment">// persistence.xml</span>
+<span class="removed">&lt;property name=&quot;hibernate.dialect&quot; value=&quot;org.hibernate.dialect.Oracle12cDialect&quot;/&gt;</span>
+<span class="added">&lt;property name=&quot;hibernate.dialect&quot; value=&quot;org.hibernate.dialect.OracleDialect&quot;/&gt;</span></pre>
+
+
+  <h2>Why This Changed</h2>
+  <p>Maintaining separate dialect classes for every database version created a combinatorial explosion. Hibernate's new approach detects the database version at runtime and enables the correct features automatically, eliminating the need for users to choose the right dialect class.</p>
+
+  <h2>How to Fix</h2>
+  <div class="fix-options">
+    <div class="fix-option">
+      <span class="fix-num">A</span>
+      <div><span class="fix-label">Remove explicit dialect (recommended).</span> Delete the <code>spring.jpa.properties.hibernate.dialect</code> property entirely. Hibernate 7 auto-detects the correct dialect from the JDBC connection metadata. This is the cleanest fix and the one the Hibernate team recommends.</div>
+    </div>
+    <div class="fix-option">
+      <span class="fix-num">B</span>
+      <div><span class="fix-label">Switch to base dialect class.</span> If you need an explicit dialect for testing or CI (e.g., H2 in-memory), use the unversioned base class: <code>MySQLDialect</code>, <code>PostgreSQLDialect</code>, <code>OracleDialect</code>, or <code>SQLServerDialect</code>.</div>
+    </div>
+  </div>
+
+  <div class="verify-box">
+    <strong>✓ Verify:</strong> App starts with no DialectResolutionInfoMissingException
+  </div>
+
+
+  <div class="scope-box">
+    <strong>Scope check:</strong> Search for <code>hibernate.dialect</code> in <code>application.properties</code>, <code>application.yml</code>, <code>persistence.xml</code>, and any programmatic <code>LocalContainerEntityManagerFactoryBean</code> configuration. Also check test configurations and Docker Compose profiles that may set dialect overrides.
+  </div>
+
+
+  <h2>Watch Out</h2>
+  <p>If you use Testcontainers or H2 for tests, those test configs often set an explicit dialect. Check <code>src/test/resources</code> too.</p>
+  <p>Some database connection pools or frameworks set the dialect programmatically. Search for <code>setProperty("hibernate.dialect"</code> in Java code, not just property files.</p>
+  <p>The auto-detection requires an active JDBC connection at startup. If your application uses lazy datasource initialization, you may still need an explicit base dialect class.</p>
+
+
+
+  <div class="further-info">
+    <div class="further-info-header">Further Info</div>
+    <div class="further-info-links">
+      <a href="https://github.com/spoole167/spring-break/tree/main/hibernate-dialect-removal">spring-break module: hibernate-dialect-removal</a><span class="sep">·</span>
+      <a href="https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html">Hibernate 7 migration guide</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
+
+    </div>
+
+    <div class="further-info-facts">Driven by Hibernate 7.0 (upstream of Spring Boot 4.0). Version-specific dialect classes (MySQL57Dialect, PostgreSQL95Dialect, Oracle12cDialect, etc.) were deprecated in Hibernate 6.0 and removed in 7.0 in favour of runtime version auto-detection. Affects spring-boot-starter-data-jpa consumers. See also: hibernate-date-types, cascade-save-update.</div>
+
+  </div>
+
+
+</div>
+
+<div class="footer">
+
+  <div class="footer-mitigation">
+    <strong>Not ready?</strong>
+    Pin 3.5 and track CVEs · migrate incrementally with <a href="https://docs.openrewrite.org/recipes/java/spring/boot4">OpenRewrite</a> · <a href="https://www.herodevs.com/support/spring-nes">HeroDevs NES</a> for security patches
+  </div>
+
+  <div class="footer-links">
+    <div><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></div>
+    <div><a href="https://www.herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></div>
+  </div>
+</div>
+
+</body>
+</html>

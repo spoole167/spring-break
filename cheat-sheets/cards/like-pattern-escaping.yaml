@@ -1,0 +1,110 @@
+id: like-pattern-escaping
+tier: 3
+tier_label: "Wrong Results"
+title: "LIKE Pattern Escaping for IsStartingWith / IsContaining"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  LIKE queries with % or _ in search terms return correct results
+
+further_info: >
+  Introduced in Spring Data JPA 4.0 (upstream of Spring Boot 4.0). The
+  escaping fix addresses a long-standing correctness bug and subtle SQL
+  injection vector in derived LIKE queries. Affects
+  spring-boot-starter-data-jpa consumers using IsStartingWith, IsEndingWith,
+  IsContaining, or IsLike derived query methods.
+
+oneliner: >
+  Spring Data now escapes <code>%</code> and <code>_</code> wildcards in
+  derived LIKE queries. Search terms that relied on user-supplied wildcards
+  silently stop matching.
+
+error_output: |
+  // Repository method
+  List<Product> findByNameStartingWith(String prefix);
+
+  // Call: findByNameStartingWith("100%")
+
+  // Before (Spring Boot 3.5) — unescaped
+  SELECT * FROM product WHERE name LIKE '100%%'
+  // Matches: "100% Cotton", "1000 Islands", "100x Zoom"
+
+  // After (Spring Boot 4.0) — wildcards escaped
+  SELECT * FROM product WHERE name LIKE '100\%%' ESCAPE '\'
+  // Matches: "100% Cotton" only (correct!)
+
+  // Test failure (if tests relied on old wildcard behaviour)
+  Expected result size: 3
+    Actual result size: 1
+
+what_changed: >
+  Spring Data JPA now automatically escapes SQL wildcard characters
+  (<code>%</code> and <code>_</code>) in the parameter values for derived
+  query methods like <code>IsStartingWith</code>, <code>IsEndingWith</code>,
+  <code>IsContaining</code>, and <code>IsLike</code>. A search for
+  <code>100%</code> now literally matches the percent sign instead of
+  treating it as a wildcard.
+
+why_changed: >
+  The old behaviour was a subtle SQL injection vector and a correctness bug.
+  If a user searched for <code>100%</code>, the unescaped <code>%</code>
+  became a wildcard that matched any suffix — returning results the user
+  didn't ask for. Escaping makes the queries correct by default.
+
+diffs:
+  - comment: "// Generated SQL — the framework now adds ESCAPE"
+    removed: "WHERE name LIKE ?1 || '%'"
+    added: "WHERE name LIKE ?1 || '%' ESCAPE '\\'"
+  - comment: "// If you WANT wildcard passthrough, use @Query"
+    removed: "List<Product> findByNameLike(String pattern);"
+    added: |
+      @Query("SELECT p FROM Product p WHERE p.name LIKE :pattern")
+      List<Product> findByNameLike(@Param("pattern") String pattern);
+  - comment: "// Fix tests that relied on unescaped wildcards"
+    removed: |
+      // Test: search for "100%" expected to match "1000 Islands"
+      List<Product> results = repo.findByNameStartingWith("100%");
+      assertThat(results).hasSize(3);
+    added: |
+      // Test: "100%" now matches only literal percent sign
+      List<Product> results = repo.findByNameStartingWith("100%");
+      assertThat(results).hasSize(1);  // only "100% Cotton"
+
+fixes:
+  - label: "Embrace the fix (recommended)."
+    text: >
+      The new escaping is correct behaviour. Update your tests to expect
+      precise matching. If your app was returning extra results due to
+      accidental wildcard expansion, those results were bugs.
+  - label: "Use @Query for intentional wildcard passthrough."
+    text: >
+      If you genuinely need users to pass <code>%</code> and <code>_</code>
+      as wildcards, switch to an explicit <code>@Query</code> annotation
+      with a hand-written LIKE clause. This opts out of the escaping.
+
+scope_check: >
+  Search for derived query methods containing <code>StartingWith</code>,
+  <code>EndingWith</code>, <code>Containing</code>, <code>Like</code>,
+  or <code>NotLike</code>. Any call that passes <code>%</code> or
+  <code>_</code> in the parameter value will now behave differently.
+  Also check any test data that includes these characters.
+
+watch_out:
+  - >
+    This is a correctness fix that may look like a regression. If your
+    existing tests pass search terms containing <code>%</code> or
+    <code>_</code>, those tests were unknowingly relying on wildcard
+    expansion. The new behaviour is the right one — but your tests
+    will still break.
+  - >
+    The escaping applies to the parameter value, not to the <code>%</code>
+    that Spring Data adds for <code>StartingWith</code> /
+    <code>Containing</code> patterns. The framework's own wildcards are
+    unaffected — only user-supplied characters are escaped.
+
+footer_links:
+  - text: "Spring-Break Demo"
+    url: "https://github.com/spoole167/spring-break/tree/main/like-pattern-escaping"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

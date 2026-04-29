@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Security DSL Rewrite — Spring Boot 4.0 Migration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: A4; margin: 0; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 10mm 16mm 20mm;
+    position: relative;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 2px solid #c0392b;
+  }
+
+  .tier-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    background: #c0392b;
+    padding: 2pt 7pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .series-label {
+    font-size: 7pt;
+    color: #999;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .meta-badges {
+    display: flex;
+    gap: 6pt;
+    align-items: center;
+    margin-bottom: 1.5mm;
+  }
+
+  .effort-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .effort-S { background: #d4edda; color: #155724; }
+  .effort-M { background: #fff3cd; color: #856404; }
+  .effort-L { background: #f8d7da; color: #721c24; }
+
+  .openrewrite-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 600;
+    padding: 1.5pt 6pt;
+    border-radius: 2px;
+    background: #e8f0fe;
+    color: #1a56db;
+    letter-spacing: 0.3px;
+  }
+
+  .verify-box {
+    background: #f0faf0;
+    border: 1px solid #c3e6c3;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    font-size: 8pt;
+    line-height: 1.4;
+  }
+
+  .verify-box strong { font-size: 8pt; color: #155724; }
+  .verify-box code { font-size: 7.5pt; background: #d4edda; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14pt;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1.5mm;
+  }
+
+  .oneliner {
+    font-size: 9pt;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 2mm;
+  }
+
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #c0392b;
+    margin-bottom: 1mm;
+    margin-top: 2.5mm;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+
+  p {
+    font-size: 8.5pt;
+    line-height: 1.45;
+    margin-bottom: 1.5mm;
+  }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    line-height: 1.5;
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0 1.5mm;
+    overflow: hidden;
+  }
+
+  pre .removed { color: #c0392b; text-decoration: line-through; opacity: 0.7; }
+  pre .added { color: #27713b; font-weight: 500; }
+  pre .comment { color: #999; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    background: #f0f0f0;
+    padding: 0.5pt 3pt;
+    border-radius: 2px;
+  }
+
+  .fix-options { margin: 1mm 0 1.5mm; }
+
+  .fix-option {
+    display: flex;
+    gap: 2.5mm;
+    margin-bottom: 1mm;
+    font-size: 8.5pt;
+    line-height: 1.4;
+  }
+
+  .fix-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #c0392b;
+    min-width: 4mm;
+    flex-shrink: 0;
+  }
+
+  .fix-label { font-weight: 600; }
+  .fix-option a { color: #2563eb; text-decoration: none; }
+
+  .scope-box {
+    background: #fdf2f2;
+    border: 1px solid #f0d0d0;
+    border-radius: 3px;
+    padding: 1.5mm 2.5mm;
+    margin: 1mm 0;
+    font-size: 8pt;
+    line-height: 1.45;
+  }
+
+  .scope-box strong { font-size: 8pt; }
+
+  /* Further Info — compact single block */
+  .further-info {
+    margin-top: 2.5mm;
+    padding: 1.5mm 2.5mm;
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 3px;
+    font-size: 7.5pt;
+    line-height: 1.45;
+    color: #555;
+  }
+
+  .further-info-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #c0392b;
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links {
+    margin-bottom: 1mm;
+  }
+
+  .further-info-links a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 7.5pt;
+  }
+
+  .further-info-links span.sep {
+    color: #ccc;
+    margin: 0 1mm;
+  }
+
+  .further-info-facts {
+    font-size: 7pt;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  .footer {
+    position: fixed;
+    bottom: 6mm;
+    left: 16mm;
+    right: 16mm;
+    font-size: 6.5pt;
+    color: #999;
+  }
+
+  .footer-mitigation {
+    background: #f8f9fa;
+    border: 1px solid #e2e4e7;
+    border-radius: 2px;
+    padding: 2pt 6pt;
+    margin-bottom: 3pt;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .footer-mitigation strong { color: #1a1a1a; }
+  .footer-mitigation a { color: #2563eb; text-decoration: none; }
+
+  .footer-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2pt;
+    border-top: 1px solid #ddd;
+  }
+
+  .footer-links a { color: #2563eb; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="series-label">spring-boot 3.5 → 4.0</span>
+  </div>
+
+  <h1>Security DSL Rewrite</h1>
+  <div class="oneliner">Spring Security removed authorizeRequests(), antMatchers(), and the .and() chaining method. The entire HTTP security DSL must be rewritten.</div>
+
+  <div class="meta-badges">
+    <span class="effort-badge effort-L">Effort: L</span>
+    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+  </div>
+
+  <h2>What You'll See</h2>
+<pre><span class="comment">$ mvn compile
+[ERROR] /src/main/java/com/example/SecurityConfig.java:[22,14]
+  error: cannot find symbol
+    symbol:   method authorizeRequests()
+    location: variable http of type HttpSecurity
+[ERROR] /src/main/java/com/example/SecurityConfig.java:[23,18]
+  error: cannot find symbol
+    symbol:   method antMatchers(java.lang.String)
+[ERROR] /src/main/java/com/example/SecurityConfig.java:[28,10]
+  error: cannot find symbol
+    symbol:   method and()</span></pre>
+
+  <h2>What Changed</h2>
+  <p>Spring Security 7.0 (shipped with Boot 4.0) removed the deprecated <code>authorizeRequests()</code> method — use <code>authorizeHttpRequests()</code> instead. <code>antMatchers()</code>, <code>mvcMatchers()</code>, and <code>regexMatchers()</code> are replaced by <code>requestMatchers()</code>. The <code>.and()</code> chaining method is gone — use lambda DSL with separate method calls instead.</p>
+
+<pre><span class="comment">// Security filter chain — before</span>
+<span class="removed">http
+    .authorizeRequests()
+        .antMatchers(&quot;/public/**&quot;).permitAll()
+        .antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+        .anyRequest().authenticated()
+        .and()
+    .formLogin()
+        .loginPage(&quot;/login&quot;)
+        .and()
+    .logout()
+        .logoutSuccessUrl(&quot;/&quot;);
+</span>
+<span class="added">http
+    .authorizeHttpRequests(auth -&gt; auth
+        .requestMatchers(&quot;/public/**&quot;).permitAll()
+        .requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+        .anyRequest().authenticated()
+    )
+    .formLogin(form -&gt; form
+        .loginPage(&quot;/login&quot;)
+    )
+    .logout(logout -&gt; logout
+        .logoutSuccessUrl(&quot;/&quot;)
+    );
+</span>
+
+<span class="comment">// CSRF configuration</span>
+<span class="removed">http.csrf().disable();
+</span>
+<span class="added">http.csrf(csrf -&gt; csrf.disable());
+</span></pre>
+
+
+  <h2>Why This Changed</h2>
+  <p>The lambda DSL is more readable and avoids a class of configuration bugs where <code>.and()</code> chains silently reset the security context. The new <code>requestMatchers()</code> API auto-detects whether to use Ant or MVC matching based on your classpath.</p>
+
+  <h2>How to Fix</h2>
+  <div class="fix-options">
+    <div class="fix-option">
+      <span class="fix-num">A</span>
+      <div><span class="fix-label">Rewrite to lambda DSL.</span> Replace every <code>.and()</code> chain with a lambda-based configuration block. Each security concern (authorization, form login, logout, CSRF) gets its own lambda. See the <a href="https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html">Spring Security 7 migration guide</a>.</div>
+    </div>
+    <div class="fix-option">
+      <span class="fix-num">B</span>
+      <div><span class="fix-label">Replace matchers.</span> Change <code>antMatchers()</code> and <code>mvcMatchers()</code> to <code>requestMatchers()</code>. The new method auto-selects the matching strategy. <code>regexMatchers()</code> becomes <code>requestMatchers(new RegexRequestMatcher(...))</code>.</div>
+    </div>
+  </div>
+
+  <div class="verify-box">
+    <strong>✓ Verify:</strong> App starts and security filter chain initialises without errors
+  </div>
+
+
+  <div class="scope-box">
+    <strong>Scope check:</strong> Search for <code>authorizeRequests()</code>, <code>antMatchers()</code>, <code>mvcMatchers()</code>, <code>.and()</code> in security config classes, and <code>.csrf().disable()</code>. Every <code>SecurityFilterChain</code> bean needs reviewing.
+  </div>
+
+
+  <h2>Watch Out</h2>
+  <p>The <code>.and()</code> removal is the most disruptive part. If you have a long chain with 5+ <code>.and()</code> calls, the rewrite changes the entire structure of the method. Review the result carefully — it's easy to accidentally nest a lambda inside the wrong block.</p>
+  <p><code>requestMatchers()</code> auto-detects MVC vs Ant matching. If you have Spring MVC on the classpath, it uses MVC matching (which is stricter). If this changes behaviour, use <code>AntPathRequestMatcher</code> explicitly.</p>
+
+
+
+  <div class="further-info">
+    <div class="further-info-header">Further Info</div>
+    <div class="further-info-links">
+      <a href="https://github.com/spoole167/spring-break/tree/main/security-removed-apis">spring-break module: security-removed-apis</a><span class="sep">·</span>
+      <a href="https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html">Spring Security 7 migration guide</a>
+
+    </div>
+
+    <div class="further-info-facts">Driven by Spring Security 7.0. The authorizeRequests(), antMatchers(), and .and() chaining were deprecated in Security 5.7/6.0 and removed in 7.0. The lambda DSL was introduced in Security 5.2 as the recommended replacement. Affects all spring-boot-starter-security consumers. See also: websecurity-adapter-removed, auth-default-deny.</div>
+
+  </div>
+
+
+</div>
+
+<div class="footer">
+
+  <div class="footer-mitigation">
+    <strong>Not ready?</strong>
+    Pin 3.5 and track CVEs · migrate incrementally with <a href="https://docs.openrewrite.org/recipes/java/spring/boot4">OpenRewrite</a> · <a href="https://www.herodevs.com/support/spring-nes">HeroDevs NES</a> for security patches
+  </div>
+
+  <div class="footer-links">
+    <div><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></div>
+    <div><a href="https://www.herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></div>
+  </div>
+</div>
+
+</body>
+</html>

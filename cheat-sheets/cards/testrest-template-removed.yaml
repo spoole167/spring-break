@@ -1,0 +1,76 @@
+id: testrest-template-removed
+tier: 1
+tier_label: "Won't Build"
+title: "TestRestTemplate Package Relocated"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  mvn test-compile — no package does not exist for org.springframework.boot.test.web.client
+
+further_info: >
+  Part of a broader Spring Boot 4.0 testing infrastructure overhaul.
+  TestRestTemplate moved from spring-boot-test-autoconfigure to a new
+  spring-boot-test-rest-client module. Teams with many integration tests
+  that inject TestRestTemplate will see compile failures across multiple
+  test files. See also: springboottest-no-mockmvc (MockMvc auto-config removed).
+
+oneliner: >
+  TestRestTemplate moved to org.springframework.boot.resttestclient.
+  Every test that imports the old package fails to compile.
+
+error_output: |
+  $ mvn test-compile
+  [ERROR] /src/test/java/com/example/MyControllerTest.java:[3,56]
+    error: package org.springframework.boot.test.web.client does not exist
+  [ERROR] /src/test/java/com/example/MyControllerTest.java:[15,5]
+    error: cannot find symbol
+      symbol: class TestRestTemplate
+
+what_changed: >
+  <code>TestRestTemplate</code> was removed from
+  <code>org.springframework.boot.test.web.client</code> and relocated to
+  <code>org.springframework.boot.resttestclient</code> as part of a new
+  dedicated module for REST test clients.
+
+why_changed: >
+  Spring Boot 4.0 modularised its testing support. The REST test client
+  infrastructure was separated into its own module to reduce the footprint
+  of the core test autoconfigure dependency and align with the
+  spring-boot-test-rest-client naming.
+
+diffs:
+  - comment: "// Test class import"
+    removed: "import org.springframework.boot.test.web.client.TestRestTemplate;"
+    added: "import org.springframework.boot.resttestclient.TestRestTemplate;"
+
+fixes:
+  - label: "Update the import."
+    text: >
+      Replace <code>org.springframework.boot.test.web.client.TestRestTemplate</code>
+      with <code>org.springframework.boot.resttestclient.TestRestTemplate</code>.
+      The class itself is functionally equivalent.
+  - label: "Consider RestTestClient."
+    text: >
+      The new <code>RestTestClient</code> provides a more modern, fluent API
+      for REST testing and is the preferred approach in Boot 4.0.
+      If you are refactoring tests anyway, this is a good time to migrate.
+
+scope_check: >
+  Search all test sources for
+  <code>org.springframework.boot.test.web.client.TestRestTemplate</code>
+  and for <code>@Autowired TestRestTemplate</code> or
+  <code>@Autowired private TestRestTemplate</code>. Every hit needs the import
+  updated.
+
+watch_out:
+  - >
+    Any custom configuration class that creates a <code>TestRestTemplate</code>
+    bean (e.g., for authentication headers) also needs the import updated —
+    not just the test classes that inject it.
+
+footer_links:
+  - text: "spring-break module: testrest-template-removed"
+    url: "https://github.com/spoole167/spring-break/tree/main/testrest-template-removed"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
