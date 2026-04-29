@@ -156,6 +156,7 @@
         <!-- Category (d) — Different Results on 4.0  (3 modules)
              Compiles and runs on both, output/behaviour differs silently. -->
         <module>jackson-date-serialisation</module>
+        <module>jackson-dates-timestamps</module>
         <module>jackson-locale-format</module>
         <module>hibernate-native-datetime</module>
         <module>webjars-locator-core-removed</module>

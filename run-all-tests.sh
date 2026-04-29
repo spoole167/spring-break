@@ -113,6 +113,7 @@ CATEGORY_C=(
 # (d) Different Results: runs on both, assertions detect different behaviour.
 CATEGORY_D=(
   jackson-date-serialisation
+  jackson-dates-timestamps
   jackson-locale-format
   hibernate-native-datetime
 )
