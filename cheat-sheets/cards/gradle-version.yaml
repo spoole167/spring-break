@@ -5,6 +5,8 @@ title: "Gradle 8.14+ / Gradle 9 Required"
 series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
+no_module: true
+no_module_reason: "Gradle plugin version constraint — only observable via a Gradle build, not mvn test"
 verify: >
   ./gradlew --version shows 8.x+ and build succeeds
 

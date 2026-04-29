@@ -5,6 +5,8 @@ title: "Java 17 Minimum Requirement"
 series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
+no_module: true
+no_module_reason: "JVM version requirement — the suite already runs on Java 17+; cannot simulate a lower JDK via Spring Boot version switch"
 verify: >
   java -version shows 17+ and mvn compile succeeds
 

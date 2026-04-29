@@ -5,6 +5,8 @@ title: "Controller/View Spans Silently Disabled"
 series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
+no_module: true
+no_module_reason: "Same break as controller-spans-disabled from a dashboard perspective — untestable without live tracing infrastructure"
 verify: >
   All Grafana/Jaeger panels show data — no 'No data' gaps
 

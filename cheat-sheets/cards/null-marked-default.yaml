@@ -5,6 +5,8 @@ title: "@NullMarked Default — IDE/Compiler Null Safety"
 series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
+no_module: true
+no_module_reason: "Compile-time and IDE-only change — the card explicitly states runtime behaviour is unchanged; no JUnit assertion is meaningful"
 verify: >
   No new NullPointerException at boundaries where nulls were OK before
 
