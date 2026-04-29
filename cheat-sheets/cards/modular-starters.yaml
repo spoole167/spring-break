@@ -5,6 +5,26 @@ title: "Modular Auto-Configuration"
 series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
+no_module: true
+no_module_reason: >
+  This break cannot be reduced to a single reproducible test case. The
+  underlying change is real — Boot 4.0 split spring-boot-autoconfigure into
+  focused, feature-specific modules — but which implicit auto-configurations
+  go missing depends entirely on the specific combination of starters and
+  third-party libraries an application declares. There is no universal "this
+  class is gone" moment.
+
+  The canonical example in this card (ObjectMapper missing after declaring
+  only spring-boot-starter-web) was tested and does not reproduce on Boot 4.0:
+  the Spring team preserved the Jackson transitive dependency through the web
+  starter to avoid breaking the most common case. Other transitive paths may
+  have been cut, but they are application-specific.
+
+  The card is kept because the architectural advice is correct and important:
+  every team migrating to Boot 4.0 must audit their dependency tree and make
+  implicit auto-configuration dependencies explicit. The Migration Guide's
+  starter mapping table is the right tool for that audit. A single test module
+  cannot substitute for it.
 verify: >
   App starts and ObjectMapper, Validator, and other auto-configured beans
   are present — confirm with a test that autowires each one
