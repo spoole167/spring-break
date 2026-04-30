@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>hibernate-cascade-removal</artifactId>
-    <name>Category (a) — Hibernate CascadeType.SAVE_UPDATE Removed</name>
+    <name>Tier 1 — Hibernate CascadeType.SAVE_UPDATE Removed</name>
     <description>CascadeType.SAVE_UPDATE was a Hibernate-specific cascade type. Removed in Hibernate 7. Code using it gets a runtime error.</description>
 
     <dependencies>

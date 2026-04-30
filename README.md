@@ -1,6 +1,6 @@
 # Spring Boot 3.5 → 4.0 Migration Test Cases
 
-31 self-contained Maven modules, each demonstrating a specific breaking change at the 3.5→4.0 boundary. The default build uses Spring Boot 3.5.14 — all tests pass. Override the version to see what breaks.
+57 self-contained Maven modules, each demonstrating a specific breaking change at the 3.5→4.0 boundary. The default build uses Spring Boot 3.5.14 — all tests pass. Override the version to see what breaks.
 
 ## Quick start
 
@@ -19,9 +19,9 @@ mvn test -pl jackson-date-serialisation
 mvn test -pl jackson-date-serialisation -Dspring-boot.version=4.0.6
 ```
 
-## Modules by category
+## Modules by tier
 
-### (a) Won't Compile — 8 modules
+### Tier 1 — Won't Build — 38 modules
 
 Your build breaks immediately. Loud, obvious, caught before deploy.
 
@@ -36,7 +36,7 @@ Your build breaks immediately. Loud, obvious, caught before deploy.
 | `spring-retry-removed` | `spring-retry` library removed from Boot 4.0 BOM — retry moved to SF7 core |
 | `batch-job-serialisation` | `JobExecutionListenerSupport`, `StepExecutionListenerSupport`, `ChunkListenerSupport` removed in Batch 6 |
 
-### (c) Runtime Errors — 7 modules
+### Tier 2 — Won't Run — 15 modules
 
 Compiles fine. Throws runtime exceptions on specific code paths.
 
@@ -50,7 +50,7 @@ Compiles fine. Throws runtime exceptions on specific code paths.
 | `batch-schema-change` | Spring Batch 6 renames `BATCH_JOB_SEQ` → `BATCH_JOB_INSTANCE_SEQ` — DDL migration required |
 | `pkce-mandatory` | PKCE enforced for confidential OAuth 2.0 clients — older providers reject it |
 
-### (d) Different Results — 4 modules
+### Tier 3 — Different Results — 4 modules
 
 Compiles, starts, runs, passes your existing tests. Produces different output.
 

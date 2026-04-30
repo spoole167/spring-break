@@ -1,6 +1,6 @@
 # Cheat-Sheet Cards — Coverage TODO
 
-**Goal:** Every Tier 1 (Category A) module in the spring-break suite must have a corresponding card in `cheat-sheets/cards/`.
+**Goal:** Every Tier 1 module in the spring-break suite must have a corresponding card in `cheat-sheets/cards/`.
 
 **Date:** 2026-04-29
 **Completed:** 2026-04-29

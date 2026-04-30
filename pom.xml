@@ -91,10 +91,10 @@
         </pluginManagement>
     </build>
 
-    <!-- 46 modules organised by migration failure mode.
+    <!-- 57 modules organised by migration failure mode.
          Run on 3.5.14: all pass.  Run on 4.0.6: all fail. -->
     <modules>
-        <!-- Category (a) — Won't Compile / Won't Resolve on 4.0  (38 modules)
+        <!-- Tier 1 — Won't Build on 4.0  (38 modules)
              Real imports / artifacts / starters that vanish on 4.0.
              Build fails at compile or dependency-resolution time. -->
         <module>jackson-group-id</module>
@@ -135,7 +135,7 @@
         <module>batch-chunkhandler-renamed</module>
         <module>batch-listener-classes</module>
 
-        <!-- Category (c) — Runtime Errors on 4.0  (12 modules)
+        <!-- Tier 2 — Won't Run on 4.0  (15 modules)
              Compiles on both versions, throws at runtime on 4.0. -->
         <module>hibernate-query-type-required</module>
         <module>jackson-exception-hierarchy</module>
@@ -153,7 +153,7 @@
         <module>javax-inject-removed</module>
         <module>actuator-nullable-removed</module>
 
-        <!-- Category (d) — Different Results on 4.0  (3 modules)
+        <!-- Tier 3 — Different Results on 4.0  (4 modules)
              Compiles and runs on both, output/behaviour differs silently. -->
         <module>jackson-date-serialisation</module>
         <module>jackson-dates-timestamps</module>

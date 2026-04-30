@@ -371,13 +371,13 @@ Once a module is verified, update **all** of the following:
 
 ### 6.1 Parent pom (`test-cases/pom.xml`)
 
-Add `<module><module-name></module>` to the appropriate category block. Update the count comment at the top of the `<modules>` section. Update the count in the Category-(a/c/d) block comments.
+Add `<module><module-name></module>` to the appropriate tier block. Update the count comment at the top of the `<modules>` section. Update the count in the Tier 1/2/3 block comments.
 
 ```xml
-<!-- 32 modules organised by migration failure mode.
+<!-- 57 modules organised by migration failure mode.
      Run on 3.5.14: all pass.  Run on 4.0.6: all fail. -->
 <modules>
-    <!-- Category (a) — Won't Compile / Won't Resolve on 4.0  (18 modules) -->
+    <!-- Tier 1 — Won't Build on 4.0  (38 modules) -->
     ...
     <module><module-name></module>
     ...
@@ -386,7 +386,7 @@ Add `<module><module-name></module>` to the appropriate category block. Update t
 
 ### 6.2 Test runner (`test-cases/run-all-tests.sh`)
 
-Add the module name to `CATEGORY_A=()` (Tier 1) or `CATEGORY_C=()` (Tier 2) in the array.
+Add the module name to `TIER_1=()` (Tier 1) or `TIER_2=()` (Tier 2) in the array.
 
 ### 6.3 Master list (Obsidian)
 

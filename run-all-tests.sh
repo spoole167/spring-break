@@ -10,10 +10,10 @@
 #   ./run-all-tests.sh module1 module2       # run a subset
 #   ./run-all-tests.sh -v 4.0.2 -q          # combine flags
 #
-# Categories:
-#   (a) Won't Compile     — source/deps that exist on 3.5 are missing on 4.0
-#   (c) Runtime Errors    — compiles on both versions, throws at runtime on 4.0
-#   (d) Different Results — runs on both, but produces different output on 4.0
+# Tiers:
+#   (1) Won't Build       — source/deps that exist on 3.5 are missing on 4.0
+#   (2) Won't Run         — compiles on both versions, throws at runtime on 4.0
+#   (3) Different Results — runs on both, but produces different output on 4.0
 
 set -u
 
@@ -46,11 +46,11 @@ if ! command -v mvn >/dev/null 2>&1; then
   exit 127
 fi
 
-# ── Category definitions ──────────────────────────────────────────────
+# ── Tier definitions ──────────────────────────────────────────────────
 #
-# (a) Won't Compile: real imports / dependencies that vanish on 4.0.
+# Tier 1 — Won't Build: real imports / dependencies that vanish on 4.0.
 #     On 4.0 the script runs "mvn compile" and EXPECTS failure.
-CATEGORY_A=(
+TIER_1=(
   jackson-group-id
   jackson-class-renames
   undertow-removed
@@ -91,8 +91,8 @@ CATEGORY_A=(
   webjars-locator-core-removed
 )
 
-# (c) Runtime Errors: compiles on both versions, but throws at runtime on 4.0.
-CATEGORY_C=(
+# Tier 2 — Won't Run: compiles on both versions, but throws at runtime on 4.0.
+TIER_2=(
   hibernate-query-type-required
   jackson-exception-hierarchy
   hibernate-dialect-removal
@@ -110,20 +110,20 @@ CATEGORY_C=(
   actuator-nullable-removed
 )
 
-# (d) Different Results: runs on both, assertions detect different behaviour.
-CATEGORY_D=(
+# Tier 3 — Different Results: runs on both, assertions detect different behaviour.
+TIER_3=(
   jackson-date-serialisation
   jackson-dates-timestamps
   jackson-locale-format
   hibernate-native-datetime
 )
 
-# Portable category lookup (works on bash 3.x / macOS)
-module_cat() {
+# Portable tier lookup (works on bash 3.x / macOS)
+module_tier() {
   local mod="$1"
-  for m in "${CATEGORY_A[@]}"; do [ "$m" = "$mod" ] && echo "a" && return; done
-  for m in "${CATEGORY_C[@]}"; do [ "$m" = "$mod" ] && echo "c" && return; done
-  for m in "${CATEGORY_D[@]}"; do [ "$m" = "$mod" ] && echo "d" && return; done
+  for m in "${TIER_1[@]}"; do [ "$m" = "$mod" ] && echo "1" && return; done
+  for m in "${TIER_2[@]}"; do [ "$m" = "$mod" ] && echo "2" && return; done
+  for m in "${TIER_3[@]}"; do [ "$m" = "$mod" ] && echo "3" && return; done
   echo "?"
 }
 
@@ -137,7 +137,7 @@ fi
 if [ ${#ARGS[@]} -gt 0 ]; then
   MODULES=("${ARGS[@]}")
 else
-  MODULES=("${CATEGORY_A[@]}" "${CATEGORY_C[@]}" "${CATEGORY_D[@]}")
+  MODULES=("${TIER_1[@]}" "${TIER_2[@]}" "${TIER_3[@]}")
 fi
 
 if [ ${#MODULES[@]} -eq 0 ]; then
@@ -169,11 +169,11 @@ VERSION_LABEL="${BOOT_VERSION:-3.5.14 (default)}"
 printf "\n%s━━━ Spring Boot 3.5 → 4.0 Migration Test Suite ━━━%s\n" "$BOLD" "$RESET"
 printf "  Spring Boot : %s\n" "$VERSION_LABEL"
 printf "  Modules     : %d\n\n" "${#MODULES[@]}"
-printf "  %s(a)%s Won't Compile      %s(c)%s Runtime Errors      %s(d)%s Different Results\n" \
+printf "  %s(1)%s Won't Build      %s(2)%s Won't Run      %s(3)%s Different Results\n" \
   "$CYAN" "$RESET" "$CYAN" "$RESET" "$CYAN" "$RESET"
 
 # ── Run each module ──────────────────────────────────────────────────
-current_cat=""
+current_tier=""
 
 for module in "${MODULES[@]}"; do
   if [ ! -f "$module/pom.xml" ]; then
@@ -181,26 +181,26 @@ for module in "${MODULES[@]}"; do
     continue
   fi
 
-  cat="$(module_cat "$module")"
+  tier="$(module_tier "$module")"
 
-  # Print a category header when the category changes
-  if [ "$cat" != "$current_cat" ]; then
-    current_cat="$cat"
-    case "$cat" in
-      a) printf "\n%sCategory (a) — Won't Compile%s\n" "$BOLD" "$RESET" ;;
-      c) printf "\n%sCategory (c) — Runtime Errors%s\n" "$BOLD" "$RESET" ;;
-      d) printf "\n%sCategory (d) — Different Results%s\n" "$BOLD" "$RESET" ;;
+  # Print a tier header when the tier changes
+  if [ "$tier" != "$current_tier" ]; then
+    current_tier="$tier"
+    case "$tier" in
+      1) printf "\n%sTier 1 — Won't Build%s\n" "$BOLD" "$RESET" ;;
+      2) printf "\n%sTier 2 — Won't Run%s\n" "$BOLD" "$RESET" ;;
+      3) printf "\n%sTier 3 — Different Results%s\n" "$BOLD" "$RESET" ;;
       *) printf "\n%sUncategorized%s\n" "$BOLD" "$RESET" ;;
     esac
   fi
 
-  # Category (a) on 4.x → compile-only (tests won't even compile)
-  # BUT some modules in CATEGORY_A might actually fail at test execution (runtime)
-  # even if they are categorized as (a) because they use reflection or are Tier 2 style.
-  # We force CATEGORY_A to compile only on 4.x to catch Tier 1 breaks.
-  if [ "$cat" = "a" ] && [ "$IS_4X" -eq 1 ]; then
+  # Tier 1 on 4.x → compile-only (tests won't even compile)
+  # BUT some Tier 1 modules might actually fail at test execution (runtime)
+  # even if they are Tier 1 because they use reflection or are Tier 2 style.
+  # We force Tier 1 to compile only on 4.x to catch Won't Build breaks.
+  if [ "$tier" = "1" ] && [ "$IS_4X" -eq 1 ]; then
     if false; then
-      # (placeholder — no CATEGORY_A runtime-only special cases currently)
+      # (placeholder — no Tier 1 runtime-only special cases currently)
       GOAL="clean test"
     else
       GOAL="clean compile test-compile"
@@ -244,7 +244,7 @@ printf "  %sPassed:%s %d    %sFailed:%s %d    Total: %d\n" \
 if [ ${#FAILED[@]} -gt 0 ]; then
   printf "\n  Failed:\n"
   for m in "${FAILED[@]}"; do
-    printf "    %s✗%s (%s) %s\n" "$RED" "$RESET" "$(module_cat "$m")" "$m"
+    printf "    %s✗%s (%s) %s\n" "$RED" "$RESET" "$(module_tier "$m")" "$m"
   done
 fi
 
@@ -252,7 +252,7 @@ fi
 if [ "$IS_4X" -eq 1 ] && [ ${#PASSED[@]} -gt 0 ]; then
   printf "\n  %s⚠  Unexpected passes on 4.x — these tests may not be catching the break:%s\n" "$YELLOW" "$RESET"
   for m in "${PASSED[@]}"; do
-    printf "    %s?%s (%s) %s\n" "$YELLOW" "$RESET" "$(module_cat "$m")" "$m"
+    printf "    %s?%s (%s) %s\n" "$YELLOW" "$RESET" "$(module_tier "$m")" "$m"
   done
 fi
 
