@@ -1,0 +1,90 @@
+id: pulsar-reactive-removed
+tier: 2
+tier_label: "Won't Run"
+title: "Spring Pulsar Reactive Auto-Configuration Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  Reactive Pulsar producers and consumers initialise correctly after
+  removing the dependency on Boot's auto-configuration
+
+further_info: >
+  Spring Boot 4.0 removed the auto-configuration for Spring Pulsar's reactive
+  client. In Boot 3.5, <code>spring-boot-starter-pulsar-reactive</code>
+  auto-configured a <code>ReactivePulsarClient</code>,
+  <code>ReactivePulsarTemplate</code>, and related beans. In Boot 4.0 the
+  reactive auto-configuration classes no longer exist. Applications that
+  relied on them fail at startup with <code>NoSuchBeanDefinitionException</code>
+  when anything tries to inject a reactive Pulsar bean. The imperative
+  (non-reactive) Pulsar integration is unaffected.
+
+oneliner: >
+  Spring Boot 4.0 dropped reactive Pulsar auto-configuration.
+  <code>ReactivePulsarTemplate</code> and <code>ReactivePulsarClient</code>
+  beans are no longer available. The app starts but fails on first use.
+
+error_output: |
+  // Boot 4.0 startup or runtime failure:
+  org.springframework.beans.factory.NoSuchBeanDefinitionException:
+    No qualifying bean of type
+    'org.springframework.pulsar.reactive.core.ReactivePulsarTemplate' available
+
+  // Or auto-wiring failure:
+  Field reactivePulsarTemplate required a bean of type
+    'ReactivePulsarTemplate' that could not be found.
+
+what_changed: >
+  <code>spring-boot-starter-pulsar-reactive</code> and the
+  corresponding auto-configuration module were removed from Spring Boot 4.0.
+  The reactive Pulsar client management — including
+  <code>ReactivePulsarClient</code>, <code>ReactivePulsarTemplate</code>, and
+  <code>ReactiveMessageListenerContainer</code> auto-configuration — no longer
+  exists in Boot's auto-configure artifact.
+
+why_changed: >
+  Spring Boot 4.0's modular restructuring removed auto-configurations for
+  reactive integration layers that had limited adoption relative to their
+  maintenance cost. The imperative Spring Pulsar integration remains
+  fully supported.
+
+diffs:
+  - comment: "// Replace reactive auto-config with explicit bean definitions"
+    removed: |
+      <!-- Boot 3.5: auto-configured reactive Pulsar client -->
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-pulsar-reactive</artifactId>
+      </dependency>
+    added: |
+      <!-- Boot 4.0: use imperative starter or configure reactive beans manually -->
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-pulsar</artifactId>
+      </dependency>
+
+fixes:
+  - label: "Switch to the imperative Pulsar integration or configure reactive beans manually."
+    text: >
+      If the reactive API is required, declare the reactive Pulsar beans
+      explicitly in a <code>@Configuration</code> class. If reactive messaging
+      is not critical, switch to the imperative
+      <code>spring-boot-starter-pulsar</code> which remains auto-configured
+      in Boot 4.0.
+
+scope_check: >
+  Grep for <code>ReactivePulsarTemplate</code>, <code>ReactivePulsarClient</code>,
+  and <code>spring-boot-starter-pulsar-reactive</code> across your source and
+  build files.
+
+watch_out:
+  - >
+    The imperative <code>PulsarTemplate</code> and <code>PulsarClient</code>
+    auto-configuration in <code>spring-boot-starter-pulsar</code> is
+    unaffected by this change.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+  - text: "Spring Pulsar Documentation"
+    url: "https://docs.spring.io/spring-pulsar/reference/index.html"

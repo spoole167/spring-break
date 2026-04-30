@@ -1,0 +1,101 @@
+id: tomcat-war-deployment
+tier: 1
+tier_label: "Won't Build"
+title: "Tomcat WAR Deployment Requires New Runtime Starter"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+no_module: true
+no_module_reason: >
+  This is a packaging and deployment break, not a source code compilation
+  failure. Demonstrating it requires building a WAR file and deploying it to
+  an external Tomcat server. A standard Maven test module (compile + unit tests)
+  cannot exercise WAR deployment to an external container in the spring-break
+  format.
+verify: >
+  WAR file deploys to external Tomcat without ClassNotFoundException or
+  dependency conflicts after swapping to spring-boot-starter-tomcat-runtime
+
+further_info: >
+  Spring Boot 4.0 introduces a new dependency artifact for deploying WAR files
+  to an external Tomcat server. In Boot 3.5, the standard pattern was to
+  declare <code>spring-boot-starter-tomcat</code> with
+  <code>scope=provided</code>, relying on the external container to supply
+  the Tomcat classes at runtime. In Boot 4.0 this pattern still works, but
+  Boot provides a dedicated <code>spring-boot-starter-tomcat-runtime</code>
+  artifact that bundles the exact runtime classes needed for WAR deployment
+  without including the full embedded Tomcat server. Using the wrong
+  dependency leads to classpath conflicts or <code>ClassNotFoundException</code>
+  at deployment time.
+
+oneliner: >
+  Boot 4.0 adds <code>spring-boot-starter-tomcat-runtime</code> for WAR
+  deployment. Using the old <code>spring-boot-starter-tomcat</code>
+  (provided scope) pattern may cause classpath conflicts with the external
+  container.
+
+error_output: |
+  // Deploying WAR to external Tomcat with Boot 3.5 dependency pattern:
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-tomcat</artifactId>
+      <scope>provided</scope>
+  </dependency>
+
+  // Boot 4.0: may result in:
+  java.lang.ClassNotFoundException: jakarta.servlet.FilterRegistration
+  // Or: version conflicts between embedded and container Tomcat classes
+
+what_changed: >
+  A new <code>spring-boot-starter-tomcat-runtime</code> artifact was
+  introduced specifically for WAR deployment scenarios. It provides the
+  runtime bridge classes needed to run a Boot application inside an external
+  Tomcat without bringing in the full embedded Tomcat server dependencies.
+  The <code>spring-boot-starter-tomcat</code> artifact is now exclusively
+  for embedded server use.
+
+why_changed: >
+  The split makes the intent explicit: embedded Tomcat vs. external container
+  are distinct deployment models with different runtime dependencies.
+  The old pattern of marking <code>spring-boot-starter-tomcat</code> as
+  <code>provided</code> was error-prone and confusing.
+
+diffs:
+  - comment: "// pom.xml — WAR deployment dependency update"
+    removed: |
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+          <scope>provided</scope>
+      </dependency>
+    added: |
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat-runtime</artifactId>
+          <scope>provided</scope>
+      </dependency>
+
+fixes:
+  - label: "Replace spring-boot-starter-tomcat (provided) with spring-boot-starter-tomcat-runtime."
+    text: >
+      In your WAR project's <code>pom.xml</code>, replace the provided-scope
+      <code>spring-boot-starter-tomcat</code> dependency with
+      <code>spring-boot-starter-tomcat-runtime</code>. Keep the
+      <code>provided</code> scope — the external container supplies Tomcat
+      at runtime.
+
+scope_check: >
+  Search <code>pom.xml</code> for <code>spring-boot-starter-tomcat</code>
+  with <code>scope=provided</code>. Also check
+  <code>SpringBootServletInitializer</code> subclasses — any WAR project
+  using that class is affected.
+
+watch_out:
+  - >
+    If your project also runs as an executable JAR (dual deployment mode),
+    keep <code>spring-boot-starter-tomcat</code> for the embedded server
+    but add <code>spring-boot-starter-tomcat-runtime</code> as provided.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

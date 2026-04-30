@@ -1,0 +1,98 @@
+id: mongodb-uuid-representation
+tier: 3
+tier_label: "Wrong Results"
+title: "MongoDB UUID and BigDecimal Representations No Longer Defaulted"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  UUID and BigDecimal fields round-trip correctly and existing documents
+  with the old representation are still readable after explicit configuration
+
+further_info: >
+  Spring Boot 4.0 removed the default values that Boot 3.5 set for MongoDB's
+  UUID and BigDecimal BSON representations. In Boot 3.5, Boot silently set
+  UUID representation to <code>STANDARD</code> and BigDecimal to a specific
+  codec. In Boot 4.0 there is no default — the representation is whatever
+  the MongoDB driver or Spring Data MongoDB defaults to, which may differ.
+  Existing documents written with Boot 3.5 may be unreadable or return
+  incorrect values if the Boot 4.0 default representation differs from what
+  was used to write the data. Newly inserted documents may also use a
+  different binary subtype, breaking any code that inspects raw BSON.
+
+oneliner: >
+  Boot 4.0 removes the default UUID and BigDecimal BSON representations.
+  Existing documents written with Boot 3.5 defaults may deserialize
+  incorrectly or fail. Explicit configuration is now required.
+
+error_output: |
+  // Boot 3.5: UUID stored as STANDARD binary subtype 4
+  // Boot 4.0 default: UUID stored as JAVA_LEGACY binary subtype 3
+
+  // Reading a Boot 3.5 document in a Boot 4.0 app:
+  org.bson.codecs.configuration.CodecConfigurationException:
+    No codec found for UUID with representation JAVA_LEGACY
+
+  // Or: UUID field deserializes to null or wrong value silently
+
+what_changed: >
+  The <code>spring.mongodb.representation.uuid</code> and
+  <code>spring.data.mongodb.representation.big-decimal</code> properties
+  must now be configured explicitly. Spring Boot 4.0 no longer injects
+  defaults for these representations. Applications must declare the
+  representations they use — the same values Boot 3.5 set automatically,
+  if compatibility with existing data is required.
+
+why_changed: >
+  Defaulting representations silently overrode the MongoDB driver defaults,
+  which could surprise teams using MongoDB outside Spring Boot or migrating
+  data between tools. Making it explicit puts the application in control of
+  the data format.
+
+diffs:
+  - comment: "// application.properties — restore Boot 3.5 representations"
+    removed: |
+      # Boot 3.5: these were set automatically (no configuration needed)
+    added: |
+      # Boot 4.0: must be explicit to match what Boot 3.5 used
+      spring.mongodb.representation.uuid=standard
+      # For BigDecimal — check what representation your Boot 3.5 data was written with:
+      # spring.data.mongodb.representation.big-decimal=decimal128
+
+fixes:
+  - label: "Declare the representations that match your existing data."
+    text: >
+      Set <code>spring.mongodb.representation.uuid</code> to
+      <code>standard</code> if your documents were written with Boot 3.5
+      defaults. For BigDecimal, check which BSON type your existing documents
+      use (inspect with mongosh) and configure
+      <code>spring.data.mongodb.representation.big-decimal</code> accordingly.
+  - label: "Migrate existing data if changing representations."
+    text: >
+      If you want to adopt different representations going forward, you must
+      write a migration script to convert existing documents. Do not change
+      the representation without migrating data or you will lose the ability
+      to read old documents.
+
+scope_check: >
+  Grep for <code>UUID</code> fields in MongoDB document classes
+  (<code>@Document</code>). Also find any <code>BigDecimal</code> or
+  <code>BigInteger</code> fields. These are at risk. Run a read test
+  against your production data snapshot before deploying.
+
+watch_out:
+  - >
+    This is a data corruption risk, not just a configuration inconvenience.
+    UUID fields deserialized with the wrong representation return completely
+    different (and valid-looking) UUID values. There is no exception — just
+    wrong data.
+  - >
+    Test against a real data snapshot, not an empty test database. Unit tests
+    typically create fresh documents and will not catch representation
+    mismatches.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+  - text: "MongoDB UUID Representations"
+    url: "https://www.mongodb.com/docs/drivers/java/sync/current/fundamentals/data-formats/document-data-format-bson/#uuid-representation"

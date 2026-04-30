@@ -1,0 +1,105 @@
+id: spring-amqp-retry-removed
+tier: 1
+tier_label: "Won't Build"
+title: "Spring AMQP RabbitRetryTemplateCustomizer Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  RabbitTemplate and RabbitListener retry settings are configured via the
+  new customizer interfaces without compile errors
+
+further_info: >
+  Spring AMQP moved its retry support from Spring Retry to Spring Framework
+  in Boot 4.0. As part of this change, the
+  <code>RabbitRetryTemplateCustomizer</code> interface was removed entirely.
+  It is replaced by two separate interfaces:
+  <code>RabbitTemplateRetrySettingsCustomizer</code> (for publisher-side retry)
+  and <code>RabbitListenerRetrySettingsCustomizer</code> (for consumer-side
+  retry). Any class implementing the old interface fails to compile on Boot 4.0.
+
+oneliner: >
+  <code>RabbitRetryTemplateCustomizer</code> is removed in Boot 4.0. Replace
+  with <code>RabbitTemplateRetrySettingsCustomizer</code> (publisher) or
+  <code>RabbitListenerRetrySettingsCustomizer</code> (consumer). Code using
+  the old interface fails to compile.
+
+error_output: |
+  @Bean
+  public RabbitRetryTemplateCustomizer retryCustomizer() {
+      return (target, retryTemplate) -> { ... };
+  }
+
+  // Boot 4.0 compile error:
+  error: cannot find symbol
+    symbol: class RabbitRetryTemplateCustomizer
+
+what_changed: >
+  Spring AMQP 4.0 dropped its dependency on Spring Retry and now uses Spring
+  Framework's retry abstraction. The customizer API was redesigned to separate
+  publisher and consumer retry configuration. <code>RabbitRetryTemplateCustomizer</code>
+  is replaced by <code>RabbitTemplateRetrySettingsCustomizer</code> and
+  <code>RabbitListenerRetrySettingsCustomizer</code>.
+
+why_changed: >
+  Spring Boot 4.0 removed managed dependency support for Spring Retry across
+  the board, migrating all retry functionality to Spring Framework's native
+  retry support. Spring AMQP followed the same migration path, decoupling
+  from the Spring Retry library.
+
+diffs:
+  - comment: "// Publisher-side retry customizer"
+    removed: |
+      import org.springframework.amqp.rabbit.retry.RabbitRetryTemplateCustomizer;
+
+      @Bean
+      public RabbitRetryTemplateCustomizer retryCustomizer() {
+          return (target, retryTemplate) -> {
+              retryTemplate.setRetryPolicy(...);
+          };
+      }
+    added: |
+      import org.springframework.boot.autoconfigure.amqp.RabbitTemplateRetrySettingsCustomizer;
+
+      @Bean
+      public RabbitTemplateRetrySettingsCustomizer retryCustomizer() {
+          return settings -> {
+              settings.setMaxAttempts(3);
+          };
+      }
+  - comment: "// Consumer-side retry customizer"
+    removed: |
+      // Previously both publisher and consumer shared RabbitRetryTemplateCustomizer
+    added: |
+      import org.springframework.boot.autoconfigure.amqp.RabbitListenerRetrySettingsCustomizer;
+
+      @Bean
+      public RabbitListenerRetrySettingsCustomizer listenerRetryCustomizer() {
+          return settings -> {
+              settings.setMaxAttempts(5);
+          };
+      }
+
+fixes:
+  - label: "Replace with the split customizer interfaces."
+    text: >
+      Replace <code>RabbitRetryTemplateCustomizer</code> beans with
+      <code>RabbitTemplateRetrySettingsCustomizer</code> for publisher retry
+      and <code>RabbitListenerRetrySettingsCustomizer</code> for consumer retry.
+      The new interfaces configure settings directly rather than manipulating
+      a <code>RetryTemplate</code>.
+
+scope_check: >
+  Grep for <code>RabbitRetryTemplateCustomizer</code> across your source tree.
+  Also check <code>import org.springframework.amqp.rabbit.retry</code> imports.
+
+watch_out:
+  - >
+    The new customizer interfaces accept a settings object rather than a
+    <code>RetryTemplate</code>. Retry policy logic expressed as
+    <code>RetryTemplate</code> configuration must be re-expressed using
+    the properties on the settings object.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

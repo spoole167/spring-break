@@ -1,0 +1,89 @@
+id: spring-session-hazelcast-removed
+tier: 2
+tier_label: "Won't Run"
+title: "Spring Session Hazelcast Auto-Configuration Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  Hazelcast-backed session store initialises correctly after migrating to
+  the Hazelcast-team-maintained integration
+
+further_info: >
+  Spring Boot 4.0 removed its built-in auto-configuration for Spring Session
+  backed by Hazelcast. In Boot 3.5, declaring
+  <code>spring-session-hazelcast</code> on the classpath with
+  <code>spring.session.store-type=hazelcast</code> was enough for Boot to
+  configure a Hazelcast session store automatically. In Boot 4.0 the
+  auto-configuration classes are gone. Applications that relied on them
+  receive a <code>NoSuchBeanDefinitionException</code> for the session
+  repository at runtime. The Hazelcast team now owns and publishes the
+  integration separately.
+
+oneliner: >
+  Spring Boot 4.0 dropped built-in Hazelcast session auto-configuration.
+  The app compiles but fails at startup with <code>NoSuchBeanDefinitionException</code>.
+  Migrate to the Hazelcast-team-maintained Spring Session integration.
+
+error_output: |
+  // Boot 4.0 startup failure:
+  org.springframework.beans.factory.NoSuchBeanDefinitionException:
+    No qualifying bean of type
+    'org.springframework.session.SessionRepository' available
+
+  // Or context load failure mentioning missing HazelcastIndexedSessionRepository
+
+what_changed: >
+  Spring Boot's auto-configuration for Hazelcast-backed Spring Session was
+  removed from <code>spring-boot-autoconfigure</code>. The classes
+  <code>HazelcastSessionConfiguration</code> and
+  <code>HazelcastSessionProperties</code> no longer exist in the Spring Boot
+  artifact. The Hazelcast team took ownership of the integration.
+
+why_changed: >
+  Spring Boot 4.0 transferred ownership of several Spring Session store
+  integrations to the teams closest to those technologies. Hazelcast and
+  MongoDB now maintain their own Spring Session integrations, keeping
+  Boot itself lean and ensuring the integrations stay up to date with the
+  respective technology's own release cycle.
+
+diffs:
+  - comment: "// pom.xml — add Hazelcast team's Spring Session integration"
+    removed: |
+      <!-- Boot 3.5: built-in, no extra dependency needed beyond spring-session-hazelcast -->
+      <dependency>
+          <groupId>org.springframework.session</groupId>
+          <artifactId>spring-session-hazelcast</artifactId>
+      </dependency>
+    added: |
+      <!-- Boot 4.0: use Hazelcast team's own integration artifact -->
+      <dependency>
+          <groupId>com.hazelcast</groupId>
+          <artifactId>hazelcast-spring-session</artifactId>
+          <version><!-- check Hazelcast release --></version>
+      </dependency>
+
+fixes:
+  - label: "Migrate to the Hazelcast-maintained Spring Session integration."
+    text: >
+      Replace <code>spring-session-hazelcast</code> with the artifact
+      published by the Hazelcast team. Refer to Hazelcast's own
+      documentation for configuration — the property keys and bean names
+      may differ from the Boot-managed version.
+
+scope_check: >
+  Check <code>spring.session.store-type=hazelcast</code> in your properties.
+  Grep for <code>HazelcastIndexedSessionRepository</code> and
+  <code>HazelcastSessionConfiguration</code> in your source.
+
+watch_out:
+  - >
+    The configuration property prefix may change in the Hazelcast-maintained
+    integration. Verify property names against Hazelcast's own documentation
+    rather than the Spring Boot migration guide.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+  - text: "Hazelcast Spring Session Documentation"
+    url: "https://docs.hazelcast.com/hazelcast/latest/spring/spring-session"

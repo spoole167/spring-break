@@ -1,0 +1,117 @@
+id: spock-integration-removed
+tier: 2
+tier_label: "Won't Run"
+title: "Spring Boot Spock Integration Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: L
+openrewrite: false
+no_module: true
+no_module_reason: >
+  A test module demonstrating this break would itself be a Spock test — it
+  would need to be written in Groovy using the Spock framework. The spring-break
+  test suite uses JUnit 5 throughout and does not include Groovy compilation
+  infrastructure. Adding a mixed-language module would obscure the break being
+  demonstrated. The break is well-defined: Spock does not yet support Groovy 5
+  (the version required by Spring Boot 4.0's baseline), so any @SpringBootTest
+  Spock specification simply does not run.
+verify: >
+  Spock specifications that use @SpringBootTest or @SpringRunner pass after
+  migrating to JUnit 5 or waiting for Spock's Groovy 5 support
+
+further_info: >
+  Spring Boot 4.0 raises its Groovy baseline to Groovy 5. Spock Framework does
+  not yet support Groovy 5. As a result, Spring Boot's Spock integration was
+  removed: the <code>spock-spring</code> module and Spring Boot's
+  <code>@SpringBootTest</code> support for Spock specifications cannot be used
+  with Boot 4.0. Any project using Spock for integration tests that depend on
+  the Spring application context will find those tests fail to run entirely —
+  the Spock specification either fails to compile or throws at runtime before
+  any test method executes.
+
+oneliner: >
+  Spock does not support Groovy 5. Spring Boot 4.0 requires Groovy 5.
+  Spock-based <code>@SpringBootTest</code> specifications stop running.
+  Migrate to JUnit 5 or wait for Spock's Groovy 5 release.
+
+error_output: |
+  // Spock specification in a Boot 4.0 project:
+  @SpringBootTest
+  class MyServiceSpec extends Specification {
+      @Autowired MyService service
+
+      def "should do something"() {
+          expect: service.doThing() == "result"
+      }
+  }
+
+  // Fails at compile or runtime — Spock and Groovy 5 are incompatible.
+  // Exact error depends on Groovy/Spock versions on the classpath.
+
+what_changed: >
+  Spring Boot 4.0 upgraded its Groovy baseline to Groovy 5. Spock Framework
+  (as of this writing) requires Groovy 4.x or earlier. Spring Boot removed
+  the Spock integration rather than block on Spock's Groovy 5 support.
+  Projects using Spock for Spring-context-dependent tests must either migrate
+  to JUnit 5 or defer the Boot 4.0 upgrade until Spock adds Groovy 5 support.
+
+why_changed: >
+  The Groovy 5 upgrade was required to align with the latest Groovy ecosystem.
+  Spock's Groovy 5 support was not ready in time for the Boot 4.0 release,
+  making the integration impossible to ship.
+
+diffs:
+  - comment: "// Spock specification → JUnit 5 migration"
+    removed: |
+      // MyServiceSpec.groovy
+      @SpringBootTest
+      class MyServiceSpec extends Specification {
+          @Autowired MyService service
+
+          def "should return result"() {
+              expect: service.doThing() == "result"
+          }
+      }
+    added: |
+      // MyServiceTest.java
+      @SpringBootTest
+      class MyServiceTest {
+          @Autowired MyService service;
+
+          @Test
+          void shouldReturnResult() {
+              assertThat(service.doThing()).isEqualTo("result");
+          }
+      }
+
+fixes:
+  - label: "Migrate Spock specifications to JUnit 5."
+    text: >
+      Rewrite Spock-based Spring integration tests using JUnit 5 and
+      AssertJ. The <code>given/when/then</code> blocks map to JUnit 5
+      methods and AssertJ assertions. Data-driven tests (<code>where:</code>
+      blocks) translate to <code>@ParameterizedTest</code> with
+      <code>@MethodSource</code> or <code>@CsvSource</code>.
+  - label: "Wait for Spock's Groovy 5 support if migration is impractical."
+    text: >
+      If the volume of Spock tests makes immediate migration impractical,
+      track the Spock project's Groovy 5 roadmap. Unit tests written with
+      Spock that do not require the Spring context are unaffected by this
+      break and can remain as-is in the meantime.
+
+scope_check: >
+  Find all <code>.groovy</code> test files that extend <code>Specification</code>
+  and carry <code>@SpringBootTest</code>, <code>@SpringRunner</code>, or any
+  Spring test slice annotation. These are the tests that break.
+
+watch_out:
+  - >
+    Pure unit Spock tests — those that do not load a Spring context — are
+    unaffected by this break as long as Groovy compilation itself succeeds.
+    The breakage is specifically in tests that depend on Spring Boot's test
+    infrastructure.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+  - text: "Spock Framework GitHub"
+    url: "https://github.com/spockframework/spock"

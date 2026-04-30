@@ -1,0 +1,91 @@
+id: spring-session-mongodb-removed
+tier: 2
+tier_label: "Won't Run"
+title: "Spring Session MongoDB Auto-Configuration Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: M
+openrewrite: false
+verify: >
+  MongoDB-backed session store initialises correctly after migrating to
+  the MongoDB-team-maintained integration
+
+further_info: >
+  Spring Boot 4.0 removed its built-in auto-configuration for Spring Session
+  backed by MongoDB. In Boot 3.5, declaring
+  <code>spring-session-data-mongodb</code> on the classpath with
+  <code>spring.session.store-type=mongodb</code> was enough for Boot to
+  configure a MongoDB session repository automatically. In Boot 4.0 the
+  auto-configuration classes are gone. Applications that relied on them fail
+  at startup with <code>NoSuchBeanDefinitionException</code> for the session
+  repository. The MongoDB team now owns and publishes the integration
+  separately as part of Spring Data MongoDB.
+
+oneliner: >
+  Spring Boot 4.0 dropped built-in MongoDB session auto-configuration.
+  The app compiles but fails at startup with <code>NoSuchBeanDefinitionException</code>.
+  Migrate to the MongoDB-team-maintained Spring Session integration in
+  Spring Data MongoDB.
+
+error_output: |
+  // Boot 4.0 startup failure:
+  org.springframework.beans.factory.NoSuchBeanDefinitionException:
+    No qualifying bean of type
+    'org.springframework.session.SessionRepository' available
+
+  // Or context load failure mentioning missing MongoIndexedSessionRepository
+
+what_changed: >
+  Spring Boot's auto-configuration for MongoDB-backed Spring Session was
+  removed from <code>spring-boot-autoconfigure</code>. The
+  <code>MongoSessionConfiguration</code> and related auto-configuration
+  classes no longer exist in the Spring Boot artifact. Spring Data MongoDB
+  took ownership of the integration.
+
+why_changed: >
+  Spring Boot 4.0 transferred ownership of several Spring Session store
+  integrations to the teams closest to those technologies. MongoDB and
+  Hazelcast now maintain their own Spring Session integrations, keeping
+  Boot itself lean and ensuring integrations evolve alongside the underlying
+  technology's own release cycle.
+
+diffs:
+  - comment: "// pom.xml — switch to Spring Data MongoDB's own session support"
+    removed: |
+      <!-- Boot 3.5: built-in auto-config via spring-session-data-mongodb -->
+      <dependency>
+          <groupId>org.springframework.session</groupId>
+          <artifactId>spring-session-data-mongodb</artifactId>
+      </dependency>
+    added: |
+      <!-- Boot 4.0: session support is part of spring-boot-starter-data-mongodb -->
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-data-mongodb</artifactId>
+      </dependency>
+      <!-- Refer to Spring Data MongoDB docs for explicit session config -->
+
+fixes:
+  - label: "Migrate to the Spring Data MongoDB session integration."
+    text: >
+      The MongoDB team's Spring Session support is bundled with
+      Spring Data MongoDB. Add <code>spring-boot-starter-data-mongodb</code>
+      and configure the session repository according to Spring Data MongoDB's
+      documentation. The <code>spring.session.store-type=mongodb</code> property
+      alone is no longer sufficient.
+
+scope_check: >
+  Check <code>spring.session.store-type=mongodb</code> in your properties.
+  Grep for <code>MongoIndexedSessionRepository</code> and
+  <code>MongoSessionConfiguration</code> in your source. Also note that
+  MongoDB configuration property prefixes changed from
+  <code>spring.session.mongodb.*</code> to <code>spring.session.data.mongodb.*</code>.
+
+watch_out:
+  - >
+    MongoDB session property keys changed: <code>spring.session.mongodb.*</code>
+    became <code>spring.session.data.mongodb.*</code>. This is a separate but
+    related break covered in the session property renames card.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

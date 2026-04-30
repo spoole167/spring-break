@@ -1,0 +1,110 @@
+id: springboottest-mockmvc-autoconfig
+tier: 2
+tier_label: "Won't Run"
+title: "@SpringBootTest No Longer Auto-Configures MockMvc"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+no_module: true
+no_module_reason: >
+  Premise unverifiable as a 3.5 → 4.0 break. Boot 3.5 also does not
+  auto-configure MockMvc without @AutoConfigureMockMvc — the @Autowired
+  field is null on both versions. @AutoConfigureMockMvc has always been
+  required to get a MockMvc bean in a @SpringBootTest. The migration guide
+  entry appears to describe behaviour that was never present in 3.5.
+verify: >
+  MockMvc is available in @SpringBootTest tests after adding @AutoConfigureMockMvc
+
+further_info: >
+  Spring Boot 4.0 removed the implicit MockMvc auto-configuration from
+  @SpringBootTest. In Boot 3.5, a @SpringBootTest with MOCK webEnvironment
+  (the default) would configure MockMvc automatically, allowing it to be
+  @Autowired directly into the test. In Boot 4.0, MockMvc must be explicitly
+  requested via @AutoConfigureMockMvc. Tests that relied on the implicit
+  configuration fail with NoSuchBeanDefinitionException at runtime.
+
+oneliner: >
+  <code>@SpringBootTest</code> no longer auto-configures <code>MockMvc</code>
+  in Boot 4.0. Add <code>@AutoConfigureMockMvc</code> to your test class or
+  the <code>MockMvc</code> bean won't be available.
+
+error_output: |
+  @SpringBootTest
+  class MyControllerTest {
+      @Autowired
+      MockMvc mockMvc;  // null in Boot 4.0
+
+      @Test
+      void test() throws Exception {
+          mockMvc.perform(get("/api/hello"))  // NullPointerException
+                 .andExpect(status().isOk());
+      }
+  }
+
+  // Boot 4.0 failure:
+  org.springframework.beans.factory.NoSuchBeanDefinitionException:
+    No qualifying bean of type
+    'org.springframework.test.web.servlet.MockMvc' available
+
+what_changed: >
+  MockMvc auto-configuration was decoupled from <code>@SpringBootTest</code>.
+  The MOCK webEnvironment still creates a mock servlet context, but the
+  <code>MockMvc</code> bean is no longer registered in that context
+  automatically. It must be opted into explicitly with
+  <code>@AutoConfigureMockMvc</code>.
+
+why_changed: >
+  The implicit auto-configuration created a hidden dependency: tests that
+  didn't explicitly declare they needed MockMvc were still getting it.
+  Making it opt-in aligns with Boot 4.0's broader theme of explicit
+  over implicit configuration, and allows the test context to be leaner
+  when MockMvc isn't needed.
+
+diffs:
+  - comment: "// Add @AutoConfigureMockMvc"
+    removed: |
+      @SpringBootTest
+      class MyControllerTest {
+          @Autowired
+          MockMvc mockMvc;
+      }
+    added: |
+      @SpringBootTest
+      @AutoConfigureMockMvc
+      class MyControllerTest {
+          @Autowired
+          MockMvc mockMvc;
+      }
+  - comment: "// @WebMvcTest is unaffected — MockMvc is its primary purpose"
+    removed: ""
+    added: |
+      // @WebMvcTest already includes MockMvc auto-configuration.
+      // Only @SpringBootTest is affected.
+
+fixes:
+  - label: "Add @AutoConfigureMockMvc to the test class."
+    text: >
+      This is a one-annotation fix. Add
+      <code>@AutoConfigureMockMvc</code> alongside <code>@SpringBootTest</code>
+      on any test class that autowires <code>MockMvc</code>.
+
+scope_check: >
+  Search for <code>@SpringBootTest</code> test classes that also autowire
+  <code>MockMvc</code> (look for <code>@Autowired</code> fields or constructor
+  parameters of type <code>MockMvc</code>). Each needs
+  <code>@AutoConfigureMockMvc</code> added. <code>@WebMvcTest</code> tests
+  are unaffected.
+
+watch_out:
+  - >
+    The same change applies to <code>WebTestClient</code> and
+    <code>TestRestTemplate</code>. Boot 4.0 also no longer auto-configures
+    these in <code>@SpringBootTest</code> — add
+    <code>@AutoConfigureRestTestClient</code> or
+    <code>@AutoConfigureTestRestTemplate</code> respectively.
+
+footer_links:
+  - text: "spring-break module: springboottest-mockmvc-autoconfig"
+    url: "https://github.com/spoole167/spring-break/tree/main/springboottest-mockmvc-autoconfig"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

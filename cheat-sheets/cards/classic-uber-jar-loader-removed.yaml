@@ -1,0 +1,108 @@
+id: classic-uber-jar-loader-removed
+tier: 1
+tier_label: "Won't Build"
+title: "Classic Uber-Jar Loader Removed"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+no_module: true
+no_module_reason: >
+  This is a build tool configuration break, not a source code compilation
+  failure. The CLASSIC loader mode was a Maven/Gradle plugin setting, not a
+  Java import or API. A Maven test module cannot exercise the jar packaging
+  pipeline in a way that isolates this specific configuration failure from
+  all other build changes.
+verify: >
+  Application jar is built successfully and starts correctly after removing
+  CLASSIC loader configuration from the build file
+
+further_info: >
+  Spring Boot 4.0 removed the <code>CLASSIC</code> loader implementation for
+  uber jars. In Boot 3.x it was possible to opt into the classic loader by
+  setting <code>&lt;loaderImplementation&gt;CLASSIC&lt;/loaderImplementation&gt;</code>
+  in the Maven plugin configuration (or the equivalent Gradle property).
+  In Boot 4.0 this configuration is rejected at build time — the plugin fails
+  with an error if it encounters the <code>CLASSIC</code> value. The modern
+  nested-jar loader is the only supported option.
+
+oneliner: >
+  The <code>CLASSIC</code> uber-jar loader option is removed in Boot 4.0.
+  The Spring Boot Maven/Gradle plugin fails the build if
+  <code>CLASSIC</code> is configured. Remove the configuration or switch to
+  the default loader.
+
+error_output: |
+  <!-- pom.xml with CLASSIC loader -->
+  <plugin>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-maven-plugin</artifactId>
+      <configuration>
+          <loaderImplementation>CLASSIC</loaderImplementation>
+      </configuration>
+  </plugin>
+
+  // Boot 4.0 build error:
+  [ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin
+  ...CLASSIC loader implementation is no longer supported
+
+what_changed: >
+  The <code>CLASSIC</code> loader implementation — the original Spring Boot
+  uber-jar format — was removed from the Maven and Gradle plugins. Any build
+  file with <code>loaderImplementation=CLASSIC</code> fails at the packaging
+  phase. The default nested-jar loader (introduced in Boot 3.2) is the only
+  supported format.
+
+why_changed: >
+  The classic loader was deprecated in Spring Boot 3.2 when the new nested-jar
+  loader was introduced. Boot 4.0 removes it entirely. The new loader
+  offers better compatibility with AOT compilation, virtual threads, and
+  GraalVM native image tooling.
+
+diffs:
+  - comment: "// Maven — remove CLASSIC loader configuration"
+    removed: |
+      <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <configuration>
+              <loaderImplementation>CLASSIC</loaderImplementation>
+          </configuration>
+      </plugin>
+    added: |
+      <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <!-- No loaderImplementation needed — default is the only option -->
+      </plugin>
+  - comment: "// Gradle — remove loaderImplementation property"
+    removed: |
+      tasks.named("bootJar") {
+          loaderImplementation = LoaderImplementation.CLASSIC
+      }
+    added: |
+      // No loaderImplementation configuration needed
+
+fixes:
+  - label: "Remove the CLASSIC loader configuration."
+    text: >
+      Delete <code>&lt;loaderImplementation&gt;CLASSIC&lt;/loaderImplementation&gt;</code>
+      from the Maven plugin configuration, or remove
+      <code>loaderImplementation = LoaderImplementation.CLASSIC</code>
+      from the Gradle boot jar task. The build then defaults to the modern
+      nested-jar loader.
+
+scope_check: >
+  Search build files for <code>CLASSIC</code> and <code>loaderImplementation</code>.
+  Check <code>pom.xml</code>, parent POMs, and any Gradle build scripts that
+  configure the Spring Boot plugin.
+
+watch_out:
+  - >
+    The new nested-jar loader changes the path structure inside the uber jar.
+    Tools that inspect the jar directly (custom launch scripts, Docker
+    entrypoints referencing internal paths) may need updates to reflect the
+    <code>BOOT-INF/</code> layout rather than the classic flat layout.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

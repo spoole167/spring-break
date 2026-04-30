@@ -1,0 +1,116 @@
+id: batch-inmemory-default
+tier: 2
+tier_label: "Won't Run"
+title: "Spring Batch Now Uses In-Memory Job Repository by Default"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+no_module: true
+no_module_reason: >
+  The Boot 3.5 baseline fails with the same error as Boot 4.0: "Table
+  BATCH_JOB_INSTANCE not found (this database is empty)". Boot 3.5 with
+  spring-boot-starter-batch + H2 also does not auto-create the Batch schema
+  tables when spring.batch.job.enabled=false. The auto-creation depends on
+  spring-boot-starter-batch-jdbc being on the classpath, not on the Boot
+  version. The change is real — Boot 4.0 made the in-memory repository the
+  explicit default — but the behavioural difference between 3.5 and 4.0 is
+  only visible when the JDBC starter is present and the old auto-creation
+  behaviour kicks in. That scenario cannot be reduced to a standalone test
+  module that reliably green-lines on 3.5 and red-lines on 4.0 without
+  layering in additional configuration complexity that obscures the break
+  being demonstrated.
+verify: >
+  Batch jobs persist execution history to the database when
+  spring-boot-starter-batch-jdbc is declared
+
+further_info: >
+  Spring Boot 4.0 changes the default Spring Batch job repository from
+  database-backed to in-memory. In Boot 3.5, adding spring-boot-starter-batch
+  with a JDBC datasource on the classpath would automatically create the Batch
+  schema tables and persist job executions to the database. In Boot 4.0,
+  the default is an in-memory map-based repository — no schema is created,
+  no executions are persisted. Code that relies on the Batch tables existing
+  (auditing, restart logic, admin UI) breaks at runtime.
+
+oneliner: >
+  Spring Batch defaults to an in-memory job repository in Boot 4.0.
+  The <code>BATCH_JOB_EXECUTION</code> and related tables are no longer
+  created automatically. Add <code>spring-boot-starter-batch-jdbc</code>
+  to restore database persistence.
+
+error_output: |
+  // Boot 3.5: BATCH_JOB_EXECUTION table created, job persisted.
+
+  // Boot 4.0 with only spring-boot-starter-batch:
+  // No schema created. Query against batch tables fails:
+  org.springframework.jdbc.BadSqlGrammarException:
+    PreparedStatementCallback; bad SQL grammar
+    [SELECT JOB_INSTANCE_ID, JOB_NAME from BATCH_JOB_INSTANCE ...];
+    Table "BATCH_JOB_INSTANCE" not found
+
+  // Or job restart logic silently ignores execution history.
+
+what_changed: >
+  Spring Boot 4.0 introduced <code>spring-boot-starter-batch-jdbc</code>
+  as the explicit opt-in for database-backed job execution persistence.
+  <code>spring-boot-starter-batch</code> now configures an in-memory
+  <code>JobRepository</code> backed by a <code>ConcurrentHashMap</code>.
+  The Batch schema DDL is no longer applied automatically unless the
+  JDBC starter is on the classpath.
+
+why_changed: >
+  Many Batch use cases — short-lived jobs, unit tests, development — do not
+  need database persistence. The old default forced every Batch application
+  to carry a datasource dependency and manage schema migrations even when
+  job history didn't matter. The in-memory default is the right starting
+  point; persistence is an explicit opt-in.
+
+diffs:
+  - comment: "// pom.xml — add the JDBC starter to restore database persistence"
+    removed: |
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-batch</artifactId>
+      </dependency>
+    added: |
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-batch</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-batch-jdbc</artifactId>
+      </dependency>
+
+fixes:
+  - label: "Add spring-boot-starter-batch-jdbc for database-backed persistence."
+    text: >
+      If your application relies on job execution history, restartability,
+      or the Batch admin tables, add
+      <code>spring-boot-starter-batch-jdbc</code> alongside
+      <code>spring-boot-starter-batch</code>. This restores the Boot 3.5
+      behaviour.
+  - label: "Embrace the in-memory default if persistence isn't needed."
+    text: >
+      If your jobs are stateless or ephemeral — one-shot CLI jobs, test
+      fixtures, data imports — the in-memory repository is correct and
+      removes the need for a datasource entirely. No changes required beyond
+      removing schema initialisation configuration.
+
+scope_check: >
+  Check for code that queries Batch tables directly via JDBC, uses
+  <code>JobExplorer</code> to inspect execution history, or relies on
+  Batch restart semantics (same job parameters, incomplete executions).
+  All of these require the JDBC starter.
+
+watch_out:
+  - >
+    This interacts with the <code>batch-schema-change</code> break: Boot 4.0
+    also renamed the schema sequence from <code>BATCH_STEP_EXECUTION_SEQ</code>
+    to <code>BATCH_STEP_EXECUTION_SEQUENCE</code>. If you add
+    <code>spring-boot-starter-batch-jdbc</code>, make sure your schema
+    migration handles both changes.
+
+footer_links:
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
