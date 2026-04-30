@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Jackson 3.0 Group ID Change — Spring Boot 4.0 Migration</title>
+<title>MockitoTestExecutionListener Removed — Spring Boot 4.0 Migration</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -33,7 +33,7 @@
     align-items: center;
     margin-bottom: 2mm;
     padding-bottom: 1.5mm;
-    border-bottom: 2px solid #c0392b;
+    border-bottom: 2px solid #e67e22;
   }
 
   .tier-badge {
@@ -41,7 +41,7 @@
     font-size: 7.5pt;
     font-weight: 700;
     color: #fff;
-    background: #c0392b;
+    background: #e67e22;
     padding: 2pt 7pt;
     border-radius: 2px;
     text-transform: uppercase;
@@ -120,7 +120,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
     margin-top: 2.5mm;
   }
@@ -171,7 +171,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 8pt;
     font-weight: 700;
-    color: #c0392b;
+    color: #e67e22;
     min-width: 4mm;
     flex-shrink: 0;
   }
@@ -180,8 +180,8 @@
   .fix-option a { color: #2563eb; text-decoration: none; }
 
   .scope-box {
-    background: #fdf2f2;
-    border: 1px solid #f0d0d0;
+    background: #fef9f2;
+    border: 1px solid #f5e0c0;
     border-radius: 3px;
     padding: 1.5mm 2.5mm;
     margin: 1mm 0;
@@ -209,7 +209,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
   }
 
@@ -272,90 +272,108 @@
 <div class="page">
 
   <div class="topbar">
-    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="tier-badge">Tier 2 · Won't Run</span>
     <span class="series-label">spring-boot 3.5 → 4.0</span>
   </div>
 
-  <h1>Jackson 3.0 Group ID Change</h1>
-  <div class="oneliner">Jackson 3.0 moved from com.fasterxml.jackson to tools.jackson. Every Maven coordinate and every import path is now wrong.</div>
+  <h1>MockitoTestExecutionListener Removed</h1>
+  <div class="oneliner">Spring Boot 4.0 removes MockitoTestExecutionListener. @Mock fields in @SpringBootTest tests stay null and throw NullPointerException unless @ExtendWith(MockitoExtension.class) is added.</div>
 
   <div class="meta-badges">
-    <span class="effort-badge effort-L">Effort: L</span>
-    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+    <span class="effort-badge effort-S">Effort: S</span>
+
   </div>
 
   <h2>What You'll See</h2>
-<pre><span class="comment">$ mvn compile
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[3,32]
-  package com.fasterxml.jackson.databind does not exist
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[8,5]
-  cannot find symbol
-    symbol: class ObjectMapper</span></pre>
+<pre><span class="comment">@SpringBootTest
+class MyTest {
+    @Mock
+    private MyService myService;
+
+    @Test
+    void test() {
+        // Boot 3.5: myService is initialised → passes
+        // Boot 4.0: myService is null → NullPointerException
+        when(myService.greet()).thenReturn(&quot;Hello&quot;);
+    }
+}
+
+java.lang.NullPointerException: Cannot invoke method on null object
+  at com.example.MyTest.test(MyTest.java:15)</span></pre>
 
   <h2>What Changed</h2>
-  <p>Jackson 3.0 moved from the <code>com.fasterxml.jackson</code> Maven group to <code>tools.jackson</code>. Spring Boot 4.0's managed dependencies point to Jackson 3.0, so the old group ID no longer resolves. Every import statement using <code>com.fasterxml.jackson</code> breaks. See also: jackson-class-renames (for the class-level renames that come with the same upgrade), jackson-exception-hierarchy.</p>
+  <p><code>MockitoTestExecutionListener</code> was a Spring Boot-specific bridge that triggered Mockito's annotation processing inside Spring's test lifecycle. Spring Boot 4.0 removed this listener, aligning with the standard JUnit 5 approach of using <code>@ExtendWith(MockitoExtension.class)</code> or <code>MockitoAnnotations.openMocks(this)</code> in a <code>@BeforeEach</code> setup method.</p>
 
-<pre><span class="comment">// pom.xml — explicit Jackson dependency</span>
-<span class="removed">&lt;dependency&gt;
-    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
-&lt;/dependency&gt;
+<pre><span class="comment">// Add MockitoExtension alongside @SpringBootTest</span>
+<span class="removed">@SpringBootTest
+class MyTest {
+    @Mock
+    private MyService myService;
+}
 </span>
-<span class="added">&lt;dependency&gt;
-    &lt;groupId&gt;tools.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
-&lt;/dependency&gt;
+<span class="added">@SpringBootTest
+@ExtendWith(MockitoExtension.class)
+class MyTest {
+    @Mock
+    private MyService myService;
+}
 </span>
 
-<span class="comment">// Java imports — ObjectMapper and core types</span>
-<span class="removed">import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
+<span class="comment">// Or switch to @MockitoBean (Boot 4.0 replacement for @MockBean)</span>
+<span class="removed">@SpringBootTest
+class MyTest {
+    @Mock
+    private MyService myService;
+}
 </span>
-<span class="added">import tools.jackson.databind.ObjectMapper;
-import tools.jackson.core.JacksonException;
+<span class="added">@SpringBootTest
+class MyTest {
+    @MockitoBean
+    private MyService myService;  // registered in the Spring context
+}
 </span></pre>
 
 
   <h2>Why This Changed</h2>
-  <p>Jackson's maintainers separated the project identity from the original FasterXML organisation, giving a clean break to drop deprecated APIs and ship Jackson 3.0 as a proper major release.</p>
+  <p>The listener duplicated Mockito's own JUnit 5 extension, which does the same job without requiring Spring Boot involvement. Removing the Boot-specific listener reduces complexity and pushes tests toward the idiomatic Mockito + JUnit 5 pattern that works everywhere, not just in Spring Boot.</p>
 
   <h2>How to Fix</h2>
   <div class="fix-options">
     <div class="fix-option">
       <span class="fix-num">A</span>
-      <div><span class="fix-label">OpenRewrite (recommended).</span> Run the <a href="https://docs.openrewrite.org/recipes/java/jackson/upgradejackson_2_3_typechanges">Jackson 3 migration recipe</a>. Handles group ID changes and import updates across the entire codebase in one pass.</div>
+      <div><span class="fix-label">Add @ExtendWith(MockitoExtension.class) to the test class.</span> This is the standard JUnit 5 way to enable Mockito annotation processing. It works alongside <code>@SpringBootTest</code> and requires no additional dependency — Mockito's JUnit 5 extension is already on the test classpath via <code>spring-boot-starter-test</code>.</div>
     </div>
     <div class="fix-option">
       <span class="fix-num">B</span>
-      <div><span class="fix-label">Manual: update Maven coordinates first.</span> Replace <code>com.fasterxml.jackson</code> with <code>tools.jackson</code> in all POM or Gradle files. Then fix imports file by file. Note that the group ID fix alone is not enough — class names also changed. See: jackson-class-renames.</div>
+      <div><span class="fix-label">Use @MockitoBean instead of @Mock (if the mock belongs in the context).</span> If the mock is being injected into a Spring bean under test, use <code>@MockitoBean</code> (Boot 4.0's replacement for <code>@MockBean</code>). This registers the mock in the Spring application context rather than just the test instance.</div>
     </div>
   </div>
 
   <div class="verify-box">
-    <strong>✓ Verify:</strong> mvn compile succeeds with no com.fasterxml errors
+    <strong>✓ Verify:</strong> @Mock fields in @SpringBootTest classes are initialised correctly
   </div>
 
 
   <div class="scope-box">
-    <strong>Scope check:</strong> Search your codebase for <code>com.fasterxml.jackson</code>. Every hit is a coordinate or import that needs updating. If you use <code>spring-boot-starter-json</code> or <code>spring-boot-starter-web</code>, Jackson is already on your classpath transitively — you still need to update any explicit dependency declarations and all source-level imports.
+    <strong>Scope check:</strong> Search for <code>@Mock</code>, <code>@Spy</code>, and <code>@Captor</code> annotations in test classes that also use <code>@SpringBootTest</code> or any Spring test slice annotation (<code>@WebMvcTest</code>, <code>@DataJpaTest</code>, etc.). Each such class needs <code>@ExtendWith(MockitoExtension.class)</code> added.
   </div>
 
 
   <h2>Watch Out</h2>
-  <p>The group ID change and the class renames (JsonSerializer → ValueSerializer, SerializerProvider → SerializationContext) happen in the same Jackson 3.0 upgrade. Fixing only the group ID leaves broken class references. See jackson-class-renames for the full list of renamed types.</p>
-  <p>Jackson exceptions (<code>JsonMappingException</code>, <code>JsonProcessingException</code>) are <code>Serializable</code>. If you've persisted these anywhere (dead letter queues, error logs), those serialised streams contain the old class names and won't deserialise correctly after migration.</p>
+  <p>If a test class extends another that has <code>@Mock</code> fields, the parent class also needs the extension. Inheritance doesn't propagate the <code>@ExtendWith</code> from child to parent field initialisation.</p>
+  <p>Tests that used <code>@MockBean</code> (Boot 3.5) are affected by a separate change — <code>@MockBean</code> itself is removed in Boot 4.0 in favour of <code>@MockitoBean</code>. See the <code>mockbean-removed</code> card.</p>
 
 
 
   <div class="further-info">
     <div class="further-info-header">Further Info</div>
     <div class="further-info-links">
-      <a href="https://github.com/spoole167/spring-break/tree/main/jackson-group-id">spring-break module: jackson-group-id</a><span class="sep">·</span>
-      <a href="https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md">Jackson 3 migration guide</a>
+      <a href="https://github.com/spoole167/spring-break/tree/main/mockito-test-execution-listener">spring-break module: mockito-test-execution-listener</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
 
     </div>
 
-    <div class="further-info-facts">Driven by Jackson 3.0 (upstream of Spring Boot 4.0). The FasterXML to tools.jackson rename was announced in 2023 and finalised in Jackson 3.0-rc1. Affects all spring-boot-starter-json consumers. See also: jackson-class-renames, jackson-exception-hierarchy.</div>
+    <div class="further-info-facts">Spring Boot 3.5 auto-registered MockitoTestExecutionListener alongside the Spring TestContext Framework listeners. This listener called MockitoAnnotations.openMocks() on each test instance, initialising @Mock, @Spy, and @Captor fields before each test. Boot 4.0 removes this listener. The replacement is Mockito's own JUnit 5 extension, which has been available since Mockito 3.x and is already included via spring-boot-starter-test.</div>
 
   </div>
 

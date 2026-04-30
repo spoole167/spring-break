@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Jackson 3.0 Group ID Change — Spring Boot 4.0 Migration</title>
+<title>webjars-locator-core Removed from BOM — Spring Boot 4.0 Migration</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -276,86 +276,99 @@
     <span class="series-label">spring-boot 3.5 → 4.0</span>
   </div>
 
-  <h1>Jackson 3.0 Group ID Change</h1>
-  <div class="oneliner">Jackson 3.0 moved from com.fasterxml.jackson to tools.jackson. Every Maven coordinate and every import path is now wrong.</div>
+  <h1>webjars-locator-core Removed from BOM</h1>
+  <div class="oneliner">Spring Boot 4.0 removes <code>webjars-locator-core</code> from the BOM. WebJar version-agnostic URLs (<code>/webjars/jquery/jquery.min.js</code>) stop resolving. Switch to <code>webjars-locator-lite</code>.</div>
 
   <div class="meta-badges">
-    <span class="effort-badge effort-L">Effort: L</span>
-    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+    <span class="effort-badge effort-S">Effort: S</span>
+
   </div>
 
   <h2>What You'll See</h2>
-<pre><span class="comment">$ mvn compile
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[3,32]
-  package com.fasterxml.jackson.databind does not exist
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[8,5]
-  cannot find symbol
-    symbol: class ObjectMapper</span></pre>
+<pre><span class="comment">// pom.xml — dependency with no version (relies on BOM)
+&lt;dependency&gt;
+    &lt;groupId&gt;org.webjars&lt;/groupId&gt;
+    &lt;artifactId&gt;webjars-locator-core&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+// Boot 3.5: BOM provides version 0.59 — resolves fine.
+
+// Boot 4.0: BOM no longer manages webjars-locator-core.
+[ERROR] &#x27;dependencies.dependency.version&#x27; for
+  org.webjars:webjars-locator-core:jar is missing.
+[ERROR] BUILD FAILURE
+
+// Or if version is pinned in pom.xml — compiles but WebJarAssetLocator
+// is no longer registered by Boot&#x27;s auto-configuration:
+java.lang.ClassNotFoundException: org.webjars.WebJarAssetLocator</span></pre>
 
   <h2>What Changed</h2>
-  <p>Jackson 3.0 moved from the <code>com.fasterxml.jackson</code> Maven group to <code>tools.jackson</code>. Spring Boot 4.0's managed dependencies point to Jackson 3.0, so the old group ID no longer resolves. Every import statement using <code>com.fasterxml.jackson</code> breaks. See also: jackson-class-renames (for the class-level renames that come with the same upgrade), jackson-exception-hierarchy.</p>
+  <p><code>org.webjars:webjars-locator-core</code> was the original WebJar asset locator, using full classpath scanning to find versioned WebJar paths. Spring Boot 4.0 removes it from the BOM and its auto-configuration wiring, replacing it with <code>org.webjars:webjars-locator-lite</code>, which uses a pre-generated manifest file (<code>webjars-requirejs.js</code> or <code>META-INF/resources/webjars/</code>) to locate assets without scanning.</p>
 
-<pre><span class="comment">// pom.xml — explicit Jackson dependency</span>
+<pre><span class="comment">// pom.xml — replace locator dependency</span>
 <span class="removed">&lt;dependency&gt;
-    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
+    &lt;groupId&gt;org.webjars&lt;/groupId&gt;
+    &lt;artifactId&gt;webjars-locator-core&lt;/artifactId&gt;
 &lt;/dependency&gt;
 </span>
 <span class="added">&lt;dependency&gt;
-    &lt;groupId&gt;tools.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
+    &lt;groupId&gt;org.webjars&lt;/groupId&gt;
+    &lt;artifactId&gt;webjars-locator-lite&lt;/artifactId&gt;
 &lt;/dependency&gt;
 </span>
 
-<span class="comment">// Java imports — ObjectMapper and core types</span>
-<span class="removed">import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
+<span class="comment">// Code using WebJarAssetLocator directly</span>
+<span class="removed">import org.webjars.WebJarAssetLocator;
+WebJarAssetLocator locator = new WebJarAssetLocator();
+String path = locator.getFullPath(&quot;jquery&quot;, &quot;jquery.min.js&quot;);
 </span>
-<span class="added">import tools.jackson.databind.ObjectMapper;
-import tools.jackson.core.JacksonException;
+<span class="added">import org.webjars.lite.WebJarAssetLocator;
+WebJarAssetLocator locator = new WebJarAssetLocator();
+String path = locator.getFullPath(&quot;jquery&quot;, &quot;jquery.min.js&quot;);
 </span></pre>
 
 
   <h2>Why This Changed</h2>
-  <p>Jackson's maintainers separated the project identity from the original FasterXML organisation, giving a clean break to drop deprecated APIs and ship Jackson 3.0 as a proper major release.</p>
+  <p>The classpath scanning approach in <code>webjars-locator-core</code> added startup overhead proportional to the number of JARs on the classpath and was incompatible with GraalVM native image compilation. The lite variant eliminates both problems: manifest-based lookup is O(1) and works in native images.</p>
 
   <h2>How to Fix</h2>
   <div class="fix-options">
     <div class="fix-option">
       <span class="fix-num">A</span>
-      <div><span class="fix-label">OpenRewrite (recommended).</span> Run the <a href="https://docs.openrewrite.org/recipes/java/jackson/upgradejackson_2_3_typechanges">Jackson 3 migration recipe</a>. Handles group ID changes and import updates across the entire codebase in one pass.</div>
+      <div><span class="fix-label">Replace webjars-locator-core with webjars-locator-lite.</span> Update <code>pom.xml</code> or <code>build.gradle</code> to declare <code>org.webjars:webjars-locator-lite</code>. The API is compatible for common use cases — Spring MVC's WebJar resource handler works with both.</div>
     </div>
     <div class="fix-option">
       <span class="fix-num">B</span>
-      <div><span class="fix-label">Manual: update Maven coordinates first.</span> Replace <code>com.fasterxml.jackson</code> with <code>tools.jackson</code> in all POM or Gradle files. Then fix imports file by file. Note that the group ID fix alone is not enough — class names also changed. See: jackson-class-renames.</div>
+      <div><span class="fix-label">Update direct WebJarAssetLocator imports.</span> If your code imports <code>org.webjars.WebJarAssetLocator</code> directly, change the import to the <code>org.webjars.lite</code> package. The method signatures for <code>getFullPath()</code> are compatible.</div>
     </div>
   </div>
 
   <div class="verify-box">
-    <strong>✓ Verify:</strong> mvn compile succeeds with no com.fasterxml errors
+    <strong>✓ Verify:</strong> WebJar assets resolve correctly via the webjars-locator-lite replacement
   </div>
 
 
   <div class="scope-box">
-    <strong>Scope check:</strong> Search your codebase for <code>com.fasterxml.jackson</code>. Every hit is a coordinate or import that needs updating. If you use <code>spring-boot-starter-json</code> or <code>spring-boot-starter-web</code>, Jackson is already on your classpath transitively — you still need to update any explicit dependency declarations and all source-level imports.
+    <strong>Scope check:</strong> Search for <code>webjars-locator-core</code> in <code>pom.xml</code> and <code>build.gradle</code> files. Also grep your Java source for <code>import org.webjars.WebJarAssetLocator</code>. Check Thymeleaf templates and JSPs for version-agnostic WebJar URLs (<code>th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"</code>) — these require a locator to resolve and will 404 if no locator is present.
   </div>
 
 
   <h2>Watch Out</h2>
-  <p>The group ID change and the class renames (JsonSerializer → ValueSerializer, SerializerProvider → SerializationContext) happen in the same Jackson 3.0 upgrade. Fixing only the group ID leaves broken class references. See jackson-class-renames for the full list of renamed types.</p>
-  <p>Jackson exceptions (<code>JsonMappingException</code>, <code>JsonProcessingException</code>) are <code>Serializable</code>. If you've persisted these anywhere (dead letter queues, error logs), those serialised streams contain the old class names and won't deserialise correctly after migration.</p>
+  <p>If you pin an explicit version of <code>webjars-locator-core</code> in your pom, the build will succeed — but Boot 4.0 no longer wires the auto-configuration. WebJar URLs that worked without a version segment will silently return 404 instead of failing at startup.</p>
+  <p><code>webjars-locator-lite</code> requires that WebJar dependencies include a <code>webjars-requirejs.js</code> manifest. Older WebJar artifacts may not include this file. Check the WebJar version you are using is compatible with the lite locator.</p>
 
 
 
   <div class="further-info">
     <div class="further-info-header">Further Info</div>
     <div class="further-info-links">
-      <a href="https://github.com/spoole167/spring-break/tree/main/jackson-group-id">spring-break module: jackson-group-id</a><span class="sep">·</span>
-      <a href="https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md">Jackson 3 migration guide</a>
+      <a href="https://github.com/spoole167/spring-break/tree/main/webjars-locator-core-removed">spring-break module: webjars-locator-core-removed</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a><span class="sep">·</span>
+      <a href="https://github.com/webjars/webjars-locator-lite">webjars-locator-lite on GitHub</a>
 
     </div>
 
-    <div class="further-info-facts">Driven by Jackson 3.0 (upstream of Spring Boot 4.0). The FasterXML to tools.jackson rename was announced in 2023 and finalised in Jackson 3.0-rc1. Affects all spring-boot-starter-json consumers. See also: jackson-class-renames, jackson-exception-hierarchy.</div>
+    <div class="further-info-facts">Spring Boot 4.0 drops dependency management for org.webjars:webjars-locator-core and replaces it with org.webjars:webjars-locator-lite. The core locator used classpath scanning which was expensive and incompatible with GraalVM native images. The lite variant uses a manifest-based lookup and is both faster and native-image safe. Any application declaring webjars-locator-core without an explicit version will fail to resolve the dependency on Boot 4.0.</div>
 
   </div>
 

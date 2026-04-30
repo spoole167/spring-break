@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Jackson 3.0 Group ID Change — Spring Boot 4.0 Migration</title>
+<title>Hibernate Untyped Join Query Rejected at Runtime — Spring Boot 4.0 Migration</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -33,7 +33,7 @@
     align-items: center;
     margin-bottom: 2mm;
     padding-bottom: 1.5mm;
-    border-bottom: 2px solid #c0392b;
+    border-bottom: 2px solid #e67e22;
   }
 
   .tier-badge {
@@ -41,7 +41,7 @@
     font-size: 7.5pt;
     font-weight: 700;
     color: #fff;
-    background: #c0392b;
+    background: #e67e22;
     padding: 2pt 7pt;
     border-radius: 2px;
     text-transform: uppercase;
@@ -120,7 +120,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
     margin-top: 2.5mm;
   }
@@ -171,7 +171,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 8pt;
     font-weight: 700;
-    color: #c0392b;
+    color: #e67e22;
     min-width: 4mm;
     flex-shrink: 0;
   }
@@ -180,8 +180,8 @@
   .fix-option a { color: #2563eb; text-decoration: none; }
 
   .scope-box {
-    background: #fdf2f2;
-    border: 1px solid #f0d0d0;
+    background: #fef9f2;
+    border: 1px solid #f5e0c0;
     border-radius: 3px;
     padding: 1.5mm 2.5mm;
     margin: 1mm 0;
@@ -209,7 +209,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
   }
 
@@ -272,90 +272,95 @@
 <div class="page">
 
   <div class="topbar">
-    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="tier-badge">Tier 2 · Won't Run</span>
     <span class="series-label">spring-boot 3.5 → 4.0</span>
   </div>
 
-  <h1>Jackson 3.0 Group ID Change</h1>
-  <div class="oneliner">Jackson 3.0 moved from com.fasterxml.jackson to tools.jackson. Every Maven coordinate and every import path is now wrong.</div>
+  <h1>Hibernate Untyped Join Query Rejected at Runtime</h1>
+  <div class="oneliner">Hibernate 7 rejects untyped join queries with no explicit SELECT clause. A query that silently returned Object[] on Boot 3.5 throws SemanticException at runtime on Boot 4.0.</div>
 
   <div class="meta-badges">
-    <span class="effort-badge effort-L">Effort: L</span>
-    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+    <span class="effort-badge effort-S">Effort: S</span>
+
   </div>
 
   <h2>What You'll See</h2>
-<pre><span class="comment">$ mvn compile
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[3,32]
-  package com.fasterxml.jackson.databind does not exist
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[8,5]
-  cannot find symbol
-    symbol: class ObjectMapper</span></pre>
+<pre><span class="comment">// Query without explicit result type
+session.createQuery(&quot;from Product p join p.category c&quot;).getResultList();
+
+// Boot 3.5 (Hibernate 6.x): runs fine, returns List&lt;Object[]&gt;
+
+// Boot 4.0 (Hibernate 7.x): throws at runtime
+org.hibernate.query.SemanticException:
+  Query has no explicit SELECT and multiple query roots are defined.
+  An explicit SELECT clause is required when multiple query roots exist
+  or when the query contains a JOIN.</span></pre>
 
   <h2>What Changed</h2>
-  <p>Jackson 3.0 moved from the <code>com.fasterxml.jackson</code> Maven group to <code>tools.jackson</code>. Spring Boot 4.0's managed dependencies point to Jackson 3.0, so the old group ID no longer resolves. Every import statement using <code>com.fasterxml.jackson</code> breaks. See also: jackson-class-renames (for the class-level renames that come with the same upgrade), jackson-exception-hierarchy.</p>
+  <p>Hibernate 7.0 tightened validation of HQL queries. A query like <code>from Product p join p.category c</code> has two implicit query roots (Product and the joined Category). Without an explicit <code>SELECT</code> clause or result type, the return type is ambiguous. Hibernate 6.x silently resolved this as <code>Object[]</code>; Hibernate 7.0 rejects it at parse time with a <code>SemanticException</code>.</p>
 
-<pre><span class="comment">// pom.xml — explicit Jackson dependency</span>
-<span class="removed">&lt;dependency&gt;
-    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
-&lt;/dependency&gt;
+<pre><span class="comment">// Add an explicit SELECT and result type</span>
+<span class="removed">session.createQuery(&quot;from Product p join p.category c&quot;)
+       .getResultList();
 </span>
-<span class="added">&lt;dependency&gt;
-    &lt;groupId&gt;tools.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
-&lt;/dependency&gt;
+<span class="added">session.createQuery(
+    &quot;SELECT p FROM Product p JOIN p.category c&quot;,
+    Product.class
+).getResultList();
 </span>
 
-<span class="comment">// Java imports — ObjectMapper and core types</span>
-<span class="removed">import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
+<span class="comment">// Or use a typed tuple query</span>
+<span class="removed">session.createQuery(&quot;from Product p join p.category c&quot;)
+       .getResultList();
 </span>
-<span class="added">import tools.jackson.databind.ObjectMapper;
-import tools.jackson.core.JacksonException;
+<span class="added">session.createQuery(
+    &quot;SELECT p, c FROM Product p JOIN p.category c&quot;,
+    Object[].class
+).getResultList();
 </span></pre>
 
 
   <h2>Why This Changed</h2>
-  <p>Jackson's maintainers separated the project identity from the original FasterXML organisation, giving a clean break to drop deprecated APIs and ship Jackson 3.0 as a proper major release.</p>
+  <p>Silent return of <code>Object[]</code> hides intent and causes surprising <code>ClassCastException</code> at the point of use rather than at the query. Making the ambiguity a hard error forces the developer to be explicit, which produces clearer, more maintainable queries.</p>
 
   <h2>How to Fix</h2>
   <div class="fix-options">
     <div class="fix-option">
       <span class="fix-num">A</span>
-      <div><span class="fix-label">OpenRewrite (recommended).</span> Run the <a href="https://docs.openrewrite.org/recipes/java/jackson/upgradejackson_2_3_typechanges">Jackson 3 migration recipe</a>. Handles group ID changes and import updates across the entire codebase in one pass.</div>
+      <div><span class="fix-label">Add explicit SELECT clause and result type (recommended).</span> All <code>Session.createQuery(String)</code> calls with join queries must include an explicit <code>SELECT</code> clause. Pass the expected result class as the second argument: <code>createQuery(hql, Entity.class)</code>.</div>
     </div>
     <div class="fix-option">
       <span class="fix-num">B</span>
-      <div><span class="fix-label">Manual: update Maven coordinates first.</span> Replace <code>com.fasterxml.jackson</code> with <code>tools.jackson</code> in all POM or Gradle files. Then fix imports file by file. Note that the group ID fix alone is not enough — class names also changed. See: jackson-class-renames.</div>
+      <div><span class="fix-label">Search for bare 'from' queries.</span> Grep for <code>createQuery("from</code> and <code>createQuery('from</code> in your codebase. Any query that starts with <code>from</code> and contains a join is at risk.</div>
     </div>
   </div>
 
   <div class="verify-box">
-    <strong>✓ Verify:</strong> mvn compile succeeds with no com.fasterxml errors
+    <strong>✓ Verify:</strong> HQL join queries without explicit SELECT or result type execute without SemanticException
   </div>
 
 
   <div class="scope-box">
-    <strong>Scope check:</strong> Search your codebase for <code>com.fasterxml.jackson</code>. Every hit is a coordinate or import that needs updating. If you use <code>spring-boot-starter-json</code> or <code>spring-boot-starter-web</code>, Jackson is already on your classpath transitively — you still need to update any explicit dependency declarations and all source-level imports.
+    <strong>Scope check:</strong> Search for <code>createQuery(</code> calls in your application. Any HQL query that starts with <code>from</code> (implicit SELECT) and contains a <code>join</code> will throw <code>SemanticException</code> on Hibernate 7. JPQL queries via <code>EntityManager.createQuery(String, Class)</code> are also affected if they omit the <code>SELECT</code> clause with joins.
   </div>
 
 
   <h2>Watch Out</h2>
-  <p>The group ID change and the class renames (JsonSerializer → ValueSerializer, SerializerProvider → SerializationContext) happen in the same Jackson 3.0 upgrade. Fixing only the group ID leaves broken class references. See jackson-class-renames for the full list of renamed types.</p>
-  <p>Jackson exceptions (<code>JsonMappingException</code>, <code>JsonProcessingException</code>) are <code>Serializable</code>. If you've persisted these anywhere (dead letter queues, error logs), those serialised streams contain the old class names and won't deserialise correctly after migration.</p>
+  <p>The query compiles and runs on Boot 3.5 without any warning. The failure only surfaces on Boot 4.0 at the first call site, not at startup. Tests that exercise query paths are the only way to catch this before production.</p>
+  <p>Simple queries without joins are unaffected — <code>from Product p</code> with a single root remains valid. Only multi-root or joined queries trigger the error.</p>
 
 
 
   <div class="further-info">
     <div class="further-info-header">Further Info</div>
     <div class="further-info-links">
-      <a href="https://github.com/spoole167/spring-break/tree/main/jackson-group-id">spring-break module: jackson-group-id</a><span class="sep">·</span>
-      <a href="https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md">Jackson 3 migration guide</a>
+      <a href="https://github.com/spoole167/spring-break/tree/main/hibernate-query-type-required">spring-break module: hibernate-query-type-required</a><span class="sep">·</span>
+      <a href="https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html">Hibernate 7.0 Migration Guide</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
 
     </div>
 
-    <div class="further-info-facts">Driven by Jackson 3.0 (upstream of Spring Boot 4.0). The FasterXML to tools.jackson rename was announced in 2023 and finalised in Jackson 3.0-rc1. Affects all spring-boot-starter-json consumers. See also: jackson-class-renames, jackson-exception-hierarchy.</div>
+    <div class="further-info-facts">Introduced in Hibernate 7.0 (upstream of Spring Boot 4.0). Hibernate 6.x tolerated ambiguous HQL queries — a join with no explicit SELECT clause and no result type was silently treated as returning Object[]. Hibernate 7.0 treats this as a semantic error. Affects any application using Session.createQuery(String) with join queries and no result type.</div>
 
   </div>
 

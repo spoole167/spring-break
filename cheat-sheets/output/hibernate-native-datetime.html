@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Jackson 3.0 Group ID Change — Spring Boot 4.0 Migration</title>
+<title>Hibernate Native Query Date Return Types Changed — Spring Boot 4.0 Migration</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -33,7 +33,7 @@
     align-items: center;
     margin-bottom: 2mm;
     padding-bottom: 1.5mm;
-    border-bottom: 2px solid #c0392b;
+    border-bottom: 2px solid #8e44ad;
   }
 
   .tier-badge {
@@ -41,7 +41,7 @@
     font-size: 7.5pt;
     font-weight: 700;
     color: #fff;
-    background: #c0392b;
+    background: #8e44ad;
     padding: 2pt 7pt;
     border-radius: 2px;
     text-transform: uppercase;
@@ -120,7 +120,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: #c0392b;
+    color: #8e44ad;
     margin-bottom: 1mm;
     margin-top: 2.5mm;
   }
@@ -171,7 +171,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 8pt;
     font-weight: 700;
-    color: #c0392b;
+    color: #8e44ad;
     min-width: 4mm;
     flex-shrink: 0;
   }
@@ -180,8 +180,8 @@
   .fix-option a { color: #2563eb; text-decoration: none; }
 
   .scope-box {
-    background: #fdf2f2;
-    border: 1px solid #f0d0d0;
+    background: #faf2fd;
+    border: 1px solid #e0d0f0;
     border-radius: 3px;
     padding: 1.5mm 2.5mm;
     margin: 1mm 0;
@@ -209,7 +209,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #c0392b;
+    color: #8e44ad;
     margin-bottom: 1mm;
   }
 
@@ -272,90 +272,102 @@
 <div class="page">
 
   <div class="topbar">
-    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="tier-badge">Tier 3 · Wrong Results</span>
     <span class="series-label">spring-boot 3.5 → 4.0</span>
   </div>
 
-  <h1>Jackson 3.0 Group ID Change</h1>
-  <div class="oneliner">Jackson 3.0 moved from com.fasterxml.jackson to tools.jackson. Every Maven coordinate and every import path is now wrong.</div>
+  <h1>Hibernate Native Query Date Return Types Changed</h1>
+  <div class="oneliner">Native SQL queries now return <code>java.time.LocalDate</code> instead of <code>java.sql.Date</code>. Code casting to the old types throws ClassCastException or silently loses time components.</div>
 
   <div class="meta-badges">
-    <span class="effort-badge effort-L">Effort: L</span>
-    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+    <span class="effort-badge effort-M">Effort: M</span>
+
   </div>
 
   <h2>What You'll See</h2>
-<pre><span class="comment">$ mvn compile
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[3,32]
-  package com.fasterxml.jackson.databind does not exist
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[8,5]
-  cannot find symbol
-    symbol: class ObjectMapper</span></pre>
+<pre><span class="comment">// Native query — same code, different result type
+Object result = em.createNativeQuery(&quot;SELECT created_date FROM orders WHERE id = 1&quot;)
+                  .getSingleResult();
+
+// Before (Spring Boot 3.5)
+result.getClass() → java.sql.Date
+
+// After (Spring Boot 4.0)
+result.getClass() → java.time.LocalDate
+
+// ClassCastException at runtime
+java.lang.ClassCastException:
+  java.time.LocalDate cannot be cast to java.sql.Date
+
+// Or subtler: time component silently lost
+java.sql.Timestamp ts = (java.sql.Timestamp) result;  // was Timestamp
+// Now: java.time.LocalDateTime — no getTime() method</span></pre>
 
   <h2>What Changed</h2>
-  <p>Jackson 3.0 moved from the <code>com.fasterxml.jackson</code> Maven group to <code>tools.jackson</code>. Spring Boot 4.0's managed dependencies point to Jackson 3.0, so the old group ID no longer resolves. Every import statement using <code>com.fasterxml.jackson</code> breaks. See also: jackson-class-renames (for the class-level renames that come with the same upgrade), jackson-exception-hierarchy.</p>
+  <p>Hibernate 7 (used by Spring Boot 4.0) changed the default Java types returned for SQL <code>DATE</code>, <code>TIME</code>, and <code>TIMESTAMP</code> columns in native queries. <code>java.sql.Date</code> became <code>java.time.LocalDate</code>, <code>java.sql.Time</code> became <code>java.time.LocalTime</code>, and <code>java.sql.Timestamp</code> became <code>java.time.LocalDateTime</code>.</p>
 
-<pre><span class="comment">// pom.xml — explicit Jackson dependency</span>
-<span class="removed">&lt;dependency&gt;
-    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
-&lt;/dependency&gt;
+<pre><span class="comment">// Fix native query result handling</span>
+<span class="removed">java.sql.Date date = (java.sql.Date) row[2];
+long millis = date.getTime();
 </span>
-<span class="added">&lt;dependency&gt;
-    &lt;groupId&gt;tools.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
-&lt;/dependency&gt;
+<span class="added">LocalDate date = (LocalDate) row[2];
+long millis = date.atStartOfDay(ZoneOffset.UTC)
+                  .toInstant().toEpochMilli();
 </span>
 
-<span class="comment">// Java imports — ObjectMapper and core types</span>
-<span class="removed">import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
+<span class="comment">// Typed native query</span>
+<span class="removed">@Query(value = &quot;SELECT created_date FROM orders&quot;, nativeQuery = true)
+List&lt;java.sql.Date&gt; findAllDates();
 </span>
-<span class="added">import tools.jackson.databind.ObjectMapper;
-import tools.jackson.core.JacksonException;
-</span></pre>
+<span class="added">@Query(value = &quot;SELECT created_date FROM orders&quot;, nativeQuery = true)
+List&lt;java.time.LocalDate&gt; findAllDates();
+</span>
+
+<span class="comment">// Timestamp results</span>
+<span class="removed">java.sql.Timestamp ts = (java.sql.Timestamp) row[3];</span>
+<span class="added">LocalDateTime ts = (LocalDateTime) row[3];</span></pre>
 
 
   <h2>Why This Changed</h2>
-  <p>Jackson's maintainers separated the project identity from the original FasterXML organisation, giving a clean break to drop deprecated APIs and ship Jackson 3.0 as a proper major release.</p>
+  <p>The <code>java.sql</code> date/time classes are legacy wrappers around <code>java.util.Date</code> with known bugs (timezone handling, nanosecond truncation). The <code>java.time</code> API is immutable, thread-safe, and the modern standard. Hibernate aligned its defaults with the JSR 310 types.</p>
 
   <h2>How to Fix</h2>
   <div class="fix-options">
     <div class="fix-option">
       <span class="fix-num">A</span>
-      <div><span class="fix-label">OpenRewrite (recommended).</span> Run the <a href="https://docs.openrewrite.org/recipes/java/jackson/upgradejackson_2_3_typechanges">Jackson 3 migration recipe</a>. Handles group ID changes and import updates across the entire codebase in one pass.</div>
+      <div><span class="fix-label">Update result type casts to java.time (recommended).</span> Replace all <code>java.sql.Date</code> casts with <code>java.time.LocalDate</code>, <code>java.sql.Time</code> with <code>java.time.LocalTime</code>, and <code>java.sql.Timestamp</code> with <code>java.time.LocalDateTime</code>. This is the correct modern approach.</div>
     </div>
     <div class="fix-option">
       <span class="fix-num">B</span>
-      <div><span class="fix-label">Manual: update Maven coordinates first.</span> Replace <code>com.fasterxml.jackson</code> with <code>tools.jackson</code> in all POM or Gradle files. Then fix imports file by file. Note that the group ID fix alone is not enough — class names also changed. See: jackson-class-renames.</div>
+      <div><span class="fix-label">Force old types with explicit addScalar().</span> For legacy code that can't be updated, use Hibernate's <code>addScalar("col", StandardBasicTypes.DATE)</code> to force the old <code>java.sql</code> return types on specific queries.</div>
     </div>
   </div>
 
   <div class="verify-box">
-    <strong>✓ Verify:</strong> mvn compile succeeds with no com.fasterxml errors
+    <strong>✓ Verify:</strong> SELECT queries return correct date/time types (check ResultSet)
   </div>
 
 
   <div class="scope-box">
-    <strong>Scope check:</strong> Search your codebase for <code>com.fasterxml.jackson</code>. Every hit is a coordinate or import that needs updating. If you use <code>spring-boot-starter-json</code> or <code>spring-boot-starter-web</code>, Jackson is already on your classpath transitively — you still need to update any explicit dependency declarations and all source-level imports.
+    <strong>Scope check:</strong> Search for <code>nativeQuery = true</code>, <code>createNativeQuery</code>, and any cast to <code>java.sql.Date</code>, <code>java.sql.Time</code>, or <code>java.sql.Timestamp</code> in query result handling code. JPQL queries with typed results are unaffected — only native queries and untyped result sets change.
   </div>
 
 
   <h2>Watch Out</h2>
-  <p>The group ID change and the class renames (JsonSerializer → ValueSerializer, SerializerProvider → SerializationContext) happen in the same Jackson 3.0 upgrade. Fixing only the group ID leaves broken class references. See jackson-class-renames for the full list of renamed types.</p>
-  <p>Jackson exceptions (<code>JsonMappingException</code>, <code>JsonProcessingException</code>) are <code>Serializable</code>. If you've persisted these anywhere (dead letter queues, error logs), those serialised streams contain the old class names and won't deserialise correctly after migration.</p>
+  <p>This only affects native queries that return raw <code>Object[]</code> rows. JPQL queries with entity mappings or <code>@ColumnResult</code> type mappings are unaffected because the type is explicit.</p>
+  <p><code>java.time.LocalDate</code> has no time component. If your code relied on <code>java.sql.Date.getTime()</code> returning midnight epoch millis, the replacement requires an explicit timezone conversion.</p>
 
 
 
   <div class="further-info">
     <div class="further-info-header">Further Info</div>
     <div class="further-info-links">
-      <a href="https://github.com/spoole167/spring-break/tree/main/jackson-group-id">spring-break module: jackson-group-id</a><span class="sep">·</span>
-      <a href="https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md">Jackson 3 migration guide</a>
+      <a href="https://github.com/spoole167/spring-break/tree/main/hibernate-native-datetime">spring-break module: hibernate-native-datetime</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
 
     </div>
 
-    <div class="further-info-facts">Driven by Jackson 3.0 (upstream of Spring Boot 4.0). The FasterXML to tools.jackson rename was announced in 2023 and finalised in Jackson 3.0-rc1. Affects all spring-boot-starter-json consumers. See also: jackson-class-renames, jackson-exception-hierarchy.</div>
+    <div class="further-info-facts">Driven by Hibernate 7.0 (upstream of Spring Boot 4.0). The switch from java.sql date/time types to java.time (JSR 310) in native query results was announced in the Hibernate 7.0 migration guide. Only affects native queries returning raw Object[] rows; JPQL typed queries are unaffected. See also: hibernate-dialect-removal.</div>
 
   </div>
 

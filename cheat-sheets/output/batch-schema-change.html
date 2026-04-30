@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Jackson 3.0 Group ID Change — Spring Boot 4.0 Migration</title>
+<title>Spring Batch 6 Schema Sequence Rename — Spring Boot 4.0 Migration</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -33,7 +33,7 @@
     align-items: center;
     margin-bottom: 2mm;
     padding-bottom: 1.5mm;
-    border-bottom: 2px solid #c0392b;
+    border-bottom: 2px solid #e67e22;
   }
 
   .tier-badge {
@@ -41,7 +41,7 @@
     font-size: 7.5pt;
     font-weight: 700;
     color: #fff;
-    background: #c0392b;
+    background: #e67e22;
     padding: 2pt 7pt;
     border-radius: 2px;
     text-transform: uppercase;
@@ -120,7 +120,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
     margin-top: 2.5mm;
   }
@@ -171,7 +171,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 8pt;
     font-weight: 700;
-    color: #c0392b;
+    color: #e67e22;
     min-width: 4mm;
     flex-shrink: 0;
   }
@@ -180,8 +180,8 @@
   .fix-option a { color: #2563eb; text-decoration: none; }
 
   .scope-box {
-    background: #fdf2f2;
-    border: 1px solid #f0d0d0;
+    background: #fef9f2;
+    border: 1px solid #f5e0c0;
     border-radius: 3px;
     padding: 1.5mm 2.5mm;
     margin: 1mm 0;
@@ -209,7 +209,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
   }
 
@@ -272,90 +272,98 @@
 <div class="page">
 
   <div class="topbar">
-    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="tier-badge">Tier 2 · Won't Run</span>
     <span class="series-label">spring-boot 3.5 → 4.0</span>
   </div>
 
-  <h1>Jackson 3.0 Group ID Change</h1>
-  <div class="oneliner">Jackson 3.0 moved from com.fasterxml.jackson to tools.jackson. Every Maven coordinate and every import path is now wrong.</div>
+  <h1>Spring Batch 6 Schema Sequence Rename</h1>
+  <div class="oneliner">Spring Batch 6 renamed its database sequences (e.g., BATCH_JOB_SEQ became BATCH_JOB_INSTANCE_SEQ). Existing databases using the old names fail when Batch tries to generate IDs.</div>
 
   <div class="meta-badges">
-    <span class="effort-badge effort-L">Effort: L</span>
+    <span class="effort-badge effort-S">Effort: S</span>
     <span class="openrewrite-badge">⚙ OpenRewrite</span>
   </div>
 
   <h2>What You'll See</h2>
-<pre><span class="comment">$ mvn compile
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[3,32]
-  package com.fasterxml.jackson.databind does not exist
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[8,5]
-  cannot find symbol
-    symbol: class ObjectMapper</span></pre>
+<pre><span class="comment">org.springframework.dao.InvalidDataAccessResourceUsageException:
+  could not fetch next sequence value
+...
+Caused by: java.sql.SQLSyntaxErrorException:
+  sequence &quot;BATCH_JOB_INSTANCE_SEQ&quot; does not exist
+ at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(...)
+ ...
+org.springframework.batch.core.launch.JobLaunchException:
+  Could not launch job &#x27;importCustomersJob&#x27;.
+  Failed to create new JobInstance for job [importCustomersJob]</span></pre>
 
   <h2>What Changed</h2>
-  <p>Jackson 3.0 moved from the <code>com.fasterxml.jackson</code> Maven group to <code>tools.jackson</code>. Spring Boot 4.0's managed dependencies point to Jackson 3.0, so the old group ID no longer resolves. Every import statement using <code>com.fasterxml.jackson</code> breaks. See also: jackson-class-renames (for the class-level renames that come with the same upgrade), jackson-exception-hierarchy.</p>
+  <p>Spring Batch 6 renamed the database sequences used for generating IDs: <code>BATCH_JOB_SEQ</code> became <code>BATCH_JOB_INSTANCE_SEQ</code>, <code>BATCH_JOB_EXECUTION_SEQ</code> stayed the same, and <code>BATCH_STEP_EXECUTION_SEQ</code> stayed the same. The metadata table structures also changed. Applications with existing Batch schema from Spring Batch 5 will fail when the framework tries to use the new sequence names.</p>
 
-<pre><span class="comment">// pom.xml — explicit Jackson dependency</span>
-<span class="removed">&lt;dependency&gt;
-    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
-&lt;/dependency&gt;
-</span>
-<span class="added">&lt;dependency&gt;
-    &lt;groupId&gt;tools.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
-&lt;/dependency&gt;
+<pre><span class="comment">// SQL migration script — PostgreSQL</span>
+<span class="removed">-- Old sequences from Spring Batch 5</span>
+<span class="added">-- Rename sequences to match Spring Batch 6 expectations
+ALTER SEQUENCE BATCH_JOB_SEQ RENAME TO BATCH_JOB_INSTANCE_SEQ;
 </span>
 
-<span class="comment">// Java imports — ObjectMapper and core types</span>
-<span class="removed">import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
+<span class="comment">// SQL migration script — MySQL</span>
+<span class="removed">-- Old sequences from Spring Batch 5</span>
+<span class="added">-- MySQL uses tables for sequence emulation
+RENAME TABLE BATCH_JOB_SEQ TO BATCH_JOB_INSTANCE_SEQ;
 </span>
-<span class="added">import tools.jackson.databind.ObjectMapper;
-import tools.jackson.core.JacksonException;
+
+<span class="comment">// application.properties — opt into old names temporarily</span>
+<span class="removed"># no Batch schema configuration</span>
+<span class="added"># Point Batch to legacy sequence names while you plan migration
+spring.batch.jdbc.isolation-level-for-create=ISOLATION_DEFAULT
 </span></pre>
 
 
   <h2>Why This Changed</h2>
-  <p>Jackson's maintainers separated the project identity from the original FasterXML organisation, giving a clean break to drop deprecated APIs and ship Jackson 3.0 as a proper major release.</p>
+  <p>The rename aligns sequence names with the tables they serve, making the schema self-documenting. The old generic names like <code>BATCH_JOB_SEQ</code> were ambiguous about which table's IDs they generated.</p>
 
   <h2>How to Fix</h2>
   <div class="fix-options">
     <div class="fix-option">
       <span class="fix-num">A</span>
-      <div><span class="fix-label">OpenRewrite (recommended).</span> Run the <a href="https://docs.openrewrite.org/recipes/java/jackson/upgradejackson_2_3_typechanges">Jackson 3 migration recipe</a>. Handles group ID changes and import updates across the entire codebase in one pass.</div>
+      <div><span class="fix-label">Run a schema migration script.</span> Create a Flyway or Liquibase migration that renames the sequences. For PostgreSQL: <code>ALTER SEQUENCE BATCH_JOB_SEQ RENAME TO BATCH_JOB_INSTANCE_SEQ;</code>. For MySQL, rename the emulation tables. Apply this before deploying the upgraded application.</div>
     </div>
     <div class="fix-option">
       <span class="fix-num">B</span>
-      <div><span class="fix-label">Manual: update Maven coordinates first.</span> Replace <code>com.fasterxml.jackson</code> with <code>tools.jackson</code> in all POM or Gradle files. Then fix imports file by file. Note that the group ID fix alone is not enough — class names also changed. See: jackson-class-renames.</div>
+      <div><span class="fix-label">Let Spring Batch recreate the schema.</span> If your Batch job data is disposable (e.g., dev/staging), set <code>spring.batch.jdbc.initialize-schema=always</code> to let Spring Batch drop and recreate the metadata tables with the new names. Do not use this in production.</div>
+    </div>
+    <div class="fix-option">
+      <span class="fix-num">C</span>
+      <div><span class="fix-label">Use the migration SQL from Spring Batch.</span> The Spring Batch 6 migration guide provides official SQL scripts for each database platform. Use those as the basis for your migration rather than writing them by hand.</div>
     </div>
   </div>
 
   <div class="verify-box">
-    <strong>✓ Verify:</strong> mvn compile succeeds with no com.fasterxml errors
+    <strong>✓ Verify:</strong> Spring Batch job launches with no BATCH_ table not found errors
   </div>
 
 
   <div class="scope-box">
-    <strong>Scope check:</strong> Search your codebase for <code>com.fasterxml.jackson</code>. Every hit is a coordinate or import that needs updating. If you use <code>spring-boot-starter-json</code> or <code>spring-boot-starter-web</code>, Jackson is already on your classpath transitively — you still need to update any explicit dependency declarations and all source-level imports.
+    <strong>Scope check:</strong> Check if your application uses <code>spring-boot-starter-batch</code> and has a persistent job repository (not in-memory). If you see <code>BATCH_JOB_INSTANCE</code>, <code>BATCH_JOB_EXECUTION</code>, or <code>BATCH_STEP_EXECUTION</code> tables in your database, you need this migration. In-memory job repositories (MapJobRepositoryFactoryBean) are not affected.
   </div>
 
 
   <h2>Watch Out</h2>
-  <p>The group ID change and the class renames (JsonSerializer → ValueSerializer, SerializerProvider → SerializationContext) happen in the same Jackson 3.0 upgrade. Fixing only the group ID leaves broken class references. See jackson-class-renames for the full list of renamed types.</p>
-  <p>Jackson exceptions (<code>JsonMappingException</code>, <code>JsonProcessingException</code>) are <code>Serializable</code>. If you've persisted these anywhere (dead letter queues, error logs), those serialised streams contain the old class names and won't deserialise correctly after migration.</p>
+  <p>The schema change is not just sequences. Column types and table structures also changed in Spring Batch 6. Check the official migration SQL scripts for the full set of changes.</p>
+  <p>If you run multiple application versions against the same database during a rolling deploy, the old version will break when the sequences are renamed. Plan a maintenance window or use blue-green deployment.</p>
+  <p>H2 in-memory databases used in tests auto-create the schema fresh each run, so tests may pass while production fails. Test against a real database with existing Batch tables.</p>
 
 
 
   <div class="further-info">
     <div class="further-info-header">Further Info</div>
     <div class="further-info-links">
-      <a href="https://github.com/spoole167/spring-break/tree/main/jackson-group-id">spring-break module: jackson-group-id</a><span class="sep">·</span>
-      <a href="https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md">Jackson 3 migration guide</a>
+      <a href="https://github.com/spoole167/spring-break/tree/main/batch-schema-change">spring-break module: batch-schema-change</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide">Spring Batch 6 migration guide</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
 
     </div>
 
-    <div class="further-info-facts">Driven by Jackson 3.0 (upstream of Spring Boot 4.0). The FasterXML to tools.jackson rename was announced in 2023 and finalised in Jackson 3.0-rc1. Affects all spring-boot-starter-json consumers. See also: jackson-class-renames, jackson-exception-hierarchy.</div>
+    <div class="further-info-facts">Driven by Spring Batch 6.0 (upstream of Spring Boot 4.0). The sequence rename was announced in the Batch 6.0 milestone notes. Only affects applications with a persistent JDBC job repository; in-memory repositories are unaffected. See also: batch-listener-classes.</div>
 
   </div>
 

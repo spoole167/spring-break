@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Jackson 3.0 Group ID Change — Spring Boot 4.0 Migration</title>
+<title>spring-retry Removed from BOM — Spring Boot 4.0 Migration</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -276,86 +276,83 @@
     <span class="series-label">spring-boot 3.5 → 4.0</span>
   </div>
 
-  <h1>Jackson 3.0 Group ID Change</h1>
-  <div class="oneliner">Jackson 3.0 moved from com.fasterxml.jackson to tools.jackson. Every Maven coordinate and every import path is now wrong.</div>
+  <h1>spring-retry Removed from BOM</h1>
+  <div class="oneliner">Spring Boot 4.0 removed spring-retry from its managed dependency BOM. Projects that relied on version management must now declare the version explicitly.</div>
 
   <div class="meta-badges">
-    <span class="effort-badge effort-L">Effort: L</span>
-    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+    <span class="effort-badge effort-S">Effort: S</span>
+
   </div>
 
   <h2>What You'll See</h2>
 <pre><span class="comment">$ mvn compile
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[3,32]
-  package com.fasterxml.jackson.databind does not exist
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[8,5]
-  cannot find symbol
-    symbol: class ObjectMapper</span></pre>
+[ERROR] &#x27;dependencies.dependency.version&#x27; for org.springframework.retry:spring-retry:jar
+  is missing. @ line 42, column 17
+[ERROR] Failed to execute goal on project my-service:
+  Could not resolve dependencies: Failed to collect dependencies at
+  org.springframework.retry:spring-retry:jar:RELEASE (no version)</span></pre>
 
   <h2>What Changed</h2>
-  <p>Jackson 3.0 moved from the <code>com.fasterxml.jackson</code> Maven group to <code>tools.jackson</code>. Spring Boot 4.0's managed dependencies point to Jackson 3.0, so the old group ID no longer resolves. Every import statement using <code>com.fasterxml.jackson</code> breaks. See also: jackson-class-renames (for the class-level renames that come with the same upgrade), jackson-exception-hierarchy.</p>
+  <p><code>org.springframework.retry:spring-retry</code> is no longer version-managed by the Spring Boot BOM. If you declared the dependency without an explicit <code>&lt;version&gt;</code> tag, the build fails because Maven/Gradle can't resolve it. The library itself still works — it just isn't managed anymore.</p>
 
-<pre><span class="comment">// pom.xml — explicit Jackson dependency</span>
+<pre><span class="comment">// pom.xml — add explicit version</span>
 <span class="removed">&lt;dependency&gt;
-    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
+    &lt;groupId&gt;org.springframework.retry&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-retry&lt;/artifactId&gt;
 &lt;/dependency&gt;
 </span>
 <span class="added">&lt;dependency&gt;
-    &lt;groupId&gt;tools.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
+    &lt;groupId&gt;org.springframework.retry&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-retry&lt;/artifactId&gt;
+    &lt;version&gt;2.0.11&lt;/version&gt;
 &lt;/dependency&gt;
 </span>
 
-<span class="comment">// Java imports — ObjectMapper and core types</span>
-<span class="removed">import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-</span>
-<span class="added">import tools.jackson.databind.ObjectMapper;
-import tools.jackson.core.JacksonException;
-</span></pre>
+<span class="comment">// build.gradle — add explicit version</span>
+<span class="removed">implementation &#x27;org.springframework.retry:spring-retry&#x27;</span>
+<span class="added">implementation &#x27;org.springframework.retry:spring-retry:2.0.11&#x27;</span></pre>
 
 
   <h2>Why This Changed</h2>
-  <p>Jackson's maintainers separated the project identity from the original FasterXML organisation, giving a clean break to drop deprecated APIs and ship Jackson 3.0 as a proper major release.</p>
+  <p>Spring Retry's release cadence diverged from Spring Boot's. Managing it in the BOM implied a level of compatibility testing that wasn't happening. Removing it from the BOM lets teams pin the version they actually test against.</p>
 
   <h2>How to Fix</h2>
   <div class="fix-options">
     <div class="fix-option">
       <span class="fix-num">A</span>
-      <div><span class="fix-label">OpenRewrite (recommended).</span> Run the <a href="https://docs.openrewrite.org/recipes/java/jackson/upgradejackson_2_3_typechanges">Jackson 3 migration recipe</a>. Handles group ID changes and import updates across the entire codebase in one pass.</div>
+      <div><span class="fix-label">Add an explicit version.</span> Add <code>&lt;version&gt;2.0.11&lt;/version&gt;</code> (or the latest compatible release) to your spring-retry dependency declaration. Check <a href="https://mvnrepository.com/artifact/org.springframework.retry/spring-retry">Maven Central</a> for the latest version.</div>
     </div>
     <div class="fix-option">
       <span class="fix-num">B</span>
-      <div><span class="fix-label">Manual: update Maven coordinates first.</span> Replace <code>com.fasterxml.jackson</code> with <code>tools.jackson</code> in all POM or Gradle files. Then fix imports file by file. Note that the group ID fix alone is not enough — class names also changed. See: jackson-class-renames.</div>
+      <div><span class="fix-label">Import Spring Retry's own BOM.</span> If multiple modules use spring-retry, add its BOM to your <code>&lt;dependencyManagement&gt;</code> section so versions are managed in one place.</div>
     </div>
   </div>
 
   <div class="verify-box">
-    <strong>✓ Verify:</strong> mvn compile succeeds with no com.fasterxml errors
+    <strong>✓ Verify:</strong> mvn dependency:tree shows aligned Spring Retry version and retry works
   </div>
 
 
   <div class="scope-box">
-    <strong>Scope check:</strong> Search your codebase for <code>com.fasterxml.jackson</code>. Every hit is a coordinate or import that needs updating. If you use <code>spring-boot-starter-json</code> or <code>spring-boot-starter-web</code>, Jackson is already on your classpath transitively — you still need to update any explicit dependency declarations and all source-level imports.
+    <strong>Scope check:</strong> Search for <code>spring-retry</code> in POM and Gradle files. Any declaration without an explicit version will fail. Also check for <code>@Retryable</code> and <code>@EnableRetry</code> annotations — these confirm the library is actually in use.
   </div>
 
 
   <h2>Watch Out</h2>
-  <p>The group ID change and the class renames (JsonSerializer → ValueSerializer, SerializerProvider → SerializationContext) happen in the same Jackson 3.0 upgrade. Fixing only the group ID leaves broken class references. See jackson-class-renames for the full list of renamed types.</p>
-  <p>Jackson exceptions (<code>JsonMappingException</code>, <code>JsonProcessingException</code>) are <code>Serializable</code>. If you've persisted these anywhere (dead letter queues, error logs), those serialised streams contain the old class names and won't deserialise correctly after migration.</p>
+  <p>If you use <code>spring-cloud-starter-circuitbreaker-resilience4j</code>, it may have pulled in spring-retry transitively. With the BOM removal, the transitive version is no longer aligned. Pin it explicitly to avoid classpath surprises.</p>
+  <p>Spring Retry 2.x requires Spring Framework 6.0+. Since Boot 4.0 ships Framework 7.0, use Retry 2.0.x — older 1.x versions are incompatible.</p>
 
 
 
   <div class="further-info">
     <div class="further-info-header">Further Info</div>
     <div class="further-info-links">
-      <a href="https://github.com/spoole167/spring-break/tree/main/jackson-group-id">spring-break module: jackson-group-id</a><span class="sep">·</span>
-      <a href="https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md">Jackson 3 migration guide</a>
+      <a href="https://github.com/spoole167/spring-break/tree/main/spring-retry-removed">spring-break module: spring-retry-removed</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
 
     </div>
 
-    <div class="further-info-facts">Driven by Jackson 3.0 (upstream of Spring Boot 4.0). The FasterXML to tools.jackson rename was announced in 2023 and finalised in Jackson 3.0-rc1. Affects all spring-boot-starter-json consumers. See also: jackson-class-renames, jackson-exception-hierarchy.</div>
+    <div class="further-info-facts">Spring Retry was removed from the Spring Boot 4.0 managed dependency BOM because its release cadence diverged from Boot's. The library itself still works; you just need an explicit version (2.0.x for Framework 7 compatibility). See also: retry-semantics, retryable-transaction-order.</div>
 
   </div>
 

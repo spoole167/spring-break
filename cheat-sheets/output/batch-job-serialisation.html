@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Jackson 3.0 Group ID Change — Spring Boot 4.0 Migration</title>
+<title>Spring Batch 6 Listener Support Classes Removed (Runtime) — Spring Boot 4.0 Migration</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -33,7 +33,7 @@
     align-items: center;
     margin-bottom: 2mm;
     padding-bottom: 1.5mm;
-    border-bottom: 2px solid #c0392b;
+    border-bottom: 2px solid #e67e22;
   }
 
   .tier-badge {
@@ -41,7 +41,7 @@
     font-size: 7.5pt;
     font-weight: 700;
     color: #fff;
-    background: #c0392b;
+    background: #e67e22;
     padding: 2pt 7pt;
     border-radius: 2px;
     text-transform: uppercase;
@@ -120,7 +120,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
     margin-top: 2.5mm;
   }
@@ -171,7 +171,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 8pt;
     font-weight: 700;
-    color: #c0392b;
+    color: #e67e22;
     min-width: 4mm;
     flex-shrink: 0;
   }
@@ -180,8 +180,8 @@
   .fix-option a { color: #2563eb; text-decoration: none; }
 
   .scope-box {
-    background: #fdf2f2;
-    border: 1px solid #f0d0d0;
+    background: #fef9f2;
+    border: 1px solid #f5e0c0;
     border-radius: 3px;
     padding: 1.5mm 2.5mm;
     margin: 1mm 0;
@@ -209,7 +209,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
   }
 
@@ -272,90 +272,83 @@
 <div class="page">
 
   <div class="topbar">
-    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="tier-badge">Tier 2 · Won't Run</span>
     <span class="series-label">spring-boot 3.5 → 4.0</span>
   </div>
 
-  <h1>Jackson 3.0 Group ID Change</h1>
-  <div class="oneliner">Jackson 3.0 moved from com.fasterxml.jackson to tools.jackson. Every Maven coordinate and every import path is now wrong.</div>
+  <h1>Spring Batch 6 Listener Support Classes Removed (Runtime)</h1>
+  <div class="oneliner"><code>JobExecutionListenerSupport</code>, <code>StepExecutionListenerSupport</code>, and <code>ChunkListenerSupport</code> are removed in Spring Batch 6.0. Dynamic loading via reflection throws <code>ClassNotFoundException</code> on Boot 4.0.</div>
 
   <div class="meta-badges">
-    <span class="effort-badge effort-L">Effort: L</span>
-    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+    <span class="effort-badge effort-S">Effort: S</span>
+
   </div>
 
   <h2>What You'll See</h2>
-<pre><span class="comment">$ mvn compile
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[3,32]
-  package com.fasterxml.jackson.databind does not exist
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[8,5]
-  cannot find symbol
-    symbol: class ObjectMapper</span></pre>
+<pre><span class="comment">// Dynamic class loading — e.g. framework, XML config, or legacy reflection
+Class.forName(&quot;org.springframework.batch.core.listener.JobExecutionListenerSupport&quot;);
+
+// Boot 3.5 (Batch 5.x): class present, deprecated since 5.0 — loads fine.
+
+// Boot 4.0 (Batch 6.0): class removed.
+java.lang.ClassNotFoundException:
+  org.springframework.batch.core.listener.JobExecutionListenerSupport</span></pre>
 
   <h2>What Changed</h2>
-  <p>Jackson 3.0 moved from the <code>com.fasterxml.jackson</code> Maven group to <code>tools.jackson</code>. Spring Boot 4.0's managed dependencies point to Jackson 3.0, so the old group ID no longer resolves. Every import statement using <code>com.fasterxml.jackson</code> breaks. See also: jackson-class-renames (for the class-level renames that come with the same upgrade), jackson-exception-hierarchy.</p>
+  <p>Spring Batch 6.0 (shipped with Spring Boot 4.0) removed three convenience base classes that had been deprecated since Batch 5.0: <code>JobExecutionListenerSupport</code>, <code>StepExecutionListenerSupport</code>, and <code>ChunkListenerSupport</code>. These classes provided empty default implementations of listener methods, a pattern made redundant by Java 8 interface default methods.</p>
 
-<pre><span class="comment">// pom.xml — explicit Jackson dependency</span>
-<span class="removed">&lt;dependency&gt;
-    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
-&lt;/dependency&gt;
+<pre><span class="comment">// Replace base class with direct interface implementation</span>
+<span class="removed">public class MyJobListener extends JobExecutionListenerSupport {
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        // only override what you need
+    }
+}
 </span>
-<span class="added">&lt;dependency&gt;
-    &lt;groupId&gt;tools.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
-&lt;/dependency&gt;
-</span>
-
-<span class="comment">// Java imports — ObjectMapper and core types</span>
-<span class="removed">import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-</span>
-<span class="added">import tools.jackson.databind.ObjectMapper;
-import tools.jackson.core.JacksonException;
+<span class="added">public class MyJobListener implements JobExecutionListener {
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        // implement the interface directly
+    }
+}
 </span></pre>
 
 
   <h2>Why This Changed</h2>
-  <p>Jackson's maintainers separated the project identity from the original FasterXML organisation, giving a clean break to drop deprecated APIs and ship Jackson 3.0 as a proper major release.</p>
+  <p>Java 8 interface default methods eliminate the need for adapter-style base classes. Batch 5.0 deprecated them with that rationale; Batch 6.0 follows through with removal. Implementing the listener interface directly is both more explicit and compatible with composition rather than inheritance.</p>
 
   <h2>How to Fix</h2>
   <div class="fix-options">
     <div class="fix-option">
       <span class="fix-num">A</span>
-      <div><span class="fix-label">OpenRewrite (recommended).</span> Run the <a href="https://docs.openrewrite.org/recipes/java/jackson/upgradejackson_2_3_typechanges">Jackson 3 migration recipe</a>. Handles group ID changes and import updates across the entire codebase in one pass.</div>
-    </div>
-    <div class="fix-option">
-      <span class="fix-num">B</span>
-      <div><span class="fix-label">Manual: update Maven coordinates first.</span> Replace <code>com.fasterxml.jackson</code> with <code>tools.jackson</code> in all POM or Gradle files. Then fix imports file by file. Note that the group ID fix alone is not enough — class names also changed. See: jackson-class-renames.</div>
+      <div><span class="fix-label">Implement the listener interface directly.</span> Replace <code>extends JobExecutionListenerSupport</code> with <code>implements JobExecutionListener</code>. Do the same for <code>StepExecutionListenerSupport</code> → <code>StepExecutionListener</code> and <code>ChunkListenerSupport</code> → <code>ChunkListener</code>. You only need to implement the methods you actually use — all others have default no-op implementations on the interface.</div>
     </div>
   </div>
 
   <div class="verify-box">
-    <strong>✓ Verify:</strong> mvn compile succeeds with no com.fasterxml errors
+    <strong>✓ Verify:</strong> JobExecutionListenerSupport, StepExecutionListenerSupport, and ChunkListenerSupport are on the classpath and loadable at runtime
   </div>
 
 
   <div class="scope-box">
-    <strong>Scope check:</strong> Search your codebase for <code>com.fasterxml.jackson</code>. Every hit is a coordinate or import that needs updating. If you use <code>spring-boot-starter-json</code> or <code>spring-boot-starter-web</code>, Jackson is already on your classpath transitively — you still need to update any explicit dependency declarations and all source-level imports.
+    <strong>Scope check:</strong> Search for <code>extends JobExecutionListenerSupport</code>, <code>extends StepExecutionListenerSupport</code>, and <code>extends ChunkListenerSupport</code> in your source. Also check Spring XML configuration files and any reflection-based lookups for these class names.
   </div>
 
 
   <h2>Watch Out</h2>
-  <p>The group ID change and the class renames (JsonSerializer → ValueSerializer, SerializerProvider → SerializationContext) happen in the same Jackson 3.0 upgrade. Fixing only the group ID leaves broken class references. See jackson-class-renames for the full list of renamed types.</p>
-  <p>Jackson exceptions (<code>JsonMappingException</code>, <code>JsonProcessingException</code>) are <code>Serializable</code>. If you've persisted these anywhere (dead letter queues, error logs), those serialised streams contain the old class names and won't deserialise correctly after migration.</p>
+  <p>The compile-time version of this break is covered by the <code>batch-listener-classes</code> module. This module specifically targets runtime reflection scenarios — XML-configured listeners, framework-generated proxies, or dynamic class loading that bypasses the compiler.</p>
 
 
 
   <div class="further-info">
     <div class="further-info-header">Further Info</div>
     <div class="further-info-links">
-      <a href="https://github.com/spoole167/spring-break/tree/main/jackson-group-id">spring-break module: jackson-group-id</a><span class="sep">·</span>
-      <a href="https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md">Jackson 3 migration guide</a>
+      <a href="https://github.com/spoole167/spring-break/tree/main/batch-job-serialisation">spring-break module: batch-job-serialisation</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide">Spring Batch 6.0 Migration Guide</a>
 
     </div>
 
-    <div class="further-info-facts">Driven by Jackson 3.0 (upstream of Spring Boot 4.0). The FasterXML to tools.jackson rename was announced in 2023 and finalised in Jackson 3.0-rc1. Affects all spring-boot-starter-json consumers. See also: jackson-class-renames, jackson-exception-hierarchy.</div>
+    <div class="further-info-facts">Complements batch-listener-classes, which catches the same removal at compile time via direct imports. This module catches it at runtime via Class.forName(), covering the case where the support classes are referenced dynamically (e.g. via Spring XML config, reflection-based frameworks, or AOP proxies) rather than through direct source-level imports. Both modules demonstrate the same underlying Batch 6.0 removal.</div>
 
   </div>
 

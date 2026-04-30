@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Jackson 3.0 Group ID Change — Spring Boot 4.0 Migration</title>
+<title>Modular Auto-Configuration — Spring Boot 4.0 Migration</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -33,7 +33,7 @@
     align-items: center;
     margin-bottom: 2mm;
     padding-bottom: 1.5mm;
-    border-bottom: 2px solid #c0392b;
+    border-bottom: 2px solid #e67e22;
   }
 
   .tier-badge {
@@ -41,7 +41,7 @@
     font-size: 7.5pt;
     font-weight: 700;
     color: #fff;
-    background: #c0392b;
+    background: #e67e22;
     padding: 2pt 7pt;
     border-radius: 2px;
     text-transform: uppercase;
@@ -120,7 +120,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
     margin-top: 2.5mm;
   }
@@ -171,7 +171,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 8pt;
     font-weight: 700;
-    color: #c0392b;
+    color: #e67e22;
     min-width: 4mm;
     flex-shrink: 0;
   }
@@ -180,8 +180,8 @@
   .fix-option a { color: #2563eb; text-decoration: none; }
 
   .scope-box {
-    background: #fdf2f2;
-    border: 1px solid #f0d0d0;
+    background: #fef9f2;
+    border: 1px solid #f5e0c0;
     border-radius: 3px;
     padding: 1.5mm 2.5mm;
     margin: 1mm 0;
@@ -209,7 +209,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
   }
 
@@ -272,90 +272,96 @@
 <div class="page">
 
   <div class="topbar">
-    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="tier-badge">Tier 2 · Won't Run</span>
     <span class="series-label">spring-boot 3.5 → 4.0</span>
   </div>
 
-  <h1>Jackson 3.0 Group ID Change</h1>
-  <div class="oneliner">Jackson 3.0 moved from com.fasterxml.jackson to tools.jackson. Every Maven coordinate and every import path is now wrong.</div>
+  <h1>Modular Auto-Configuration</h1>
+  <div class="oneliner">Spring Boot 4.0 split the monolithic auto-configuration jar into modules. Beans you got for free (ObjectMapper, Validator) are now missing unless you add the explicit starter. The app starts. NoSuchBeanDefinitionException hits at first use.</div>
 
   <div class="meta-badges">
-    <span class="effort-badge effort-L">Effort: L</span>
-    <span class="openrewrite-badge">⚙ OpenRewrite</span>
+    <span class="effort-badge effort-M">Effort: M</span>
+
   </div>
 
   <h2>What You'll See</h2>
-<pre><span class="comment">$ mvn compile
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[3,32]
-  package com.fasterxml.jackson.databind does not exist
-[ERROR] /src/main/java/com/example/JacksonConfig.java:[8,5]
-  cannot find symbol
-    symbol: class ObjectMapper</span></pre>
+<pre><span class="comment">// App compiles and starts. Failure at first injection or endpoint call:
+
+org.springframework.beans.factory.NoSuchBeanDefinitionException:
+  No qualifying bean of type
+  &#x27;com.fasterxml.jackson.databind.ObjectMapper&#x27; available
+
+// Or from a @RestController trying to serialise a response:
+org.springframework.http.converter.HttpMessageNotWritableException:
+  No converter for [class com.example.OrderDto]</span></pre>
 
   <h2>What Changed</h2>
-  <p>Jackson 3.0 moved from the <code>com.fasterxml.jackson</code> Maven group to <code>tools.jackson</code>. Spring Boot 4.0's managed dependencies point to Jackson 3.0, so the old group ID no longer resolves. Every import statement using <code>com.fasterxml.jackson</code> breaks. See also: jackson-class-renames (for the class-level renames that come with the same upgrade), jackson-exception-hierarchy.</p>
+  <p>The <code>spring-boot-autoconfigure</code> jar was a single monolithic module that bundled auto-configuration for every Spring Boot feature. In Boot 4.0 it is split into focused modules — one per feature area. Each module's auto-configuration only activates when its corresponding starter is explicitly present. Adding <code>spring-boot-starter-web</code> no longer implicitly enables Jackson, validation, or actuator auto-configuration.</p>
 
-<pre><span class="comment">// pom.xml — explicit Jackson dependency</span>
+<pre><span class="comment">// pom.xml — add starters that were previously implicit</span>
 <span class="removed">&lt;dependency&gt;
-    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
 &lt;/dependency&gt;
 </span>
 <span class="added">&lt;dependency&gt;
-    &lt;groupId&gt;tools.jackson.core&lt;/groupId&gt;
-    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
 &lt;/dependency&gt;
-</span>
-
-<span class="comment">// Java imports — ObjectMapper and core types</span>
-<span class="removed">import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-</span>
-<span class="added">import tools.jackson.databind.ObjectMapper;
-import tools.jackson.core.JacksonException;
+&lt;!-- Now required explicitly — no longer implicit via web starter --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-json&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-validation&lt;/artifactId&gt;
+&lt;/dependency&gt;
 </span></pre>
 
 
   <h2>Why This Changed</h2>
-  <p>Jackson's maintainers separated the project identity from the original FasterXML organisation, giving a clean break to drop deprecated APIs and ship Jackson 3.0 as a proper major release.</p>
+  <p>The monolithic auto-configure jar created a hidden coupling problem: adding any Spring Boot starter pulled in auto-configuration for hundreds of features the application never used. The split reduces startup time, lowers memory footprint, and makes dependency management explicit — you only pay for what you declare.</p>
 
   <h2>How to Fix</h2>
   <div class="fix-options">
     <div class="fix-option">
       <span class="fix-num">A</span>
-      <div><span class="fix-label">OpenRewrite (recommended).</span> Run the <a href="https://docs.openrewrite.org/recipes/java/jackson/upgradejackson_2_3_typechanges">Jackson 3 migration recipe</a>. Handles group ID changes and import updates across the entire codebase in one pass.</div>
+      <div><span class="fix-label">Audit and add missing starters.</span> Run <code>mvn dependency:tree</code> and compare what was transitive on Boot 3.5 with what your Boot 4.0 build pulls in. Add an explicit <code>spring-boot-starter-*</code> dependency for every feature your application uses: <code>spring-boot-starter-json</code> for Jackson, <code>spring-boot-starter-validation</code> for Bean Validation, <code>spring-boot-starter-actuator</code> for Micrometer metrics.</div>
     </div>
     <div class="fix-option">
       <span class="fix-num">B</span>
-      <div><span class="fix-label">Manual: update Maven coordinates first.</span> Replace <code>com.fasterxml.jackson</code> with <code>tools.jackson</code> in all POM or Gradle files. Then fix imports file by file. Note that the group ID fix alone is not enough — class names also changed. See: jackson-class-renames.</div>
+      <div><span class="fix-label">Watch for silent failures in @RestController endpoints.</span> If a controller returns an object that Jackson used to serialise automatically, the endpoint now returns <code>406 Not Acceptable</code> or throws <code>HttpMessageNotWritableException</code> rather than an obvious startup error. Add <code>spring-boot-starter-json</code> to restore the message converter.</div>
     </div>
   </div>
 
   <div class="verify-box">
-    <strong>✓ Verify:</strong> mvn compile succeeds with no com.fasterxml errors
+    <strong>✓ Verify:</strong> App starts and ObjectMapper, Validator, and other auto-configured beans are present — confirm with a test that autowires each one
   </div>
 
 
   <div class="scope-box">
-    <strong>Scope check:</strong> Search your codebase for <code>com.fasterxml.jackson</code>. Every hit is a coordinate or import that needs updating. If you use <code>spring-boot-starter-json</code> or <code>spring-boot-starter-web</code>, Jackson is already on your classpath transitively — you still need to update any explicit dependency declarations and all source-level imports.
+    <strong>Scope check:</strong> Run the app and scan for <code>NoSuchBeanDefinitionException</code> in startup logs. Also grep your code for <code>@Autowired ObjectMapper</code>, <code>@Autowired Validator</code>, and similar injections that relied on implicit auto-configuration. Check <code>@RestController</code> methods that return non-String types — these rely on Jackson message converters.
   </div>
 
 
   <h2>Watch Out</h2>
-  <p>The group ID change and the class renames (JsonSerializer → ValueSerializer, SerializerProvider → SerializationContext) happen in the same Jackson 3.0 upgrade. Fixing only the group ID leaves broken class references. See jackson-class-renames for the full list of renamed types.</p>
-  <p>Jackson exceptions (<code>JsonMappingException</code>, <code>JsonProcessingException</code>) are <code>Serializable</code>. If you've persisted these anywhere (dead letter queues, error logs), those serialised streams contain the old class names and won't deserialise correctly after migration.</p>
+  <p>The failure is not at startup. Spring context loads successfully; the missing bean is only discovered when something tries to inject it or a converter is needed. Endpoint smoke tests are the fastest way to find gaps.</p>
+  <p><code>spring-boot-starter-web</code> still brings Jackson onto the <em>classpath</em> as a transitive compile dependency — the classes are present, just not auto-configured into a bean. This means the app compiles, no import errors, no obvious signal that anything is wrong.</p>
+  <p>Each team's application will hit a different subset of missing beans depending on what features it uses. There is no single fix — it requires an audit. Use the Migration Guide's starter mapping table as a checklist.</p>
 
 
 
   <div class="further-info">
     <div class="further-info-header">Further Info</div>
     <div class="further-info-links">
-      <a href="https://github.com/spoole167/spring-break/tree/main/jackson-group-id">spring-break module: jackson-group-id</a><span class="sep">·</span>
-      <a href="https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md">Jackson 3 migration guide</a>
+      <a href="https://github.com/spoole167/spring-break/tree/main/modular-starters">spring-break module: modular-starters</a><span class="sep">·</span>
+      <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a><span class="sep">·</span>
+      <a href="https://spring.io/blog/2025/10/28/modularizing-spring-boot">Modularizing Spring Boot (Spring Blog)</a>
 
     </div>
 
-    <div class="further-info-facts">Driven by Jackson 3.0 (upstream of Spring Boot 4.0). The FasterXML to tools.jackson rename was announced in 2023 and finalised in Jackson 3.0-rc1. Affects all spring-boot-starter-json consumers. See also: jackson-class-renames, jackson-exception-hierarchy.</div>
+    <div class="further-info-facts">Spring Boot 4.0 splits the monolithic spring-boot-autoconfigure jar into focused, feature-specific modules. In Boot 3.x every starter dragged in the entire auto-configuration bundle, so features like Jackson, Bean Validation, and Micrometer were configured automatically even without an explicit dependency. In Boot 4.0 each auto-configuration module activates only when its dedicated starter is on the classpath. Features you were getting for free become explicit opt-ins. The app compiles and starts — it just doesn't have the beans you expected.</div>
 
   </div>
 

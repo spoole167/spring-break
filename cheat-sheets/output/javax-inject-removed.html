@@ -33,7 +33,7 @@
     align-items: center;
     margin-bottom: 2mm;
     padding-bottom: 1.5mm;
-    border-bottom: 2px solid #c0392b;
+    border-bottom: 2px solid #e67e22;
   }
 
   .tier-badge {
@@ -41,7 +41,7 @@
     font-size: 7.5pt;
     font-weight: 700;
     color: #fff;
-    background: #c0392b;
+    background: #e67e22;
     padding: 2pt 7pt;
     border-radius: 2px;
     text-transform: uppercase;
@@ -120,7 +120,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
     margin-top: 2.5mm;
   }
@@ -171,7 +171,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 8pt;
     font-weight: 700;
-    color: #c0392b;
+    color: #e67e22;
     min-width: 4mm;
     flex-shrink: 0;
   }
@@ -180,8 +180,8 @@
   .fix-option a { color: #2563eb; text-decoration: none; }
 
   .scope-box {
-    background: #fdf2f2;
-    border: 1px solid #f0d0d0;
+    background: #fef9f2;
+    border: 1px solid #f5e0c0;
     border-radius: 3px;
     padding: 1.5mm 2.5mm;
     margin: 1mm 0;
@@ -209,7 +209,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #c0392b;
+    color: #e67e22;
     margin-bottom: 1mm;
   }
 
@@ -272,12 +272,12 @@
 <div class="page">
 
   <div class="topbar">
-    <span class="tier-badge">Tier 1 · Won't Build</span>
+    <span class="tier-badge">Tier 2 · Won't Run</span>
     <span class="series-label">spring-boot 3.5 → 4.0</span>
   </div>
 
   <h1>javax.inject Removed</h1>
-  <div class="oneliner">Spring Boot 4.0 no longer provides javax.inject on the classpath. Code using @Inject or @Named from javax.inject won't compile.</div>
+  <div class="oneliner">Spring Framework 7.0 stopped processing javax.inject annotations. @Inject fields silently stay null. @Named beans may not be registered. The code compiles and the app starts. Nothing tells you it's broken.</div>
 
   <div class="meta-badges">
     <span class="effort-badge effort-S">Effort: S</span>
@@ -285,12 +285,19 @@
   </div>
 
   <h2>What You'll See</h2>
-<pre><span class="comment">$ mvn compile
-[ERROR] /src/main/java/com/example/service/OrderService.java:[3,20]
-  error: package javax.inject does not exist
-[ERROR] /src/main/java/com/example/service/OrderService.java:[12,6]
-  error: cannot find symbol
-    symbol: class Inject</span></pre>
+<pre><span class="comment">// No compile error — javax.inject:javax.inject still downloadable.
+// Failure is silent at runtime:
+
+@Named(&quot;orderService&quot;)
+public class OrderService {
+    @Inject
+    private OrderRepository repo;  // null on Boot 4.0 — never injected
+}
+
+// At call time:
+java.lang.NullPointerException: Cannot invoke
+  &quot;com.example.OrderRepository.findById(Long)&quot;
+  because &quot;this.repo&quot; is null</span></pre>
 
   <h2>What Changed</h2>
   <p>The <code>javax.inject:javax.inject</code> dependency is no longer on the Spring Boot classpath. Annotations like <code>@javax.inject.Inject</code>, <code>@javax.inject.Named</code>, and <code>@javax.inject.Singleton</code> are unavailable. The Jakarta equivalent is <code>jakarta.inject:jakarta.inject-api</code>.</p>
@@ -345,7 +352,7 @@ public class OrderService {
   </div>
 
   <div class="verify-box">
-    <strong>✓ Verify:</strong> mvn compile — no javax.inject import errors
+    <strong>✓ Verify:</strong> App starts and @Inject fields are non-null — confirm via a test that autowires a bean registered with @Named
   </div>
 
 
@@ -363,12 +370,12 @@ public class OrderService {
   <div class="further-info">
     <div class="further-info-header">Further Info</div>
     <div class="further-info-links">
-      <a href="https://github.com/spoole167/spring-break/tree/main/javax-annotation-removed">spring-break module: javax-annotation-removed</a><span class="sep">·</span>
+      <a href="https://github.com/spoole167/spring-break/tree/main/javax-inject-removed">spring-break module: javax-inject-removed</a><span class="sep">·</span>
       <a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a>
 
     </div>
 
-    <div class="further-info-facts">Driven by the Jakarta EE transition completed in Spring Framework 7.0. The javax.inject:javax.inject:1 artifact was a JSR-330 reference implementation. Its jakarta.inject:jakarta.inject-api replacement is managed by the Spring Boot BOM. Deprecated since the javax-to-jakarta migration in Boot 3.0.</div>
+    <div class="further-info-facts">Driven by the Jakarta EE transition completed in Spring Framework 7.0. The javax.inject:javax.inject:1 artifact still exists in Maven Central and still compiles. The break is at runtime: Spring Framework 7.0 stopped recognising javax.inject annotations for dependency injection. Fields annotated with @Inject are not wired — they stay null. @Named beans may not be registered. No error is thrown at startup. The first NullPointerException at call time is your only clue.</div>
 
   </div>
 
