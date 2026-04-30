@@ -136,7 +136,7 @@ def process_card(yaml_path: Path, template: Template, html_only: bool = False):
     card_id = card.get("id", yaml_path.stem)
     print(f"[{card_id}]")
 
-    out_dir = yaml_path.parent.parent / "output"
+    out_dir = yaml_path.parent.parent / "target"
     html_path = out_dir / f"{card_id}.html"
     pdf_path = out_dir / f"{card_id}.pdf"
 
@@ -246,7 +246,7 @@ def main():
         if not args.html:
             card_id = card.get("id", f.stem)
             tier = int(card.get("tier", 1))
-            out_dir = f.parent.parent / "output"
+            out_dir = f.parent.parent / "target"
             generated_pdfs.append((tier, card_id, out_dir / f"{card_id}.pdf"))
 
     if args.merge and generated_pdfs:
