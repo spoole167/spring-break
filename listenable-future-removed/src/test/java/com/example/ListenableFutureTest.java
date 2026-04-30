@@ -3,7 +3,7 @@ package com.example;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.concurrent.ListenableFuture;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests ListenableFuture removal between Boot versions.
@@ -35,12 +35,4 @@ class ListenableFutureTest {
                 "fetchData() should return 'data-from-service'");
     }
 
-    @Test
-    void listenableFutureClassIsAvailable() {
-        assertDoesNotThrow(
-            () -> Class.forName("org.springframework.util.concurrent.ListenableFuture"),
-            "ListenableFuture should be on classpath with Boot 3.x. " +
-            "On Boot 4.0, this class is removed — use CompletableFuture instead."
-        );
-    }
 }

@@ -476,7 +476,7 @@ Build these in order. Each line: master-list-entry · suggested module name · p
 | 2.3 | `httpmessageconverters-deprecated` | T2A | Custom converter beans no longer accepted |
 | 2.5 | `jersey-jackson2-required` | T2A | Jersey 4.0 doesn't support Jackson 3 |
 | 2.9 | `batch-static-meterregistry-removed` | T2A | Must register `ObservationRegistry` bean |
-| 2.14 | `springextension-method-scope` | T2B | `@Nested` / custom `TestExecutionListener` impacted |
+| 2.14 | ~~`springextension-method-scope`~~ | ~~T2B~~ | Dropped — scope change not demonstrable with a test that reliably passes on 3.5 and fails on 4.0. Module directory retained but excluded from build. |
 | 2.17 | `cors-empty-config-not-rejected` | T2B | CORS pre-flight no longer rejected when CORS config empty |
 | 2.18 | `webclient-system-proxy-optin` | T2B | Reactor `WebClient` auto-opts into `https.proxyHost`/`https.proxyPort` |
 | 2.32 | `jackson-find-and-add-modules` | T2B | All classpath modules registered by default |

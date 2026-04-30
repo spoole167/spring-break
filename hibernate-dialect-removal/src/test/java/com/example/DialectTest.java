@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import org.hibernate.dialect.MySQL8Dialect;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -57,38 +58,25 @@ public class DialectTest {
     }
 
     /**
-     * BREAKING CHANGE TEST: Verify version-specific dialect class is loadable.
+     * BREAKING CHANGE TEST: Verify version-specific dialect class is available.
      *
      * Many production applications have application.properties like:
      *   spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
      *
-     * Hibernate 6.x: MySQL8Dialect exists (deprecated) — class loads successfully
-     * Hibernate 7.0: MySQL8Dialect removed — ClassNotFoundException at startup
+     * Hibernate 6.x: MySQL8Dialect exists (deprecated) — compiles and loads fine.
+     * Hibernate 7.0: MySQL8Dialect removed — fails to compile on Boot 4.0.
      *
-     * This breaks applications silently because the class name is a string in
-     * properties, not a Java import. The error only appears at runtime when
-     * Hibernate tries to instantiate the dialect during context initialization.
+     * The properties-based reference fails at runtime; this test makes the same
+     * removal visible at compile time.
      *
      * MIGRATION: Remove explicit dialect configuration or replace with generic
-     * dialect (MySQLDialect, PostgreSQLDialect, etc.).
+     * dialect (MySQLDialect, PostgreSQLDialect). Hibernate auto-detects from JDBC.
      *
      * Reference: https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html
-     *
-     * NOTE: If this test fails on BOTH versions, the specific class name may
-     * need adjusting. Try:
-     *   - org.hibernate.dialect.MySQL8Dialect (common, removed in 7.0)
-     *   - org.hibernate.dialect.PostgreSQL10Dialect
-     *   - org.hibernate.dialect.MariaDB106Dialect
      */
     @Test
     public void versionSpecificDialectClassShouldBeLoadable() {
-        // MySQL8Dialect — commonly set explicitly in application.properties.
-        // Deprecated in Hibernate 6.x, removed in Hibernate 7.0.
-        assertDoesNotThrow(
-                () -> Class.forName("org.hibernate.dialect.MySQL8Dialect"),
-                "MySQL8Dialect should be loadable on Hibernate 6.x (Boot 3.x). "
-                + "On Hibernate 7.x (Boot 4.0), this class is removed. "
-                + "Use automatic dialect detection instead of explicit dialect configuration."
-        );
+        // Direct class reference — fails to compile on Hibernate 7.0 (Boot 4.0).
+        assertNotNull(MySQL8Dialect.class.getName());
     }
 }

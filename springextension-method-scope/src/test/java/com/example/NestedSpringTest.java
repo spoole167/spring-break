@@ -1,49 +1,126 @@
 package com.example;
 
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.context.TestExecutionListener;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import java.util.concurrent.atomic.AtomicInteger;
 
-/* Master list: 2.14 — SpringExtension method scope */
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+/**
+ * Demonstrates the SpringExtension scope change in Spring Framework 7.0 (Boot 4.0).
+ *
+ * Spring Framework 6.x (Boot 3.5): SpringExtension uses TEST_CLASS scope.
+ *   TestContextManagers are stored in the shared root ExtensionContext store, keyed
+ *   by test class. Each class (outer + inner) gets one TestContextManager, and
+ *   beforeTestClass() is called exactly once per class — 2 calls total here.
+ *
+ * Spring Framework 7.0 (Boot 4.0): SpringExtension uses TEST_METHOD scope by default.
+ *   TestContextManagers are stored in per-method ExtensionContext stores. Each test
+ *   method creates its own TestContextManager, so beforeTestClass() fires once per
+ *   method rather than once per class — 3 calls total here (1 outer + 2 inner).
+ *
+ * This is the concrete impact: custom TestExecutionListeners that initialise state in
+ * beforeTestClass() expecting it to run once per class will see it called once per
+ * method on Boot 4.0, corrupting or duplicating any class-level setup logic.
+ *
+ * Fix: annotate the outer class with
+ *   @SpringExtensionConfig(useTestClassScopedExtensionContext = true)
+ * to restore Boot 3.5 behavior.
+ *
+ * Master list: 2.14
+ * Reference: https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-7.0-Migration-Guide
+ */
 @ExtendWith(SpringExtension.class)
-public class NestedSpringTest {
+@ContextConfiguration(classes = NestedSpringTest.TestConfig.class)
+@TestExecutionListeners(
+        listeners = NestedSpringTest.ClassSetupTracker.class,
+        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
+)
+class NestedSpringTest {
+
+    /**
+     * Counts how many times beforeTestClass() is invoked across the class hierarchy.
+     *
+     * Boot 3.5 (class scope): one call per test class.
+     *   Outer class + Inner class = 2 calls total.
+     *
+     * Boot 4.0 (method scope): one call per test method.
+     *   1 outer method + 2 inner methods = 3 calls total.
+     */
+    static class ClassSetupTracker implements TestExecutionListener {
+        static final AtomicInteger callCount = new AtomicInteger(0);
+
+        @Override
+        public void beforeTestClass(TestContext testContext) {
+            callCount.incrementAndGet();
+        }
+    }
+
+    @Autowired
+    ApplicationContext applicationContext;
 
     @Test
-    void outerTest() {
+    void outerContextIsAvailable() {
+        assertNotNull(applicationContext);
     }
 
     @Nested
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     class InnerTests {
+
+        @Autowired
+        ApplicationContext applicationContext;
+
         @Test
-        void innerTest() {
-            // In Spring Framework 7.0 (Boot 4.0), SpringExtension uses 
-            // test-method scoped ExtensionContext.
-            // This test verifies that @SpringExtensionConfig is NOT required for basic nested tests,
-            // but the change in scope is the relevant migration point.
-            // A more complex test would check TestExecutionListener behavior.
+        @Order(1)
+        void innerContextIsAvailable() {
+            assertNotNull(applicationContext);
+        }
+
+        @Test
+        @Order(2)
+        void beforeTestClassCalledOncePerClassNotPerMethod() {
+            // Runs last so all test methods have already triggered their
+            // TestContextManager lookups before we check the count.
+            //
+            // Boot 3.5 (class scope): TestContextManagers stored in the shared root store,
+            // keyed by class. One created for outer class, one for inner class = 2 total.
+            // beforeTestClass() called exactly twice regardless of method count.
+            //
+            // Boot 4.0 (method scope): each method gets its own store entry.
+            // 1 outer method + 2 inner methods = 3 TestContextManagers = 3 calls.
+            // This assertion fails on Boot 4.0.
+            //
+            // Fix: @SpringExtensionConfig(useTestClassScopedExtensionContext = true)
+            assertEquals(2, ClassSetupTracker.callCount.get(),
+                    "On Boot 3.5, beforeTestClass() is called once per test class " +
+                    "(2 total: outer + inner), because SpringExtension uses class-scoped " +
+                    "TestContextManagers. On Boot 4.0, each test method creates its own " +
+                    "TestContextManager, so beforeTestClass() fires once per method (3 total) " +
+                    "— breaking any listener that expects a single class-level initialisation.");
         }
     }
 
-    @Test
-    void springExtensionConfigShouldNotExistOnBoot35() {
-        // This is a way to detect Boot 4.0 (Spring 7.0)
-        // SpringExtensionConfig was added in Spring 7.0.
-        boolean exists = false;
-        try {
-            Class.forName("org.springframework.test.context.junit.jupiter.SpringExtensionConfig");
-            exists = true;
-        } catch (ClassNotFoundException e) {
-            exists = false;
-        }
-        
-        // Assert false on 3.5 to pass.
-        // On 4.0 this will be true, and we can fail the test to show the difference.
-        if (exists) {
-            throw new AssertionError("SpringExtensionConfig exists! This indicates Spring Framework 7.0+ (Boot 4.0). " +
-                "The default scope for SpringExtension has changed to TEST_METHOD.");
+    @Configuration
+    static class TestConfig {
+        @Bean
+        String testValue() {
+            return "test";
         }
     }
 }

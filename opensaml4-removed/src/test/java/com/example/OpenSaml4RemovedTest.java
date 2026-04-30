@@ -1,29 +1,22 @@
 package com.example;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Verifies that the OpenSaml4AuthenticationProvider class exists on the classpath.
+ * Verifies that OpenSaml4AuthenticationProvider exists on the classpath.
  *
- * Spring Boot 3.5: class exists — test passes.
- * Spring Boot 4.0: class removed (only OpenSAML 5 supported) — ClassNotFoundException.
+ * Spring Boot 3.5: class exists in spring-security-saml2-service-provider — compiles fine.
+ * Spring Boot 4.0: class removed (only OpenSAML 5 supported) — fails to compile.
  */
 class OpenSaml4RemovedTest {
 
     @Test
     void openSaml4AuthenticationProviderShouldExistOnClasspath() {
-        // Use initialize=false so the JVM loads the class bytecode without
-        // resolving OpenSAML transitive dependencies at static-init time.
-        assertDoesNotThrow(
-            () -> Class.forName(
-                "org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider",
-                false,
-                Thread.currentThread().getContextClassLoader()
-            ),
-            "OpenSaml4AuthenticationProvider should be on the classpath. "
-                + "In Boot 4.0 this class is removed — only OpenSAML 5 is supported."
-        );
+        // Direct class reference — fails to compile on Boot 4.0.
+        // OpenSaml4AuthenticationProvider is removed; only OpenSAML 5 is supported.
+        assertNotNull(OpenSaml4AuthenticationProvider.class.getName());
     }
 }

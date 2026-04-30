@@ -41,6 +41,12 @@
 
 ---
 
+## Dropped (1)
+
+- **`springextension-method-scope`** — module directory exists but excluded from build and no card required. The SpringExtension scope change (TEST_CLASS → TEST_METHOD in Spring 7.0) is real but the behavioral difference is not demonstrable with a test that reliably passes on 3.5 and fails on 4.0. Spring still creates one TestContextManager per class on both versions; the internal ExtensionContext scope shift only affects code that directly accesses SpringExtension's private store namespace. Too narrow an audience to include.
+
+---
+
 ## On hold (1)
 
 - **`webjars-locator-core-removed`** — marked `[!]` in TODO.md; no primary source evidence found in Boot 4.0 Migration Guide or Release Notes. Do not create a card until a verbatim source quote is found.

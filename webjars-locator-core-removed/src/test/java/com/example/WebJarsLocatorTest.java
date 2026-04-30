@@ -1,12 +1,16 @@
 package com.example;
+
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import org.webjars.WebJarAssetLocator;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 class WebJarsLocatorTest {
+
     @Test
-    void webjarsLocatorCoreIsLoadableOnBoot35() {
-        assertDoesNotThrow(
-            () -> Class.forName("org.webjars.WebJarAssetLocator"),
-            "WebJarAssetLocator should be on classpath on Boot 3.5. Removed in 4.0."
-        );
+    void webjarsLocatorCoreIsAvailableOnBoot35() {
+        // Direct instantiation — fails to compile on Boot 4.0 where
+        // webjars-locator-core is removed from managed dependencies.
+        WebJarAssetLocator locator = new WebJarAssetLocator();
+        assertNotNull(locator);
     }
 }
