@@ -1,0 +1,27 @@
+# Build outputs
+target/
+site/
+
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Quarto cache
+.quarto/
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (if any tooling is added later)
+node_modules/
