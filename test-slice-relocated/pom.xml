@@ -12,8 +12,8 @@
     </parent>
 
     <artifactId>test-slice-relocated</artifactId>
-    <name>Tier 2 — Test Slice Auto-Configuration Relocated</name>
-    <description>spring.factories no longer loads auto-configurations in Boot 4.0. Only AutoConfiguration.imports is supported.</description>
+    <name>Tier 1 — Test-Slice Annotations Relocated</name>
+    <description>Test-slice annotation packages relocated in Boot 4.0 (e.g. org.springframework.boot.test.autoconfigure.orm.jpa gone). Compile failure in test sources.</description>
 
     <dependencies>
         <dependency>

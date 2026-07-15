@@ -97,8 +97,6 @@ TIER_1=(
   opensaml4-removed
   resttemplate-autoconfig
   test-slice-relocated
-  actuator-nullable-removed
-  jackson-dates-timestamps
   httpcomponents-setconnecttimeout-removed
 )
 
@@ -115,6 +113,7 @@ TIER_2=(
   health-probes-default-on
   httpmessageconverters-deprecated
   cors-empty-config-not-rejected
+  jackson-dates-timestamps
 )
 
 # Tier 3 — Different Results: runs on both, assertions detect different behaviour.

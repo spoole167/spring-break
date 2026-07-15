@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>opensaml4-removed</artifactId>
-    <name>Tier 2 — OpenSAML 4 Support Removed</name>
+    <name>Tier 1 — OpenSAML 4 Support Removed</name>
     <description>OpenSAML 4 support removed in Boot 4.0; only OpenSAML 5 supported. OpenSaml4AuthenticationProvider class deleted.</description>
 
     <dependencies>

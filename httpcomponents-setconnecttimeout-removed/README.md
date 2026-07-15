@@ -37,3 +37,11 @@ factory.setConnectionRequestTimeout(Duration.ofSeconds(5));
 ```
 
 Or configure timeouts via `ClientHttpRequestFactorySettings` / `RestTemplateBuilder` instead of touching the factory directly.
+
+## Source
+
+Spring Framework 7.0 Release Notes ("Removed APIs" section):
+
+> The `HttpComponentsClientHttpRequestFactory#setConnectTimeout` methods have been removed as part of [#35748](https://github.com/spring-projects/spring-framework/issues/35748).
+
+https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-7.0-Release-Notes

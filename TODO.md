@@ -4,7 +4,7 @@
 
 **Use:** Read this runbook in full before doing any work. Pick one item from the priority backlog at the end. Follow the recipe end-to-end. Verify. Update docs. Move on.
 
-**Hard rule, no exceptions:** every claim a new module makes must be backed by a verbatim quote from one of the six primary sources listed below. If you can't find a source quote, stop and flag it — do not fabricate.
+**Hard rule, no exceptions:** every claim a new module makes must be backed by a verbatim quote from one of the seven primary sources listed below. If you can't find a source quote, stop and flag it — do not fabricate.
 
 ---
 
@@ -16,10 +16,9 @@
 
 - `01-Projects/SpringBoot Promotion/Research/Boot 4.0 Breaking Changes - Master List.md` (Obsidian) — the canonical enumeration of 143 distinct breaking changes with verbatim source quotes. Each numbered entry (1.1, 2.7, 3.14, etc.) is the unit of work.
 - `01-Projects/SpringBoot Promotion/Research/Verification Status - Test Cases Suite.md` (Obsidian) — truth table tracking which modules are fully verified.
-- `test-cases-todo.md` (project folder) — backlog of work items.
-- `test-cases-audit.md` (project folder) — historical audit record.
+- `REVIEW-FINDINGS.md` (repo root) — current review status, verified results, and open items.
 
-**Six primary sources:**
+**Seven primary sources:**
 
 1. Boot 4.0 Migration Guide — `https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide`
 2. Boot 4.0 Release Notes — `https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Release-Notes`
@@ -33,7 +32,7 @@
 
 - Default (passes): Spring Boot **3.5.16**
 - Override (fails): Spring Boot **4.0.7**
-- Versions controlled by `<spring-boot.version>` property in `test-cases/pom.xml`
+- Versions controlled by `<spring-boot.version>` property in `pom.xml`
 
 ---
 
@@ -42,7 +41,7 @@
 ### Folder layout per module
 
 ```
-test-cases/<module-name>/
+<module-name>/
 ├── pom.xml
 ├── README.md
 └── src/
@@ -328,8 +327,8 @@ After creating any new module, run **both** sweeps before marking the module don
 ### 5.1 Confirm 3.5 passes
 
 ```bash
-cd test-cases
-mvn -B -ntp -pl <module-name> test
+# from the repo root
+mvn -B -ntp clean test -pl <module-name>
 ```
 
 Expected outcome: `BUILD SUCCESS` with `Tests run: N, Failures: 0, Errors: 0`.
@@ -339,8 +338,10 @@ If the test fails on 3.5, the test is wrong. Fix it before continuing.
 ### 5.2 Confirm 4.0 fails for the right reason
 
 ```bash
-cd test-cases
-mvn -B -ntp -pl <module-name> test -Dspring-boot.version=4.0.7
+# build from INSIDE the module — on 4.0 the root reactor is unreadable
+# (several poms lose their managed dependency versions)
+cd <module-name>
+mvn -B -ntp clean test -Dspring-boot.version=4.0.7
 ```
 
 Expected outcome depends on tier:
@@ -369,7 +370,7 @@ If the README headline says "AntPathRequestMatcher removed" but the error is "sp
 
 Once a module is verified, update **all** of the following:
 
-### 6.1 Parent pom (`test-cases/pom.xml`)
+### 6.1 Parent pom (`pom.xml`)
 
 Add `<module><module-name></module>` to the appropriate tier block. Update the count comment at the top of the `<modules>` section. Update the count in the Tier 1/2/3 block comments.
 
@@ -384,7 +385,7 @@ Add `<module><module-name></module>` to the appropriate tier block. Update the c
 </modules>
 ```
 
-### 6.2 Test runner (`test-cases/run-all-tests.sh`)
+### 6.2 Test runner (`run-all-tests.sh`)
 
 Add the module name to `TIER_1=()` (Tier 1) or `TIER_2=()` (Tier 2) in the array.
 
@@ -402,7 +403,7 @@ Add a row to **Section A1 (VERIFIED)** for the new module. Decrement the count i
 
 ### 6.5 TODO file (Obsidian + project folder)
 
-`01-Projects/SpringBoot Promotion/Research/Test Cases TODO.md` and `test-cases-todo.md`:
+`01-Projects/SpringBoot Promotion/Research/Test Cases TODO.md` (Obsidian) and the Section 8 backlog below:
 
 Mark the corresponding TODO item `[x]` (done).
 
@@ -412,7 +413,7 @@ Mark the corresponding TODO item `[x]` (done).
 
 ### 7.1 Anti-patterns — do NOT do these
 
-- **Do not invent a class, method, package, or annotation that you can't find a verbatim source quote for.** This is the single biggest risk to the suite's credibility. If the master list says `Class X was removed` but you can't find that class in any of the six primary sources, the master list might be wrong — flag it, do not build a module.
+- **Do not invent a class, method, package, or annotation that you can't find a verbatim source quote for.** This is the single biggest risk to the suite's credibility. If the master list says `Class X was removed` but you can't find that class in any of the seven primary sources, the master list might be wrong — flag it, do not build a module.
 - **Do not pin a Spring Boot version in a module pom.** The parent's `<spring-boot.version>` property must control it.
 - **Do not use `TestRestTemplate`.** It's removed in Boot 4.0. Use `RestClient` + `@LocalServerPort` if you need an HTTP client in a test.
 - **Do not depend on `MockMvc` auto-configuration.** `@SpringBootTest` no longer auto-configures `MockMvc` on 4.0. If you need MockMvc, add `@AutoConfigureMockMvc` explicitly — but be aware this will pull in additional Boot test deps that may not exist.
@@ -451,19 +452,19 @@ Build these in order. Each line: master-list-entry · suggested module name · p
 | 1.47 | `entityscan-relocated` | T1A | [x] `@EntityScan` package moved to `org.springframework.boot.persistence.autoconfigure` |
 | 1.43 | `propertymapping-relocated` | T1A | [x] `@PropertyMapping` annotation moved |
 | 1.44 | `kafka-streams-customizer-removed` | T1A | [x] `StreamBuilderFactoryBeanCustomizer` → `StreamsBuilderFactoryBeanConfigurer` |
-| 1.32 | `webjars-locator-core-removed` | T1B | [!] `webjars-locator-core` → `webjars-locator-lite` — no mention in Boot 4.0 Migration Guide or Release Notes; master list claim lacks primary source. Do not build until a verbatim source quote is found. |
+| 1.32 | `webjars-locator-core-removed` | T1B | [x] Built and verified (compile-fails on 4.0.7). Source found 2026-07-15 in SF 7.0 Release Notes: WebJars support removed as part of spring-framework#33809 in favour of `webjars-locator-lite`. Quote in the module README. |
 | 1.59 | `simpdest-message-matcher-removed` | T1A | [x] Spring Security messaging matcher removed |
 | 1.60 | `apacheds-ldap-removed` | T1B | [x] ApacheDS embedded LDAP support removed; use UnboundId |
 | 1.62 | `spring-security-access-relocated` | T1B | [x] Access API moved to legacy `spring-security-access` module |
 | 1.14 | `propertymapper-alwaysapplyingnonnull` | T1C | [x] `PropertyMapper.alwaysApplyingWhenNonNull()` removed |
-| 1.34 | `httpcomponents-setconnecttimeout-removed` | T1C | [x] `setConnectTimeout` method removed |
+| 1.34 | `httpcomponents-setconnecttimeout-removed` | T1C | [x] Rebuilt 2026-07-15 around `HttpComponentsClientHttpRequestFactory#setConnectTimeout(int)` (removed in SF 7.0, spring-framework#35748). The original targeted `RequestConfig.Builder.setSocketTimeout`, which died at the Boot 2→3 boundary and never compiled on 3.5. |
 | 1.52 | `hibernate-query-setorder-removed` | T1C | [x] `Query#setOrder` removed |
 | 1.53 | `hibernate-empty-interceptor-removed` | T1A | [x] `EmptyInterceptor` removed |
 | 1.51 | `hibernate-where-orderby-removed` | T1A | [x] Subset of removed Hibernate annotations: pick `@Where` and `@OrderBy` for the test (combined module) |
 | 1.68 | `batch-job-builder-string-constructor` | T1C | [x] `JobBuilder(String)` constructor removed |
 | 1.67 | `batch-package-moves` | T1A | [x] `org.springframework.batch.core.*` package relocations (`Job`, `JobExecution`, etc.) |
 | 1.69 | `batch-chunkhandler-renamed` | T1C | [x] `ChunkHandler` → `ChunkRequestHandler`; `setJobLauncher` → `setJobOperator` |
-| 1.70 | `actuator-nullable-removed` | T1A | [x] Actuator endpoint params can no longer use `org.springframework.lang.Nullable` |
+| 1.70 | ~~`actuator-nullable-removed`~~ | ~~T1A~~ | [!] Module removed 2026-07-15: the documented change does NOT reproduce. Tested on 4.0.0 GA and 4.0.7 via MVC — a `@ReadOperation` param annotated `org.springframework.lang.Nullable` is still optional (200 without it), likely because SF7 meta-annotates the deprecated annotation with JSpecify `@Nullable`. Master-list entry 1.70 and the migration guide claim need a caveat. |
 | 1.10 | `aop-starter-rename` | T1B | [x] `spring-boot-starter-aop` → `spring-boot-starter-aspectj` |
 
 ### Tier 2 — Won't Run
@@ -471,14 +472,14 @@ Build these in order. Each line: master-list-entry · suggested module name · p
 | ML # | Suggested module name | Pattern | Notes |
 |---|---|---|---|
 | 1.41 | `springboottest-no-mockmvc` | T2A | `@SpringBootTest` no longer auto-configures `MockMvc`; inject fails without `@AutoConfigureMockMvc` |
-| 2.6 | `batch-in-memory-default` | T2A | Spring Batch defaults to in-memory; need `spring-boot-starter-batch-jdbc` for old behaviour. High-impact silent change. |
-| 2.2 | `health-probes-default-on` | T2B | Liveness/readiness probes enabled by default; new health groups appear |
-| 2.3 | `httpmessageconverters-deprecated` | T2A | Custom converter beans no longer accepted |
+| 2.6 | `batch-in-memory-default` | T2A | [x] Built, verified 2026-07-15, wired in. |
+| 2.2 | `health-probes-default-on` | T2B | [x] Built, verified 2026-07-15, wired in. |
+| 2.3 | `httpmessageconverters-deprecated` | T2A | [x] Built, verified 2026-07-15 (NoClassDefFoundError at runtime), wired in. |
 | 2.5 | `jersey-jackson2-required` | T2A | Jersey 4.0 doesn't support Jackson 3 |
 | 2.9 | `batch-static-meterregistry-removed` | T2A | Must register `ObservationRegistry` bean |
-| 2.14 | ~~`springextension-method-scope`~~ | ~~T2B~~ | Dropped — scope change not demonstrable with a test that reliably passes on 3.5 and fails on 4.0. Module directory retained but excluded from build. |
-| 2.17 | `cors-empty-config-not-rejected` | T2B | CORS pre-flight no longer rejected when CORS config empty |
-| 2.18 | `webclient-system-proxy-optin` | T2B | Reactor `WebClient` auto-opts into `https.proxyHost`/`https.proxyPort` |
+| 2.14 | ~~`springextension-method-scope`~~ | ~~T2B~~ | Dropped — scope change not demonstrable with a test that reliably passes on 3.5 and fails on 4.0. Directory deleted 2026-07-15. |
+| 2.17 | `cors-empty-config-not-rejected` | T2B | [x] Built, verified 2026-07-15 (403 on 3.5.16 → 200 on 4.0.7), wired in. MockMvc must be built manually — @AutoConfigureMockMvc relocates on 4.0. |
+| 2.18 | `webclient-system-proxy-optin` | T2B | Open. Empty shell deleted 2026-07-15; rebuild from scratch if wanted (proxy behaviour needs a local mock server — brittle). |
 | 2.32 | `jackson-find-and-add-modules` | T2B | All classpath modules registered by default |
 | 2.33 | `logback-utf8-default` | T2B | Default Charset for log files now UTF-8 |
 | 2.34 | `devtools-livereload-disabled` | T2B | LiveReload off by default |
@@ -509,7 +510,7 @@ If you finish a row in this backlog and want more, look at the master list for a
 
 The fastest way to internalise the recipe is to look at a recently rebuilt module:
 
-`test-cases/path-matching-engine/` was rebuilt as a Tier 1 demo of master-list entry **1.58** (`AntPathRequestMatcher` removed in Spring Security 7.0). It contains:
+`path-matching-engine/` was rebuilt as a Tier 1 demo of master-list entry **1.58** (`AntPathRequestMatcher` removed in Spring Security 7.0). It contains:
 
 - `pom.xml` — declares `spring-boot-starter-web` + `spring-boot-starter-security` + `spring-boot-starter-test`. No Boot version pinned.
 - `src/main/java/com/example/PathMatchingApp.java` — standard `@SpringBootApplication`.
@@ -519,9 +520,9 @@ The fastest way to internalise the recipe is to look at a recently rebuilt modul
 
 Read those files before building your first module. The shape of `path-matching-engine` is the shape of every Tier 1A module.
 
-For a Tier 2A example: `test-cases/resttemplate-autoconfig/` (covers entry 1.40 from a runtime-injection angle).
-For a Tier 1B example: `test-cases/spring-retry-removed/` (covers entry 1.15 with no version pin).
-For a Tier 1C example: `test-cases/hibernate-session-delete/` (covers entry 1.49 — method removal).
+For a Tier 2A example: `resttemplate-autoconfig/` (covers entry 1.40 from a runtime-injection angle).
+For a Tier 1B example: `spring-retry-removed/` (covers entry 1.15 with no version pin).
+For a Tier 1C example: `hibernate-session-delete/` (covers entry 1.49 — method removal).
 
 ---
 

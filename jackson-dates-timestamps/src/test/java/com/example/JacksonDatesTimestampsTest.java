@@ -2,7 +2,6 @@ package com.example;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 
@@ -13,21 +12,24 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Category (d) — Different Results on Boot 4.0
+ * Category (c) — Won't Run on Boot 4.0
  *
  * Tests that spring.jackson.serialization.write-dates-as-timestamps=true
  * is honoured by the auto-configured ObjectMapper.
  *
- * Boot 3.5 (Jackson 2.x): property applied → Instant serialises as numeric millis
+ * Boot 3.5 (Jackson 2.x): property applied. Instant serialises as numeric millis:
  *   {"ts":1714089600000}
  *
- * Boot 4.0 (Jackson 3.0): property silently ignored → Instant serialises as ISO string
- *   {"ts":1.71408960E9}  or  {"ts":"2025-04-26T00:00:00Z"}
+ * Boot 4.0 (Jackson 3.0): the context never starts. Jackson 3 moved the
+ * date/time toggles out of SerializationFeature, so property binding fails:
+ *   BindException ... No enum constant
+ *   tools.jackson.databind.SerializationFeature.write-dates-as-timestamps
  *
- * The app starts and runs on both. No error is thrown. The JSON shape changes silently.
+ * The code compiles on both versions. The failure arrives at startup, from a
+ * single leftover configuration line. Verified 15 July 2026 on 3.5.16/4.0.7.
  *
- * Fix: replace the property with a Jackson2ObjectMapperBuilderCustomizer bean that
- * explicitly enables SerializationFeature.WRITE_DATES_AS_TIMESTAMPS.
+ * Fix: remove the property; enable the feature programmatically against
+ * Jackson 3's API, or use @JsonFormat(shape = NUMBER) per field.
  */
 @SpringBootTest(properties = {
     "spring.jackson.serialization.write-dates-as-timestamps=true"

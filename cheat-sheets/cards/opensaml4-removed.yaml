@@ -1,12 +1,13 @@
 id: opensaml4-removed
-tier: 2
-tier_label: "Won't Run"
+tier: 1
+tier_label: "Won't Build"
 title: "OpenSAML 4 Support Removed"
 series: "spring-boot 3.5 → 4.0"
 effort: L
 openrewrite: false
 verify: >
-  SAML login flow completes with OpenSAML 5 libraries
+  mvn clean compile — no "cannot find symbol" errors for OpenSaml4*
+  classes; SAML login flow completes with OpenSAML 5 libraries
 
 further_info: >
   Driven by Spring Security 7.0. OpenSAML 4 is no longer maintained; OpenSAML 5
@@ -17,22 +18,17 @@ further_info: >
 
 oneliner: >
   Spring Security 7 dropped OpenSAML 4 support and requires OpenSAML 5.
-  Applications using SAML 2.0 login fail at startup with
-  ClassNotFoundException for OpenSAML 4 classes.
+  Code referencing OpenSaml4AuthenticationProvider and related classes
+  fails to compile on Boot 4.0.
 
 error_output: |
-  org.springframework.beans.factory.BeanCreationException:
-    Error creating bean with name 'securityFilterChain'
-  ...
-  Caused by: java.lang.NoClassDefFoundError:
-    org/opensaml/saml/saml2/core/impl/AuthnRequestMarshaller
-   at org.springframework.security.saml2.provider.service.registration
-    .OpenSamlRelyingPartyRegistrationBuilderFactory.<clinit>(...)
-  Caused by: java.lang.ClassNotFoundException:
-    org.opensaml.saml.saml2.core.impl.AuthnRequestMarshaller
-   at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(...)
+  $ mvn clean compile
+  [ERROR] COMPILATION ERROR :
+  [ERROR] SamlConfig.java:[4,63] cannot find symbol
+      symbol: class OpenSaml4AuthenticationProvider
+  [INFO] BUILD FAILURE
   ---
-  APPLICATION FAILED TO START
+  The build stops at compile. The application never starts.
 
 what_changed: >
   Spring Security 7 removed all OpenSAML 4 compatibility classes and now

@@ -1,10 +1,10 @@
-# Hibernate Dialect Removal
+# Hibernate Version-Specific Dialects Removed (Tier 1: Won't Compile)
 
 Version-specific database dialects removed in Hibernate 7.0; use auto-detection or generic dialects.
 
 ## What Breaks
 
-Hibernate 7.0 (Spring Boot 4.0) removes all version-specific dialect classes. Applications with explicit dialect configuration in application.properties fail at startup with ClassNotFoundException.
+Hibernate 7.0 (Spring Boot 4.0) removes all version-specific dialect classes. Any Java code that references one of these classes stops compiling.
 
 **Removed dialects (Hibernate 7.0):**
 - MySQL57Dialect, MySQL8Dialect
@@ -13,25 +13,29 @@ Hibernate 7.0 (Spring Boot 4.0) removes all version-specific dialect classes. Ap
 - SQLServer2008Dialect, SQLServer2012Dialect
 - And many others (all version-specific variants)
 
-**Configuration that breaks on Spring Boot 4.0:**
+**Measured on Spring Boot 4.0.7 (clean build):**
+```
+[ERROR] cannot find symbol: class MySQL8Dialect
+```
+
+This module references the dialect class directly in Java, so the removal shows up at compile time.
+
+**The runtime variant matters more in practice.** Most real applications never touch a dialect class in Java. They name it as a string in configuration:
 ```properties
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 ```
+That kind of application compiles cleanly on 4.0 and then fails at startup with `ClassNotFoundException: org.hibernate.dialect.MySQL8Dialect`. Same removal, different failure point. This module demonstrates the compile-time variant; if your dialect lives in application.properties, expect the runtime one.
 
-**Error on startup:**
-```
-ClassNotFoundException: org.hibernate.dialect.MySQL8Dialect
-  at Hibernate initialization
-```
-
-Hibernate now auto-detects the database dialect from JDBC driver metadata, making explicit dialect configuration unnecessary in most cases.
+Hibernate 7.0 auto-detects the database dialect from JDBC driver metadata, making explicit dialect configuration unnecessary in most cases.
 
 ## How This Test Works
 
-The test combines CRUD operations with a reflection check:
+The test combines CRUD operations with a direct class reference:
 
-- **testCreateAndRetrieveProduct()** / **testFindProductById()**: Verify basic JPA operations work with auto-detected dialect (H2 in-memory database).
-- **versionSpecificDialectClassShouldBeLoadable()**: Uses reflection to load MySQL8Dialect. Passes on Hibernate 6.x (class exists), fails on Hibernate 7.x (class removed).
+- **testCreateAndRetrieveProduct()** / **testFindProductById()**: Verify basic JPA operations work with the auto-detected dialect (H2 in-memory database).
+- **versionSpecificDialectClassShouldBeLoadable()**: References `MySQL8Dialect.class` directly. The import alone is enough: on Hibernate 6.x the class exists (deprecated), on Hibernate 7.0 it is gone and the test source no longer compiles.
+
+Verified 15 July 2026.
 
 ## On Spring Boot 3.5.16
 
@@ -41,14 +45,14 @@ mvn clean test
 
 Output: All tests pass. Version-specific dialects exist and are loadable.
 
-## On Spring Boot 4.0
+## On Spring Boot 4.0.7
 
-CRUD tests pass (H2 auto-detection works). The reflection test fails:
+Compilation of the test sources fails:
 ```
-ClassNotFoundException: org.hibernate.dialect.MySQL8Dialect
+[ERROR] cannot find symbol: class MySQL8Dialect
 ```
 
-If application.properties explicitly configures a version-specific dialect, the application fails to start before any tests run.
+No tests run. An application that instead configures a version-specific dialect in application.properties would compile, then fail to start with `ClassNotFoundException`.
 
 ## Fix / Migration Path
 
@@ -65,7 +69,7 @@ Hibernate auto-detects from the JDBC driver:
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/mydb
 spring.datasource.driverClassName=com.mysql.cj.jdbc.Driver
-# No explicit dialect needed — Hibernate detects MySQL automatically
+# No explicit dialect needed: Hibernate detects MySQL automatically
 ```
 
 **Option 2: Use generic (version-agnostic) dialects**
@@ -83,6 +87,8 @@ spring.jpa.database-platform=org.hibernate.dialect.SQLServerDialect
 ```bash
 # Find all explicit dialect configurations
 grep -r "hibernate\.dialect" src/main/resources/
+# Find direct class references in Java
+grep -rn "Dialect" src/main/java/ src/test/java/
 # Remove version-specific ones; replace with generic or remove entirely
 ```
 

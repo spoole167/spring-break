@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>batch-job-serialisation</artifactId>
-    <name>Tier 2 — Spring Batch 6.0 Builder API Removal</name>
+    <name>Tier 1 — Spring Batch Listener Support Classes Removed</name>
     <description>Spring Batch 6.0 removes JobBuilderFactory and StepBuilderFactory. Code using deprecated builder factories will fail to compile or run.</description>
 
     <dependencies>

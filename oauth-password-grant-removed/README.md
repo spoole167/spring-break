@@ -1,29 +1,32 @@
-# OAuth 2.0 Password Grant Removed
+# OAuth 2.0 Password Grant Removed (Tier 1: Won't Compile)
 
 AuthorizationGrantType.PASSWORD removed per OAuth 2.1 security best practices; migrate to Authorization Code or Client Credentials.
 
 ## What Breaks
 
-Spring Security 6.1+ (Spring Boot 4.0) removes `AuthorizationGrantType.PASSWORD` and rejects any attempt to use the password grant type. Applications with password grant configuration fail at startup.
-
-**Configuration that breaks:**
-```properties
-spring.security.oauth2.client.registration.example.authorization-grant-type=password
-```
+Spring Security 7 (Spring Boot 4.0) removes the `AuthorizationGrantType.PASSWORD` constant. Any Java code that references it stops compiling.
 
 **Code that breaks:**
 ```java
-AuthorizationGrantType.PASSWORD  // NoSuchFieldError
+.authorizationGrantType(AuthorizationGrantType.PASSWORD)
 ```
 
-**Errors on Spring Boot 4.0:**
-- `NoSuchFieldError: PASSWORD`
-- `IllegalArgumentException: password grant type is not supported`
-- Application fails to start if password grant is configured
+**Measured on Spring Boot 4.0.7 (clean build):**
+```
+[ERROR] cannot find symbol: variable PASSWORD
+```
+
+This module builds a `ClientRegistration` with the constant in Java, so the removal shows up at compile time.
+
+**The runtime variant.** Applications that never mention the constant in code, but request the password grant through configuration or in token requests, compile cleanly and instead hit runtime "unsupported grant type" errors:
+```properties
+spring.security.oauth2.client.registration.example.authorization-grant-type=password
+```
+Same removal, different failure point. This module demonstrates the compile-time variant.
 
 ## Why It Was Removed
 
-OAuth 2.1 (RFC 9700) explicitly deprecates the password grant because it violates core OAuth security principles:
+OAuth 2.1 and RFC 9700 explicitly deprecate the password grant because it violates core OAuth security principles:
 
 1. **User credentials exposed**: Requires users to share passwords directly with the application (not an OAuth client)
 2. **No refresh tokens**: Often implemented without refresh token rotation
@@ -32,11 +35,16 @@ OAuth 2.1 (RFC 9700) explicitly deprecates the password grant because it violate
 
 ## How This Test Works
 
-The test attempts to access `AuthorizationGrantType.PASSWORD` and verify the OAuth2 configuration:
+The module wires up a password-grant client the way a 3.5-era application would:
 
-- **testPasswordGrantConfigurationExists()**: Checks if ClientRegistrationRepository loads successfully. Passes on 3.5.16, likely fails on 4.0 if password grant is configured.
-- **testClientRegistrationForPasswordGrant()**: Retrieves the "example" client registration from configuration. Verifies basic OAuth2 client setup.
-- **testPasswordGrantUnsupported()**: Attempts to access AuthorizationGrantType.PASSWORD. Passes on 3.5 (field exists), fails on 4.0 (field removed).
+- **OAuth2Config.java**: Builds a `ClientRegistration` for registration id "example" using `AuthorizationGrantType.PASSWORD` and registers it in an `InMemoryClientRegistrationRepository`. This is the line that stops compiling on 4.0.
+- **OAuth2PasswordGrantTest.testPasswordGrantConfigurationExists()**: Checks the ClientRegistrationRepository loads.
+- **OAuth2PasswordGrantTest.testClientRegistrationForPasswordGrant()**: Retrieves the "example" registration and verifies the client setup.
+- **OAuth2PasswordGrantTest.testPasswordGrantUnsupported()**: References `AuthorizationGrantType.PASSWORD` directly, documenting the removal at the exact symbol that disappears.
+
+application.properties also configures `authorization-grant-type=password`, showing the configuration-based form of the same problem.
+
+Verified 15 July 2026.
 
 ## On Spring Boot 3.5.16
 
@@ -44,19 +52,16 @@ The test attempts to access `AuthorizationGrantType.PASSWORD` and verify the OAu
 mvn clean test
 ```
 
-Output: Tests pass. PASSWORD grant type exists and is accessible.
+Output: Tests pass. The PASSWORD grant type exists and is accessible.
 
-## On Spring Boot 4.0
+## On Spring Boot 4.0.7
 
-Tests fail during application startup if configuration uses password grant:
+Compilation fails:
 ```
-IllegalArgumentException: password grant type is not supported
+[ERROR] cannot find symbol: variable PASSWORD
 ```
 
-Or at field access:
-```
-NoSuchFieldError: PASSWORD
-```
+No tests run. An application that only used the grant via configuration or token requests would compile, then fail at runtime with "unsupported grant type" errors.
 
 ## Fix / Migration Path
 

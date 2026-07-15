@@ -1,51 +1,54 @@
 id: jackson-dates-timestamps
-tier: 3
-tier_label: "Wrong Results"
-title: "write-dates-as-timestamps Config Silently Not Applied"
+tier: 2
+tier_label: "Won't Run"
+title: "write-dates-as-timestamps Property Breaks Startup"
 series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
 verify: >
-  Date fields serialize as ISO-8601 strings, not numeric timestamps
+  Application fails to start: BindException on spring.jackson.serialization,
+  "No enum constant tools.jackson.databind.SerializationFeature.write-dates-as-timestamps"
 
 further_info: >
   Driven by the combination of Jackson 3.0 and Spring Boot 4.0's
-  auto-configuration changes. The spring.jackson.serialization.* property
-  binding was removed because Jackson 3.0 reorganised its feature flag
-  system. Compounds with jackson-date-format. See also: jackson-date-format,
-  jackson-property-inclusion.
+  auto-configuration changes. Boot 4.0 binds spring.jackson.serialization.*
+  keys to Jackson 3's tools.jackson.databind.SerializationFeature enum, and
+  Jackson 3 moved the date/time toggles out of that enum. The old property
+  value no longer converts, so property binding fails and the application
+  does not start. Verified 15 July 2026 on 4.0.7. Compounds with
+  jackson-date-format. See also: jackson-date-format, jackson-property-inclusion.
 
 oneliner: >
   The <code>spring.jackson.serialization.write-dates-as-timestamps</code>
-  property is silently ignored in Boot 4.0. Your explicit timestamp
-  configuration stops working.
+  property no longer binds in Boot 4.0: Jackson 3 moved the feature out of
+  <code>SerializationFeature</code>. One leftover config line stops your
+  application from starting.
 
 error_output: |
-  # application.properties (still present, no warning)
+  # application.properties (worked on Boot 3.5)
   spring.jackson.serialization.write-dates-as-timestamps=true
 
-  // API response — before (Spring Boot 3.5, property honoured)
-  {"timestamp": 1714089600000, "expiry": 1714176000000}
-
-  // API response — after (Spring Boot 4.0, property ignored)
-  {"timestamp": "2025-04-26T00:00:00Z", "expiry": "2025-04-27T00:00:00Z"}
-
-  // Mobile app crash log
-  java.lang.NumberFormatException: For input string: "2025-04-26T00:00:00Z"
+  // Spring Boot 4.0 — application fails to start:
+  org.springframework.boot.context.properties.bind.BindException:
+    Failed to bind properties under 'spring.jackson.serialization' to
+    java.util.Map<tools.jackson.databind.SerializationFeature, Boolean>
+  Caused by: java.lang.IllegalArgumentException: No enum constant
+    tools.jackson.databind.SerializationFeature.write-dates-as-timestamps
 
 what_changed: >
-  Spring Boot 4.0's Jackson auto-configuration no longer applies the
-  <code>spring.jackson.serialization.*</code> feature toggles to the Jackson 3
-  ObjectMapper. The property remains in your config with no startup warning,
-  but the serialisation feature is never enabled. Jackson 3's own default
-  (ISO-8601 strings) takes effect instead.
+  Jackson 3 reorganised its feature flags: date/time toggles such as
+  WRITE_DATES_AS_TIMESTAMPS are no longer constants on
+  <code>SerializationFeature</code>. Boot 4.0 still binds
+  <code>spring.jackson.serialization.*</code> keys against that enum, so the
+  old property value fails enum conversion and property binding aborts
+  context startup.
 
 why_changed: >
-  Jackson 3 reorganised its feature flag system. The old
+  Jackson 3 reorganised its feature flag system: the old
   <code>SerializationFeature</code> enum values don't map one-to-one to the
-  new configuration API. Spring Boot's property-to-feature binding was
-  removed to avoid incorrect mappings, but the removal wasn't flagged as a
-  breaking change in early milestones.
+  new configuration API, and the date/time features moved to their own
+  feature set. Spring Boot's property binding follows the new enum, so
+  values that name removed constants fail fast instead of being remapped.
 
 diffs:
   - comment: "// application.properties — old (silently ignored)"
@@ -89,16 +92,16 @@ watch_out:
   - >
     This compounds with the jackson-date-format change. If you set
     <code>write-dates-as-timestamps=true</code> specifically to keep numeric
-    timestamps, you now have two problems: the default flipped AND your
-    override is ignored. You get ISO strings regardless.
+    timestamps, you now have two problems: the default flipped AND the
+    property that pinned the old behaviour stops your app from starting.
   - >
-    Other <code>spring.jackson.serialization.*</code> and
-    <code>spring.jackson.deserialization.*</code> properties may also be
-    silently ignored. Audit all of them, not just the date-related ones.
+    Audit every <code>spring.jackson.serialization.*</code> and
+    <code>spring.jackson.deserialization.*</code> entry. Any value naming an
+    enum constant that Jackson 3 moved or removed will fail startup the same way.
 
 footer_links:
-  - text: "spring-break module: jackson-date-serialisation"
-    url: "https://github.com/spoole167/spring-break/tree/main/jackson-date-serialisation"
+  - text: "spring-break module: jackson-dates-timestamps"
+    url: "https://github.com/spoole167/spring-break/tree/main/jackson-dates-timestamps"
   - text: "Spring Boot 4.0 Migration Guide"
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
   - text: "Jackson 3 in Spring (blog)"

@@ -1,49 +1,47 @@
 id: resttemplate-autoconfig
-tier: 2
-tier_label: "Won't Run"
+tier: 1
+tier_label: "Won't Build"
 title: "RestTemplate Auto-Configuration Removed"
 series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  App starts with explicit RestTemplate bean and HTTP calls succeed
+  mvn clean compile — no "package org.springframework.boot.web.client
+  does not exist" errors; HTTP calls succeed
 
 further_info: >
   RestTemplate has been in maintenance mode since Spring Framework 5.0.
   RestClient was introduced in Spring Framework 6.1 as the modern
-  replacement. Spring Boot 4.0 removed RestTemplateAutoConfiguration to
-  encourage migration. RestClient.Builder is auto-configured in Boot 4.0.
+  replacement. Spring Boot 4.0's modularisation moved RestTemplate and
+  RestClient support into the spring-boot-restclient module, taking the
+  old org.springframework.boot.web.client package with it.
+  RestClient.Builder is auto-configured in Boot 4.0.
   See also: okhttp3-removed.
 
 oneliner: >
-  Spring Boot 4.0 removed RestTemplateAutoConfiguration. Tests and
-  production code that relied on an auto-configured RestTemplateBuilder
-  or RestTemplate bean get NoSuchBeanDefinitionException at startup.
+  Spring Boot 4.0 removed the org.springframework.boot.web.client
+  package; RestTemplateBuilder moved to the new spring-boot-restclient
+  module. Code importing it from the old package fails to compile.
 
 error_output: |
-  org.springframework.beans.factory.NoSuchBeanDefinitionException:
-    No qualifying bean of type
-    'org.springframework.boot.web.client.RestTemplateBuilder' available:
-    expected at least 1 bean which qualifies as autowire candidate.
-  Dependency annotations:
-    {@org.springframework.beans.factory.annotation.Autowired(required=true)}
-   at org.springframework.beans.factory.support
-    .DefaultListableBeanFactory.raiseNoMatchingBeanException(...)
+  $ mvn clean compile
+  [ERROR] COMPILATION ERROR :
+  [ERROR] OrderClient.java:[3,42] package
+    org.springframework.boot.web.client does not exist
+  [ERROR] OrderClient.java:[12,25] cannot find symbol
+      symbol: class RestTemplateBuilder
+  [INFO] BUILD FAILURE
   ---
-  APPLICATION FAILED TO START
-  ---
-  Description:
-  Parameter 0 of constructor in com.example.OrderClient required a bean
-  of type 'org.springframework.boot.web.client.RestTemplateBuilder' that
-  could not be found.
+  The build stops at compile. The application never starts.
 
 what_changed: >
-  Spring Boot 4.0 removed <code>RestTemplateAutoConfiguration</code>,
-  which previously provided a <code>RestTemplateBuilder</code> bean and
-  customizers. The auto-configuration for <code>RestClient</code> (the
-  modern replacement) remains. Code that injected
-  <code>RestTemplateBuilder</code> or relied on auto-configured
-  <code>RestTemplate</code> beans no longer finds them.
+  Spring Boot 4.0 removed the
+  <code>org.springframework.boot.web.client</code> package.
+  <code>RestTemplateBuilder</code> and its support classes relocated to
+  the new <code>spring-boot-restclient</code> module, which covers both
+  <code>RestClient</code> and <code>RestTemplate</code>. Code importing
+  <code>RestTemplateBuilder</code> from the old package fails to compile
+  on 4.0.
 
 why_changed: >
   <code>RestTemplate</code> has been in maintenance mode since Spring 5.
@@ -112,11 +110,14 @@ fixes:
       Inject <code>RestClient.Builder</code> (auto-configured by Spring Boot 4)
       instead of <code>RestTemplateBuilder</code>. The API is fluent and
       supports the same customizers.
-  - label: "Define your own RestTemplateBuilder bean."
+  - label: "Update the RestTemplateBuilder import."
     text: >
-      If migration is too large to do immediately, register your own
-      <code>RestTemplateBuilder</code> bean in a <code>@Configuration</code>
-      class. This restores the old behaviour while you plan the migration.
+      If migration is too large to do immediately, keep
+      <code>RestTemplate</code> and update the import:
+      <code>RestTemplateBuilder</code> now lives in the
+      <code>spring-boot-restclient</code> module. Add that module (or its
+      starter) to your build. This restores the old behaviour while you
+      plan the migration.
   - label: "Use WebClient for reactive code."
     text: >
       If your application is reactive, use <code>WebClient</code> instead.
@@ -125,7 +126,7 @@ fixes:
 scope_check: >
   Search for <code>RestTemplate</code>, <code>RestTemplateBuilder</code>,
   and <code>RestTemplateCustomizer</code> across your codebase. Every
-  injection point is a potential startup failure. Also check test classes
+  import from the old package is a compile failure. Also check test classes
   that use <code>TestRestTemplate</code> — its auto-configuration may
   also be affected.
 

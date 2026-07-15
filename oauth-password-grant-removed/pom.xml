@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>oauth-password-grant-removed</artifactId>
-    <name>Tier 2 — OAuth Password Grant Removed</name>
+    <name>Tier 1 — OAuth Password Grant Removed</name>
     <description>OAuth 2.0 Resource Owner Password Grant removed per OAuth 2.1. Runtime "unsupported grant type" error.</description>
 
     <dependencies>

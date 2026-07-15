@@ -1,52 +1,42 @@
-# Spring Batch 6.0 Builder Factory Removal
+# Spring Batch Listener Support Classes Removed (Tier 1: Won't Compile)
 
-JobBuilderFactory and StepBuilderFactory removed; use JobBuilder and StepBuilder with direct constructor instantiation.
+JobExecutionListenerSupport, StepExecutionListenerSupport and ChunkListenerSupport removed in Spring Batch 6; implement the listener interfaces directly.
 
 ## What Breaks
 
-Spring Batch 6.0 (Spring Boot 4.0) removes `JobBuilderFactory` and `StepBuilderFactory` which were deprecated in Spring Batch 5.0 but still available. These factory classes were a convenient way to autowire and build jobs/steps in configuration classes.
+Spring Batch 6.0 (Spring Boot 4.0) removes the deprecated listener "support" base classes. These were empty-method adapter classes from the pre-Java 8 era, when implementing a listener interface meant writing out every method. Since Java 8 the listener interfaces have default methods, so the adapters became dead weight. They were deprecated in Spring Batch 5.0 and are gone in 6.0.
+
+**Classes removed:**
+- `org.springframework.batch.core.listener.JobExecutionListenerSupport`
+- `org.springframework.batch.core.listener.StepExecutionListenerSupport`
+- `org.springframework.batch.core.listener.ChunkListenerSupport`
 
 **Code that breaks:**
 ```java
-@Autowired
-private JobBuilderFactory jobBuilderFactory;  // ClassNotFoundException
-
-@Autowired
-private StepBuilderFactory stepBuilderFactory;  // ClassNotFoundException
-
-@Bean
-public Job myJob() {
-    return jobBuilderFactory.get("myJob")  // Won't compile
-        .start(step1())
-        .build();
+public class MyJobListener extends JobExecutionListenerSupport {
+    @Override
+    public void afterJob(JobExecution jobExecution) { ... }
 }
 ```
 
-**Error on Spring Boot 4.0:**
+**Measured on Spring Boot 4.0.7 (clean build):**
 ```
-ClassNotFoundException: org.springframework.batch.core.configuration.annotation.JobBuilderFactory
+[ERROR] cannot find symbol: class JobExecutionListenerSupport
 ```
 
-Code that simply imports these classes fails at compile time. Code that dynamically loads them fails at runtime.
-
-**Classes removed:**
-- `org.springframework.batch.core.configuration.annotation.JobBuilderFactory`
-- `org.springframework.batch.core.configuration.annotation.StepBuilderFactory`
-
-**Replacement classes:**
-- `org.springframework.batch.core.job.builder.JobBuilder` (direct constructor, not a factory)
-- `org.springframework.batch.core.step.builder.StepBuilder` (direct constructor, not a factory)
-
-**Why it was removed:** The factory pattern was a convenience layer that hid dependency injection complexity. Spring Batch 6.0 favors explicit, direct instantiation where dependencies (JobRepository, PlatformTransactionManager) are passed explicitly to the builder constructors.
+Any class extending one of these adapters stops compiling. This is a build failure, not a runtime one.
 
 ## How This Test Works
 
-The test uses reflection to check for the existence of factory classes and their replacements:
+The test references all three removed adapter classes directly:
 
-- **jobBuilderFactoryShouldExist()**: Attempts to load JobBuilderFactory class. Passes on Batch 5.x, fails on 6.0 (class doesn't exist).
-- **stepBuilderFactoryShouldExist()**: Attempts to load StepBuilderFactory class. Passes on Batch 5.x, fails on 6.0.
-- **newJobBuilderShouldExist()**: Attempts to load JobBuilder class (direct constructor). Passes on both versions.
-- **newStepBuilderShouldExist()**: Attempts to load StepBuilder class (direct constructor). Passes on both versions.
+- **BatchBuilderTest.jobExecutionListenerSupportShouldExist()**: References `JobExecutionListenerSupport.class`. Compiles on Batch 5.2 (Boot 3.5), fails to compile on Batch 6.0 (Boot 4.0).
+- **BatchBuilderTest.stepExecutionListenerSupportShouldExist()**: Same pattern for `StepExecutionListenerSupport`.
+- **BatchBuilderTest.chunkListenerSupportShouldExist()**: Same pattern for `ChunkListenerSupport`.
+
+The application class (App.java) is a minimal `@SpringBootApplication` with `@EnableBatchProcessing`, so the module exercises the real Spring Batch classpath rather than a stub.
+
+Verified 15 July 2026.
 
 ## On Spring Boot 3.5.16
 
@@ -54,101 +44,61 @@ The test uses reflection to check for the existence of factory classes and their
 mvn clean test
 ```
 
-Output: All 4 tests pass. Both old factories and new builders are available.
+Output: All 3 tests pass. The deprecated support classes are still present in Spring Batch 5.2.
 
-## On Spring Boot 4.0
+## On Spring Boot 4.0.7
 
-Factory-related tests fail:
+Compilation of the test sources fails:
 ```
-jobBuilderFactoryShouldExist FAILS: ClassNotFoundException
-stepBuilderFactoryShouldExist FAILS: ClassNotFoundException
+[ERROR] cannot find symbol: class JobExecutionListenerSupport
 ```
 
-New builder tests pass (JobBuilder and StepBuilder classes exist). If configuration code tries to autowire the old factories, compilation fails.
+No tests run.
 
 ## Fix / Migration Path
 
+Drop the adapter and implement the interface directly. The interfaces have default methods, so you only override what you need.
+
 **Before (Spring Batch 5.x):**
 ```java
-@Configuration
-@EnableBatchProcessing
-public class BatchConfig {
-  @Autowired
-  private JobBuilderFactory jobBuilderFactory;
+import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 
-  @Autowired
-  private StepBuilderFactory stepBuilderFactory;
-
-  @Bean
-  public Job myJob(Step step1) {
-    return jobBuilderFactory.get("myJob")
-        .start(step1)
-        .build();
-  }
-
-  @Bean
-  public Step step1(ItemReader reader, ItemWriter writer) {
-    return stepBuilderFactory.get("step1")
-        .<String, String>chunk(10)
-        .reader(reader)
-        .writer(writer)
-        .build();
-  }
+public class MyJobListener extends JobExecutionListenerSupport {
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        log.info("Job finished: {}", jobExecution.getStatus());
+    }
 }
 ```
 
 **After (Spring Batch 6.0):**
 ```java
-@Configuration
-@EnableBatchProcessing
-public class BatchConfig {
-  // Inject dependencies directly, no more factories
-  private final JobRepository jobRepository;
-  private final PlatformTransactionManager transactionManager;
+import org.springframework.batch.core.JobExecutionListener;
 
-  public BatchConfig(JobRepository jobRepository,
-                     PlatformTransactionManager transactionManager) {
-    this.jobRepository = jobRepository;
-    this.transactionManager = transactionManager;
-  }
-
-  @Bean
-  public Job myJob(Step step1) {
-    return new JobBuilder("myJob", jobRepository)
-        .start(step1)
-        .build();
-  }
-
-  @Bean
-  public Step step1(ItemReader reader, ItemWriter writer) {
-    return new StepBuilder("step1", jobRepository)
-        .<String, String>chunk(10)
-        .reader(reader)
-        .writer(writer)
-        .transactionManager(transactionManager)  // Must be explicit
-        .build();
-  }
+public class MyJobListener implements JobExecutionListener {
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        log.info("Job finished: {}", jobExecution.getStatus());
+    }
+    // beforeJob() has a default no-op implementation; no need to override
 }
 ```
 
-**Key changes:**
+**The mapping:**
 
-| Old (Factory) | New (Direct) |
+| Removed adapter | Implement instead |
 |---|---|
-| `@Autowired JobBuilderFactory` | Inject `JobRepository` directly |
-| `jobBuilderFactory.get("name")` | `new JobBuilder("name", jobRepository)` |
-| `stepBuilderFactory.get("name")` | `new StepBuilder("name", jobRepository)` |
-| Factory handles transactionManager | Must call `.transactionManager(tm)` explicitly |
+| `JobExecutionListenerSupport` | `JobExecutionListener` |
+| `StepExecutionListenerSupport` | `StepExecutionListener` |
+| `ChunkListenerSupport` | `ChunkListener` |
 
 **Migration checklist:**
 
-- [ ] Remove all `@Autowired JobBuilderFactory` and `@Autowired StepBuilderFactory`
-- [ ] Add constructor injection for `JobRepository` and `PlatformTransactionManager`
-- [ ] Replace all `jobBuilderFactory.get(...)` with `new JobBuilder(...)`
-- [ ] Replace all `stepBuilderFactory.get(...)` with `new StepBuilder(...)`
-- [ ] Add `.transactionManager(transactionManager)` to all StepBuilder chains
-- [ ] Run tests to verify job/step configuration builds and executes correctly
-- [ ] Deploy with confidence
+- [ ] Find all uses: `grep -rn "ListenerSupport" src/`
+- [ ] Change `extends XxxListenerSupport` to `implements XxxListener`
+- [ ] Remove the old imports; the interfaces live in `org.springframework.batch.core`
+- [ ] Keep only the overridden methods; the defaults cover the rest
+- [ ] Run `mvn clean test` to confirm
 
 ## References
 

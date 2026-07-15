@@ -12,8 +12,8 @@
     </parent>
 
     <artifactId>resttemplate-autoconfig</artifactId>
-    <name>Tier 2 — RestTemplateAutoConfiguration Removed</name>
-    <description>RestTemplateAutoConfiguration removed in Boot 4.0. RestTemplateBuilder no longer auto-configured.</description>
+    <name>Tier 1 — RestTemplateBuilder Relocated</name>
+    <description>RestTemplateBuilder relocated in Boot 4.0: package org.springframework.boot.web.client no longer exists. Compile failure.</description>
 
     <dependencies>
         <dependency>

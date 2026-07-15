@@ -91,10 +91,10 @@
         </pluginManagement>
     </build>
 
-    <!-- 57 modules organised by migration failure mode.
+    <!-- 61 modules organised by migration failure mode.
          Run on 3.5.16: all pass.  Run on 4.0.7: all fail. -->
     <modules>
-        <!-- Tier 1 — Won't Build on 4.0  (48 modules)
+        <!-- Tier 1 — Won't Build on 4.0  (46 modules)
              Real imports / artifacts / starters that vanish on 4.0.
              Build fails at compile or dependency-resolution time.
              Verified 2026-07-15 against 3.5.16/4.0.7: 9 fail at resolution, 38 at compile. -->
@@ -145,14 +145,12 @@
         <module>opensaml4-removed</module>
         <module>resttemplate-autoconfig</module>
         <module>test-slice-relocated</module>
-        <module>actuator-nullable-removed</module>
-        <module>jackson-dates-timestamps</module>
         <!-- Added 2026-07-15: rebuilt around the Framework 7 API removal
              (was obs-httpcomponents-setconnecttimeout-removed, which targeted
              an API that already died at the Boot 2→3 boundary). -->
         <module>httpcomponents-setconnecttimeout-removed</module>
 
-        <!-- Tier 2 — Won't Run on 4.0  (11 modules)
+        <!-- Tier 2 — Won't Run on 4.0  (12 modules)
              Compiles on both versions, fails at runtime on 4.0. -->
         <module>hibernate-query-type-required</module>
         <module>jackson-exception-hierarchy</module>
@@ -168,6 +166,11 @@
              the @AutoConfigureMockMvc relocation and exercises the real change:
              empty CORS config stops rejecting preflights (403 → 200) on 4.0. -->
         <module>cors-empty-config-not-rejected</module>
+        <!-- Re-tiered 2026-07-15 (second pass): after removing a stale relocated
+             test-slice import, this compiles on both versions and fails at context
+             startup on 4.0: write-dates-as-timestamps no longer binds to Jackson 3's
+             SerializationFeature. A leftover config line stops the app booting. -->
+        <module>jackson-dates-timestamps</module>
 
         <!-- Tier 3 — Different Results on 4.0  (3 modules)
              Compiles and runs on both, output/behaviour differs silently. -->

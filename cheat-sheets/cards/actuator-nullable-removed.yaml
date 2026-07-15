@@ -5,33 +5,54 @@ title: "Actuator Endpoint @Nullable: org.springframework.lang Replaced by JSpeci
 series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
+no_module: true
+no_module_reason: >
+  The Boot 4.0 Migration Guide states actuator endpoint parameters "no longer
+  can use org.springframework.lang.Nullable to declare that a parameter is
+  optional", but this does not reproduce: tested 2026-07-15 on 4.0.0 GA and
+  4.0.7 via MVC, a @ReadOperation parameter annotated with
+  org.springframework.lang.Nullable is still treated as optional (200 without
+  the parameter). Most likely because Framework 7 meta-annotates the deprecated
+  annotation with JSpecify @Nullable, which actuator recognises transitively.
+  Migrating to org.jspecify.annotations.Nullable remains the right advice, but
+  no module can green-line on 3.5 and red-line on 4.0 for this change.
 verify: >
-  mvn compile — no cannot find symbol or binding failure for @Nullable on endpoint params
+  No observable break: an endpoint parameter annotated with the old
+  @Nullable still returns 200 without the parameter on 4.0.0 and 4.0.7.
+  Migrating to JSpecify is hygiene, not a fix
 
 further_info: >
   Spring Boot 4.0 adopted JSpecify as its null-safety annotation standard,
-  following Spring Framework 7.0. org.springframework.lang.Nullable is
-  deprecated and no longer recognised by Actuator's parameter binding logic.
-  This is part of a broader null-safety overhaul documented in the Spring
-  Boot 4.0 blog post on null-safe applications.
+  following Spring Framework 7.0. The migration guide says actuator
+  endpoint parameters can no longer use org.springframework.lang.Nullable
+  to declare a parameter optional, but in testing (4.0.0 and 4.0.7, via
+  MVC) the old annotation still works — most likely because Framework 7
+  meta-annotates it with JSpecify's @Nullable. This card is part of a
+  broader null-safety overhaul documented in the Spring Boot 4.0 blog
+  post on null-safe applications.
 
 oneliner: >
-  Actuator endpoint parameters must use org.jspecify.annotations.Nullable,
-  not org.springframework.lang.Nullable.
+  The migration guide says actuator endpoint parameters should use
+  org.jspecify.annotations.Nullable instead of the deprecated
+  org.springframework.lang.Nullable. The old annotation still works in
+  practice; migrate as hygiene, not as a fix.
 
 error_output: |
-  $ mvn compile  (or runtime binding failure)
-  Actuator endpoint parameter annotated with @org.springframework.lang.Nullable
-  is no longer recognised — optional parameter treated as required,
-  causing MissingServletRequestParameterException at runtime.
+  // No error observed. On 4.0.0 and 4.0.7, an endpoint parameter
+  // annotated with @org.springframework.lang.Nullable is still treated
+  // as optional: GET without the parameter returns 200 (verified via MVC).
+  // The migration guide describes a break that does not reproduce.
 
 what_changed: >
-  Spring Boot 4.0 no longer recognises
-  <code>org.springframework.lang.Nullable</code> on Actuator
-  <code>@ReadOperation</code> / <code>@WriteOperation</code> parameters.
-  The supported annotation is now
-  <code>org.jspecify.annotations.Nullable</code> from the JSpecify library,
-  which is on the classpath transitively via Spring Framework 7.0.
+  The Spring Boot 4.0 Migration Guide states that
+  <code>org.springframework.lang.Nullable</code> no longer marks Actuator
+  <code>@ReadOperation</code> / <code>@WriteOperation</code> parameters as
+  optional, and that the supported annotation is now
+  <code>org.jspecify.annotations.Nullable</code> from the JSpecify library
+  (on the classpath transitively via Spring Framework 7.0). In practice
+  the old annotation is still honoured on 4.0.0 and 4.0.7, so treat this
+  as recommended hygiene aligned with the guide rather than a
+  reproducible break.
 
 why_changed: >
   Spring Framework 7.0 migrated its entire codebase to JSpecify null-safety
@@ -73,14 +94,15 @@ scope_check: >
 
 watch_out:
   - >
-    <code>org.springframework.lang.Nullable</code> still exists on the
-    classpath and the code will compile — the failure is at runtime when
-    Actuator tries to bind the parameter and does not recognise the annotation.
-    This makes it easy to miss in a compile-only check.
+    The documented break does not reproduce on 4.0.0 or 4.0.7: the old
+    annotation is still recognised, most likely because it is
+    meta-annotated with JSpecify's <code>@Nullable</code>. Do not rely on
+    that. The annotation is deprecated, and a later release could stop
+    honouring it — migrate now while it is a mechanical import swap.
 
 footer_links:
-  - text: "spring-break module: actuator-nullable-removed"
-    url: "https://github.com/spoole167/spring-break/tree/main/actuator-nullable-removed"
+  - text: "Migration guide: removed support for org.springframework.lang.Nullable"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide#removed-support-for-javaxannotationsnonnull-and-orgspringframeworklangnullable"
   - text: "Null-safe applications with Spring Boot 4"
     url: "https://spring.io/blog/2025/11/12/null-safe-applications-with-spring-boot-4"
   - text: "Spring Boot 4.0 Migration Guide"

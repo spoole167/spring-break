@@ -1,8 +1,8 @@
 # Spring Boot 3.5 → 4.0 Migration Test Cases
 
-62 self-contained Maven modules, each demonstrating a specific breaking change at the 3.5→4.0 boundary. The default build uses Spring Boot 3.5.16 — all tests pass. Override the version to see what breaks.
+61 self-contained Maven modules, each demonstrating a specific breaking change at the 3.5→4.0 boundary. The default build uses Spring Boot 3.5.16 — all tests pass. Override the version to see what breaks.
 
-Last full verification: 15 July 2026 — all 62 modules pass on 3.5.16, all 62 fail on 4.0.7 (9 at dependency resolution, 39 at compile, 11 at runtime, 3 with silently different results).
+Last full verification: 15 July 2026 — all 61 modules pass on 3.5.16, all 61 fail on 4.0.7 (9 at dependency resolution, 37 at compile, 12 at runtime, 3 with silently different results).
 
 ## Quick start
 
@@ -28,7 +28,7 @@ mvn clean test -pl jackson-date-serialisation
 
 ## Modules by tier
 
-### Tier 1 — Won't Build — 48 modules
+### Tier 1 — Won't Build — 46 modules
 
 Your build breaks immediately. Loud, obvious, caught before deploy. Highlights (see `run-all-tests.sh` for the full tier lists):
 
@@ -47,12 +47,13 @@ Your build breaks immediately. Loud, obvious, caught before deploy. Highlights (
 | `oauth-password-grant-removed` | OAuth 2.0 Password Grant removed per OAuth 2.1 — `AuthorizationGrantType.PASSWORD` gone |
 | `hibernate-cascade-removal` | `CascadeType.SAVE_UPDATE` removed in Hibernate 7 — must use JPA `PERSIST` + `MERGE` |
 
-### Tier 2 — Won't Run — 11 modules
+### Tier 2 — Won't Run — 12 modules
 
 Compiles fine. Fails at runtime on specific code paths.
 
 | Module | What breaks |
 |--------|------------|
+| `jackson-dates-timestamps` | `spring.jackson.serialization.write-dates-as-timestamps=true` no longer binds — one leftover config line stops the app starting |
 | `cors-empty-config-not-rejected` | Preflight against an empty CORS config: 403 on 3.5, 200 on 4.0 — requests that used to be blocked get through |
 | `javax-annotation-removed` | `@javax.annotation.PostConstruct` compiles but Spring silently ignores it — init code never runs |
 | `javax-inject-removed` | `@javax.inject.Named` beans no longer registered — `UnsatisfiedDependencyException` at context load |

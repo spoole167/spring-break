@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>hibernate-dialect-removal</artifactId>
-    <name>Tier 2 — Hibernate Dialect Removal</name>
+    <name>Tier 1 — Hibernate Dialect Removal</name>
     <description>Version-specific Hibernate dialects (MySQL57Dialect, etc.) removed. ClassNotFoundException at runtime.</description>
 
     <dependencies>
