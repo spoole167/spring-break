@@ -24,3 +24,5 @@ Thumbs.db
 # Spring Boot
 *.log
 hs_err_pid*
+
+.attach_*
