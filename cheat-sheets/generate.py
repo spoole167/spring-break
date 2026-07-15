@@ -60,9 +60,19 @@ TIER_STYLES = {
 LOOP_LETTERS = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 
-def load_template():
-    tpl_path = Path(__file__).parent / "template.html"
-    return Template(tpl_path.read_text(encoding="utf-8"))
+def load_guide() -> dict:
+    guide_path = Path(__file__).parent / "guide.json"
+    if not guide_path.exists():
+        return {}
+    import json
+    return json.loads(guide_path.read_text(encoding="utf-8"))
+
+
+def load_template(guide: dict):
+    tpl_path = Path(__file__).parent / "templates" / "template.html"
+    tpl = Template(tpl_path.read_text(encoding="utf-8"))
+    tpl.globals["guide"] = guide
+    return tpl
 
 
 def load_card(yaml_path: Path) -> dict:
@@ -136,7 +146,7 @@ def process_card(yaml_path: Path, template: Template, html_only: bool = False):
     card_id = card.get("id", yaml_path.stem)
     print(f"[{card_id}]")
 
-    out_dir = yaml_path.parent.parent / "target"
+    out_dir = yaml_path.parent.parent / "target" / "pdfs"
     html_path = out_dir / f"{card_id}.html"
     pdf_path = out_dir / f"{card_id}.pdf"
 
@@ -147,35 +157,43 @@ def process_card(yaml_path: Path, template: Template, html_only: bool = False):
         write_pdf(html_path, pdf_path)
 
 
-def html_to_pdf(html_path: Path, pdf_path: Path):
-    """Convert a standalone HTML file to PDF via WeasyPrint."""
+def html_to_pdf(html_content: str, pdf_path: Path):
+    """Convert HTML string to PDF via WeasyPrint."""
     try:
         from weasyprint import HTML
     except ImportError:
-        print(f"  [skip] weasyprint not installed for {html_path}")
+        print(f"  [skip] weasyprint not installed for {pdf_path}")
         return
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
-    HTML(filename=str(html_path)).write_pdf(str(pdf_path))
+    HTML(string=html_content).write_pdf(str(pdf_path))
     print(f"  PDF  → {pdf_path}")
 
 
-def build_special_pages(out_dir: Path):
+def build_special_pages(out_dir: Path, counts: dict = None):
     """Generate PDFs for cover, tier dividers, and CTA end page."""
     base = Path(__file__).parent
     specials = [
-        ("cover", base / "cover.html"),
-        ("sizing-summary", base / "sizing-summary.html"),
-        ("divider-tier1", base / "divider-tier1.html"),
-        ("divider-tier2", base / "divider-tier2.html"),
-        ("divider-tier3", base / "divider-tier3.html"),
-        ("cta-end", base / "cta-end.html"),
+        ("cover", base / "templates" / "cover.html"),
+        ("sizing-summary", base / "templates" / "sizing-summary.html"),
+        ("divider-tier1", base / "templates" / "divider-tier1.html"),
+        ("divider-tier2", base / "templates" / "divider-tier2.html"),
+        ("divider-tier3", base / "templates" / "divider-tier3.html"),
+        ("cta-end", base / "templates" / "cta-end.html"),
     ]
     paths = {}
     for name, html_path in specials:
         if html_path.exists():
             pdf_path = out_dir / f"{name}.pdf"
             print(f"[{name}]")
-            html_to_pdf(html_path, pdf_path)
+            
+            # For pages that might need dynamic data
+            if counts:
+                tpl = Template(html_path.read_text(encoding="utf-8"))
+                html_content = tpl.render(**counts)
+            else:
+                html_content = html_path.read_text(encoding="utf-8")
+                
+            html_to_pdf(html_content, pdf_path)
             paths[name] = pdf_path
         else:
             print(f"  [skip] {html_path.name} not found")
@@ -231,10 +249,12 @@ def main():
             sys.exit(1)
         # Default merge filename when running in all-cards mode
         if args.merge is None and not args.html:
-            args.merge = "all-cards.pdf"
+            args.merge = "guide.pdf"
 
-    template = load_template()
+    guide = load_guide()
+    template = load_template(guide)
     generated_pdfs = []  # (tier, id, path) for sorting
+    tier_counts = {1: 0, 2: 0, 3: 0}
 
     for f in args.files:
         if not f.exists():
@@ -243,17 +263,36 @@ def main():
         card = load_card(f)
         process_card(f, template, html_only=args.html)
 
+        tier = int(card.get("tier", 1))
+        tier_counts[tier] = tier_counts.get(tier, 0) + 1
+
         if not args.html:
             card_id = card.get("id", f.stem)
-            tier = int(card.get("tier", 1))
-            out_dir = f.parent.parent / "target"
+            out_dir = f.parent.parent / "target" / "pdfs"
             generated_pdfs.append((tier, card_id, out_dir / f"{card_id}.pdf"))
+
+    counts = {
+        "total_count": sum(tier_counts.values()),
+        "tier1_count": tier_counts.get(1, 0),
+        "tier2_count": tier_counts.get(2, 0),
+        "tier3_count": tier_counts.get(3, 0),
+    }
+
+    if args.html:
+        cover_src = Path(__file__).parent / "templates" / "cover.html"
+        if cover_src.exists():
+            print("\n[index.html]")
+            tpl = Template(cover_src.read_text(encoding="utf-8"))
+            html_content = tpl.render(**counts, guide=guide)
+            out_dir = Path(__file__).parent / "target" / "pdfs"
+            write_html(html_content, out_dir / "index.html")
 
     if args.merge and generated_pdfs:
         import tempfile, shutil
         # Sort by tier, then alphabetically within tier
         generated_pdfs.sort(key=lambda x: (TIER_ORDER.get(x[0], 9), x[1]))
-        out_dir = generated_pdfs[0][2].parent
+        out_dir = Path(__file__).parent / "target" / "pdfs"
+        out_dir.mkdir(parents=True, exist_ok=True)
 
         # Re-render cards without mitigation footer for the merged PDF
         tmp_dir = Path(tempfile.mkdtemp(prefix="merge_"))
@@ -271,7 +310,7 @@ def main():
                 merge_card_pdfs.append((tier, card_id, tmp_pdf))
 
         # Build special pages (cover, dividers, CTA)
-        special = build_special_pages(out_dir)
+        special = build_special_pages(out_dir, counts=counts)
 
         # Assemble final page order: cover → [divider → cards] per tier → CTA
         ordered_pdfs = []

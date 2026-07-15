@@ -290,7 +290,7 @@
 <div class="page">
 
   <h1>Migration Effort Estimates</h1>
-  <div class="subtitle">How we sized the 45 breaking changes — and what the numbers mean.</div>
+  <div class="subtitle">How we sized the {{ total_count }} breaking changes — and what the numbers mean.</div>
 
   <h2>T-Shirt Sizes</h2>
   <p>Each card carries an effort badge — <strong>S</strong>, <strong>M</strong>, or <strong>L</strong> — representing the typical engineering effort <em>per card</em>, for a medium-sized codebase (~50k LOC).</p>
@@ -332,19 +332,19 @@
   <p>Total for a medium app: <strong>120–230+ hours</strong> (weeks, not days). Minor version bumps (3.2→3.3, 3.3→3.4) averaged 6–8 hours each. The 4.0 jump is 15–30× that.</p>
 
   <h2>OpenRewrite Coverage</h2>
-  <p>17 of 45 cards (38%) have an OpenRewrite recipe that can automate all or most of the fix.</p>
+  <p>17 of {{ total_count }} cards (38%) have an OpenRewrite recipe that can automate all or most of the fix.</p>
 
   <div class="coverage-bar">
     <div class="coverage-fill" style="width: 38%;">
       <span>17 automated</span>
     </div>
-    <span class="coverage-remainder">28 manual</span>
+    <span class="coverage-remainder">{{ total_count - 17 }} manual</span>
   </div>
 
   <div class="tier-coverage">
-    <div class="tier-cov-item tier-cov-1"><strong>Tier 1:</strong> 9 of 19 (47%) — best coverage, mostly dependency/import swaps</div>
-    <div class="tier-cov-item tier-cov-2"><strong>Tier 2:</strong> 7 of 13 (54%) — good coverage for config and security rewrites</div>
-    <div class="tier-cov-item tier-cov-3"><strong>Tier 3:</strong> 1 of 13 (8%) — behavioural changes are hardest to automate</div>
+    <div class="tier-cov-item tier-cov-1"><strong>Tier 1:</strong> 9 of {{ tier1_count }} (47%) — best coverage, mostly dependency/import swaps</div>
+    <div class="tier-cov-item tier-cov-2"><strong>Tier 2:</strong> 7 of {{ tier2_count }} (54%) — good coverage for config and security rewrites</div>
+    <div class="tier-cov-item tier-cov-3"><strong>Tier 3:</strong> 1 of {{ tier3_count }} (8%) — behavioural changes are hardest to automate</div>
   </div>
 
   <p><strong>Key insight:</strong> OpenRewrite handles the loud failures well (Tiers 1–2), but Tier 3 "wrong results" bugs — the ones customers find — are almost entirely manual detective work.</p>

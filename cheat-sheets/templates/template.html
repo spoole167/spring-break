@@ -338,16 +338,14 @@
 </div>
 
 <div class="footer">
-{% if show_mitigation %}
-  <div class="footer-mitigation">
-    <strong>Not ready?</strong>
-    Pin 3.5 and track CVEs · migrate incrementally with <a href="https://docs.openrewrite.org/recipes/java/spring/boot4">OpenRewrite</a> · <a href="https://www.herodevs.com/support/spring-nes">HeroDevs NES</a> for security patches
+{% if show_mitigation and guide.footer.cta %}
+  <div class="footer-mitigation">{{ guide.footer.cta }}</div>
+{% endif %}
+{% if guide.footer.links %}
+  <div class="footer-links">
+    {% for link in guide.footer.links %}<div><a href="{{ link.url }}">{{ link.text }}</a></div>{% endfor %}
   </div>
 {% endif %}
-  <div class="footer-links">
-    <div><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></div>
-    <div><a href="https://www.herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></div>
-  </div>
 </div>
 
 </body>

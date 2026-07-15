@@ -1,0 +1,23 @@
+{
+  "$schema": "https://noregressions.dev/schemas/guide.schema.json",
+  "slug": "spring-boot-4-migration",
+  "type": "cards",
+  "title": "Spring Boot 4.0 Migration Guide",
+  "subtitle": "Breaking Changes You Need to Fix",
+  "series": "spring-boot 3.5 → 4.0",
+  "authors": ["Steve Poole"],
+  "status": "draft",
+  "footer": {
+    "cta": "<strong>Not ready to migrate?</strong> Pin 3.5 and track CVEs · migrate incrementally with <a href=\"https://docs.openrewrite.org/recipes/java/spring/boot4\">OpenRewrite</a> · <a href=\"https://www.herodevs.com/support/spring-nes\">HeroDevs NES</a> for security patches",
+    "links": [
+      {
+        "text": "Spring Boot 4.0 Migration Guide",
+        "url": "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+      },
+      {
+        "text": "herodevs.com/support/spring-nes",
+        "url": "https://www.herodevs.com/support/spring-nes"
+      }
+    ]
+  }
+}

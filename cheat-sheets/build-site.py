@@ -56,6 +56,14 @@ TIER_SUBTITLES= {1: "Compilation & Dependency Failures",
 
 HERE = Path(__file__).parent
 
+
+def load_guide() -> dict:
+    guide_path = HERE / "guide.json"
+    if not guide_path.exists():
+        return {}
+    import json
+    return json.loads(guide_path.read_text(encoding="utf-8"))
+
 # ── shared nav + CSS injected into every page ─────────────────────────────────
 
 NAV_CSS = """
@@ -334,7 +342,7 @@ def build_tier_page(tier_num, cards, out_dir):
     border  = TIER_BORDER[tier_num]
 
     # Load divider HTML for the description + subsystem index
-    divider_src = HERE / f"divider-tier{tier_num}.html"
+    divider_src = HERE / "templates" / f"divider-tier{tier_num}.html"
     divider_desc = ""
     divider_index = ""
     if divider_src.exists():
@@ -448,7 +456,7 @@ def build_tier_page(tier_num, cards, out_dir):
 
 import html as htmllib
 
-def render_card_site(card, prev_card, next_card):
+def render_card_site(card, prev_card, next_card, guide=None):
     """Render a single card as a self-contained website page."""
     tier       = int(card.get("tier", 1))
     color      = TIER_COLORS[tier]
@@ -505,6 +513,15 @@ def render_card_site(card, prev_card, next_card):
     <div class="further-info-links">{links_str}</div>
     {"<div class='further-info-facts'>" + further_info + "</div>" if further_info else ""}
   </div>"""
+
+    # guide footer
+    guide_footer = guide or {}
+    footer_cta = guide_footer.get("footer", {}).get("cta", "")
+    footer_links_html = "".join(
+        f'<div><a href="{l["url"]}">{l["text"]}</a></div>'
+        for l in guide_footer.get("footer", {}).get("links", [])
+    )
+    footer_cta_html = f'<div class="footer-mitigation">{footer_cta}</div>' if footer_cta else ""
 
     # prev/next nav
     prev_link = f'<a href="{prev_card["id"]}.html">← {prev_card["title"]}</a>' if prev_card else '<span></span>'
@@ -620,13 +637,9 @@ def render_card_site(card, prev_card, next_card):
     {further_html}
 
     <div class="footer">
-      <div class="footer-mitigation">
-        <strong>Not ready to migrate?</strong>
-        Pin 3.5 and track CVEs · migrate incrementally with <a href="https://docs.openrewrite.org/recipes/java/spring/boot4">OpenRewrite</a> · <a href="https://www.herodevs.com/support/spring-nes">HeroDevs NES</a> for security patches
-      </div>
+      {footer_cta_html}
       <div class="footer-links">
-        <div><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></div>
-        <div><a href="https://www.herodevs.com/support/spring-nes">herodevs.com/support/spring-nes</a></div>
+        {footer_links_html}
       </div>
     </div>
   </div>
@@ -640,26 +653,30 @@ def render_card_site(card, prev_card, next_card):
 </html>"""
 
 
-def build_card_pages(cards, out_dir):
+def build_card_pages(cards, out_dir, guide=None):
     cards_out = out_dir / "cards"
     cards_out.mkdir(exist_ok=True)
     for i, card in enumerate(cards):
         prev_card = cards[i - 1] if i > 0 else None
         next_card = cards[i + 1] if i < len(cards) - 1 else None
-        html = render_card_site(card, prev_card, next_card)
+        html = render_card_site(card, prev_card, next_card, guide=guide)
         cid = card.get("id", card["_path"].stem)
         (cards_out / f"{cid}.html").write_text(html, encoding="utf-8")
     print(f"  cards/  ({len(cards)} files)")
 
 # ── generate sizing.html ──────────────────────────────────────────────────────
 
-def build_sizing(out_dir):
-    src = HERE / "sizing-summary.html"
+def build_sizing(out_dir, counts=None):
+    src = HERE / "templates" / "sizing-summary.html"
     if not src.exists():
         print("  [skip] sizing-summary.html not found")
         return
 
     raw = src.read_text(encoding="utf-8")
+    if counts:
+        tpl = Template(raw)
+        raw = tpl.render(**counts)
+    
     # Extract everything inside <body>...</body>
     import re
     m = re.search(r'<body>(.*?)</body>', raw, re.DOTALL)
@@ -755,13 +772,17 @@ def build_sizing(out_dir):
 
 # ── generate next-steps.html ──────────────────────────────────────────────────
 
-def build_next_steps(out_dir):
-    src = HERE / "cta-end.html"
+def build_next_steps(out_dir, counts=None):
+    src = HERE / "templates" / "cta-end.html"
     if not src.exists():
         print("  [skip] cta-end.html not found")
         return
 
     raw = src.read_text(encoding="utf-8")
+    if counts:
+        tpl = Template(raw)
+        raw = tpl.render(**counts)
+        
     import re
     m = re.search(r'<body>(.*?)</body>', raw, re.DOTALL)
     body = m.group(1).strip() if m else raw
@@ -826,8 +847,8 @@ def build_next_steps(out_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="Build static website from cheat-sheet cards")
-    parser.add_argument("--out", type=Path, default=HERE / "site",
-                        help="Output directory (default: cheat-sheets/site/)")
+    parser.add_argument("--out", type=Path, default=HERE / "target" / "site",
+                        help="Output directory (default: target/site/)")
     args = parser.parse_args()
 
     out_dir = args.out
@@ -836,15 +857,24 @@ def main():
 
     print(f"Building site → {out_dir}/")
 
+    guide = load_guide()
     cards = load_all_cards()
     groups = group_by_tier(cards)
+
+    counts = {
+        "total_count": len(cards),
+        "tier1_count": len(groups.get(1, [])),
+        "tier2_count": len(groups.get(2, [])),
+        "tier3_count": len(groups.get(3, [])),
+        "guide": guide,
+    }
 
     build_index(cards, out_dir)
     for tier_num in [1, 2, 3]:
         build_tier_page(tier_num, groups.get(tier_num, []), out_dir)
-    build_card_pages(cards, out_dir)
-    build_sizing(out_dir)
-    build_next_steps(out_dir)
+    build_card_pages(cards, out_dir, guide=guide)
+    build_sizing(out_dir, counts=counts)
+    build_next_steps(out_dir, counts=counts)
 
     total = sum(len(g) for g in groups.values())
     print(f"\nDone. {total} card pages + 6 site pages → {out_dir}/")
