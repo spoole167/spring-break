@@ -10,27 +10,21 @@ verify: >
   etc.) applies correctly after renaming properties
 
 further_info: >
-  Spring Boot 4.0 renamed all MongoDB configuration properties as part of
-  moving MongoDB auto-configuration into a dedicated persistence module.
-  Properties prefixed with <code>spring.data.mongodb.*</code> moved to
-  <code>spring.mongodb.*</code>. Management/actuator endpoint properties
-  similarly changed. The application compiles and starts normally, but any
-  property still using the old prefix is silently ignored — MongoDB connects
-  with defaults rather than the configured values. Connection failures,
-  wrong databases, or missing authentication are the typical symptom.
+  Every property under the old prefix moved, pool size and auth settings
+  included.
 
 oneliner: >
   <code>spring.data.mongodb.*</code> properties are silently ignored in
   Boot 4.0. The new prefix is <code>spring.mongodb.*</code>. The app starts
-  but connects with defaults — wrong host, no auth, wrong database.
+  but connects with defaults: wrong host, no auth, wrong database.
 
 error_output: |
-  # application.properties (Boot 3.5 style — silently ignored on 4.0):
+  # application.properties (Boot 3.5 style, ignored on 4.0):
   spring.data.mongodb.uri=mongodb://user:pass@prod-host:27017/mydb
   spring.data.mongodb.database=mydb
 
   # Boot 4.0: app starts, connects to localhost:27017 with no auth.
-  # No error — wrong database, wrong host. Data operations succeed
+  # No error: wrong database, wrong host. Data operations succeed
   # against the wrong instance.
 
 what_changed: >
@@ -43,11 +37,9 @@ what_changed: >
   <code>management.health.mongodb.*</code>.
 
 why_changed: >
-  Spring Boot 4.0 restructured MongoDB auto-configuration into a dedicated
-  persistence module. The <code>spring.data.mongodb</code> prefix was
-  a legacy of the configuration living inside Spring Data's namespace.
-  The rename aligns MongoDB configuration with Boot's own namespace
-  conventions and the new module structure.
+  MongoDB auto-configuration moved into a dedicated persistence module,
+  and the old prefix was a legacy of living inside Spring Data's namespace.
+  The rename matches Boot's own namespace conventions.
 
 diffs:
   - comment: "// application.properties"
@@ -80,10 +72,10 @@ scope_check: >
 
 watch_out:
   - >
-    The failure is completely silent. The app starts, connects to MongoDB
-    (using defaults), and runs normally — against the wrong instance.
-    Test with a connection URI that would obviously fail if used, such as
-    a non-existent host, to confirm the property is being read.
+    The app starts, connects with driver defaults, and runs normally
+    against the wrong instance. Confirm the property is being read by
+    testing with a URI that would obviously fail, such as a
+    non-existent host.
   - >
     Spring Session MongoDB property keys changed separately:
     <code>spring.session.mongodb.*</code> → <code>spring.session.data.mongodb.*</code>.

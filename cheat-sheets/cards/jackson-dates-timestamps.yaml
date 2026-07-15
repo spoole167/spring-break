@@ -11,12 +11,9 @@ verify: >
 
 further_info: >
   Driven by the combination of Jackson 3.0 and Spring Boot 4.0's
-  auto-configuration changes. Boot 4.0 binds spring.jackson.serialization.*
-  keys to Jackson 3's tools.jackson.databind.SerializationFeature enum, and
-  Jackson 3 moved the date/time toggles out of that enum. The old property
-  value no longer converts, so property binding fails and the application
-  does not start. Verified 15 July 2026 on 4.0.7. Compounds with
-  jackson-date-format. See also: jackson-date-format, jackson-property-inclusion.
+  auto-configuration changes. Verified 15 July 2026 on 4.0.7.
+  Compounds with jackson-date-format. See also: jackson-date-format,
+  jackson-property-inclusion.
 
 oneliner: >
   The <code>spring.jackson.serialization.write-dates-as-timestamps</code>
@@ -44,11 +41,11 @@ what_changed: >
   context startup.
 
 why_changed: >
-  Jackson 3 reorganised its feature flag system: the old
-  <code>SerializationFeature</code> enum values don't map one-to-one to the
-  new configuration API, and the date/time features moved to their own
-  feature set. Spring Boot's property binding follows the new enum, so
-  values that name removed constants fail fast instead of being remapped.
+  The old <code>SerializationFeature</code> enum values don't map
+  one-to-one to Jackson 3's new configuration API; the date/time features
+  moved to their own feature set. Spring Boot's property binding follows
+  the new enum, so values naming removed constants fail fast instead of
+  being remapped.
 
 diffs:
   - comment: "// application.properties — old (silently ignored)"
@@ -92,12 +89,12 @@ watch_out:
   - >
     This compounds with the jackson-date-format change. If you set
     <code>write-dates-as-timestamps=true</code> specifically to keep numeric
-    timestamps, you now have two problems: the default flipped AND the
+    timestamps, you now have two problems: the default flipped, and the
     property that pinned the old behaviour stops your app from starting.
   - >
-    Audit every <code>spring.jackson.serialization.*</code> and
-    <code>spring.jackson.deserialization.*</code> entry. Any value naming an
-    enum constant that Jackson 3 moved or removed will fail startup the same way.
+    Any <code>spring.jackson.serialization.*</code> or
+    <code>spring.jackson.deserialization.*</code> value naming an enum
+    constant that Jackson 3 moved or removed fails startup the same way.
 
 footer_links:
   - text: "spring-break module: jackson-dates-timestamps"

@@ -9,11 +9,9 @@ verify: >
   All API endpoints respond (especially wildcard/regex patterns)
 
 further_info: >
-  Spring Boot 4.0 unified on PathPatternParser (already the default in
-  WebFlux since 5.0) for both MVC and Security. AntPathMatcher is still
-  available as a per-rule fallback. The key difference is that ** is only
-  supported at the end of patterns in PathPattern. See also:
-  security-dsl-rewrite, auth-default-deny.
+  PathPatternParser has been WebFlux's default since Spring 5.0; Boot 4.0
+  brings MVC and Security into line. See also: security-dsl-rewrite,
+  auth-default-deny.
 
 oneliner: >
   Spring Security now uses <code>PathPattern</code> instead of
@@ -93,10 +91,9 @@ scope_check: >
 
 watch_out:
   - >
-    A pattern that no longer matches is a potential security hole, not
-    just a broken feature. If <code>/api/**/admin</code> stops matching
-    certain paths, those paths become unprotected. This is a Tier 3
-    change with Tier 0 security implications.
+    A pattern that no longer matches is a security hole: paths that
+    <code>/api/**/admin</code> used to protect become unprotected.
+    A Tier 3 change with Tier 0 security implications.
   - >
     <code>PathPattern</code> does not support <code>**</code> in the
     middle of a pattern (e.g. <code>/api/**/admin</code>). It only supports

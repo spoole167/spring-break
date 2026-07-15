@@ -10,15 +10,13 @@ verify: >
   SemanticException
 
 further_info: >
-  Introduced in Hibernate 7.0 (upstream of Spring Boot 4.0). Hibernate 6.x
-  tolerated ambiguous HQL queries — a join with no explicit SELECT clause and
-  no result type was silently treated as returning Object[]. Hibernate 7.0
-  treats this as a semantic error. Affects any application using
-  Session.createQuery(String) with join queries and no result type.
+  Introduced in Hibernate 7.0, upstream of Spring Boot 4.0. Affects any
+  application using Session.createQuery(String) with join queries and
+  no result type.
 
 oneliner: >
   Hibernate 7 rejects untyped join queries with no explicit SELECT clause.
-  A query that silently returned Object[] on Boot 3.5 throws SemanticException
+  A query that returned Object[] on Boot 3.5 throws SemanticException
   at runtime on Boot 4.0.
 
 error_output: |
@@ -38,14 +36,13 @@ what_changed: >
   <code>from Product p join p.category c</code> has two implicit query
   roots (Product and the joined Category). Without an explicit
   <code>SELECT</code> clause or result type, the return type is ambiguous.
-  Hibernate 6.x silently resolved this as <code>Object[]</code>; Hibernate 7.0
+  Hibernate 6.x resolved this as <code>Object[]</code>; Hibernate 7.0
   rejects it at parse time with a <code>SemanticException</code>.
 
 why_changed: >
   Silent return of <code>Object[]</code> hides intent and causes surprising
   <code>ClassCastException</code> at the point of use rather than at the
-  query. Making the ambiguity a hard error forces the developer to be explicit,
-  which produces clearer, more maintainable queries.
+  query. A hard error forces explicit, clearer queries.
 
 diffs:
   - comment: "// Add an explicit SELECT and result type"
@@ -80,11 +77,9 @@ fixes:
       contains a join is at risk.
 
 scope_check: >
-  Search for <code>createQuery(</code> calls in your application. Any
-  HQL query that starts with <code>from</code> (implicit SELECT) and
-  contains a <code>join</code> will throw <code>SemanticException</code>
-  on Hibernate 7. JPQL queries via <code>EntityManager.createQuery(String, Class)</code>
-  are also affected if they omit the <code>SELECT</code> clause with joins.
+  Search for <code>createQuery(</code> calls. JPQL queries via
+  <code>EntityManager.createQuery(String, Class)</code> are also affected
+  if they omit the <code>SELECT</code> clause with joins.
 
 watch_out:
   - >
@@ -93,7 +88,7 @@ watch_out:
     startup. Tests that exercise query paths are the only way to catch
     this before production.
   - >
-    Simple queries without joins are unaffected — <code>from Product p</code>
+    Simple queries without joins are unaffected: <code>from Product p</code>
     with a single root remains valid. Only multi-root or joined queries
     trigger the error.
 

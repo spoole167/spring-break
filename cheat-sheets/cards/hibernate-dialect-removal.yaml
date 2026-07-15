@@ -9,10 +9,8 @@ verify: >
   App starts with no DialectResolutionInfoMissingException
 
 further_info: >
-  Driven by Hibernate 7.0 (upstream of Spring Boot 4.0). Version-specific
-  dialect classes (MySQL57Dialect, PostgreSQL95Dialect, Oracle12cDialect,
-  etc.) were deprecated in Hibernate 6.0 and removed in 7.0 in favour of
-  runtime version auto-detection. Affects spring-boot-starter-data-jpa
+  Driven by Hibernate 7.0, upstream of Spring Boot 4.0. The classes were
+  deprecated in Hibernate 6.0. Affects spring-boot-starter-data-jpa
   consumers. See also: hibernate-date-types, cascade-save-update.
 
 oneliner: >
@@ -46,10 +44,9 @@ what_changed: >
   version from the JDBC connection and configures features accordingly.
 
 why_changed: >
-  Maintaining separate dialect classes for every database version created
-  a combinatorial explosion. Hibernate's new approach detects the database
-  version at runtime and enables the correct features automatically,
-  eliminating the need for users to choose the right dialect class.
+  A dialect class per database version created a combinatorial explosion.
+  Runtime detection removes the maintenance burden and the risk of
+  choosing the wrong class.
 
 diffs:
   - comment: "// application.properties"
@@ -66,9 +63,8 @@ fixes:
   - label: "Remove explicit dialect (recommended)."
     text: >
       Delete the <code>spring.jpa.properties.hibernate.dialect</code> property
-      entirely. Hibernate 7 auto-detects the correct dialect from the JDBC
-      connection metadata. This is the cleanest fix and the one the Hibernate
-      team recommends.
+      entirely. Hibernate 7 detects the correct dialect from the JDBC
+      connection metadata.
   - label: "Switch to base dialect class."
     text: >
       If you need an explicit dialect for testing or CI (e.g., H2 in-memory),
@@ -80,17 +76,15 @@ scope_check: >
   Search for <code>hibernate.dialect</code> in <code>application.properties</code>,
   <code>application.yml</code>, <code>persistence.xml</code>, and any
   programmatic <code>LocalContainerEntityManagerFactoryBean</code>
-  configuration. Also check test configurations and Docker Compose profiles
-  that may set dialect overrides.
+  configuration. Also check test configurations and Docker Compose profiles.
 
 watch_out:
   - >
     If you use Testcontainers or H2 for tests, those test configs often
     set an explicit dialect. Check <code>src/test/resources</code> too.
   - >
-    Some database connection pools or frameworks set the dialect
-    programmatically. Search for <code>setProperty("hibernate.dialect"</code>
-    in Java code, not just property files.
+    Some connection pools and frameworks set the dialect programmatically.
+    Search Java code for <code>setProperty("hibernate.dialect"</code> too.
   - >
     The auto-detection requires an active JDBC connection at startup. If
     your application uses lazy datasource initialization, you may still

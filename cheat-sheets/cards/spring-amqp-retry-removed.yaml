@@ -10,19 +10,13 @@ verify: >
   new customizer interfaces without compile errors
 
 further_info: >
-  Spring AMQP moved its retry support from Spring Retry to Spring Framework
-  in Boot 4.0. As part of this change, the
-  <code>RabbitRetryTemplateCustomizer</code> interface was removed entirely.
-  It is replaced by two separate interfaces:
-  <code>RabbitTemplateRetrySettingsCustomizer</code> (for publisher-side retry)
-  and <code>RabbitListenerRetrySettingsCustomizer</code> (for consumer-side
-  retry). Any class implementing the old interface fails to compile on Boot 4.0.
+  One of several retry-related breaks in Boot 4.0. See also:
+  spring-retry-removed, retry-semantics-change.
 
 oneliner: >
-  <code>RabbitRetryTemplateCustomizer</code> is removed in Boot 4.0. Replace
-  with <code>RabbitTemplateRetrySettingsCustomizer</code> (publisher) or
-  <code>RabbitListenerRetrySettingsCustomizer</code> (consumer). Code using
-  the old interface fails to compile.
+  Boot 4.0 removed <code>RabbitRetryTemplateCustomizer</code>. Every bean
+  implementing it fails to compile; publisher and consumer retry now have
+  separate customizer interfaces.
 
 error_output: |
   @Bean
@@ -35,17 +29,16 @@ error_output: |
     symbol: class RabbitRetryTemplateCustomizer
 
 what_changed: >
-  Spring AMQP 4.0 dropped its dependency on Spring Retry and now uses Spring
-  Framework's retry abstraction. The customizer API was redesigned to separate
-  publisher and consumer retry configuration. <code>RabbitRetryTemplateCustomizer</code>
-  is replaced by <code>RabbitTemplateRetrySettingsCustomizer</code> and
-  <code>RabbitListenerRetrySettingsCustomizer</code>.
+  Spring AMQP 4.0 dropped its dependency on Spring Retry and now uses
+  Spring Framework's retry abstraction. <code>RabbitRetryTemplateCustomizer</code>
+  is replaced by <code>RabbitTemplateRetrySettingsCustomizer</code>
+  (publisher-side) and <code>RabbitListenerRetrySettingsCustomizer</code>
+  (consumer-side).
 
 why_changed: >
-  Spring Boot 4.0 removed managed dependency support for Spring Retry across
-  the board, migrating all retry functionality to Spring Framework's native
-  retry support. Spring AMQP followed the same migration path, decoupling
-  from the Spring Retry library.
+  Spring Boot 4.0 dropped Spring Retry across the board in favour of
+  Spring Framework's native retry support. Spring AMQP followed the same
+  path.
 
 diffs:
   - comment: "// Publisher-side retry customizer"
@@ -83,11 +76,10 @@ diffs:
 fixes:
   - label: "Replace with the split customizer interfaces."
     text: >
-      Replace <code>RabbitRetryTemplateCustomizer</code> beans with
-      <code>RabbitTemplateRetrySettingsCustomizer</code> for publisher retry
-      and <code>RabbitListenerRetrySettingsCustomizer</code> for consumer retry.
-      The new interfaces configure settings directly rather than manipulating
-      a <code>RetryTemplate</code>.
+      Replace each <code>RabbitRetryTemplateCustomizer</code> bean with the
+      publisher or consumer variant, whichever side it configured. The new
+      interfaces set retry settings directly rather than manipulating a
+      <code>RetryTemplate</code>.
 
 scope_check: >
   Grep for <code>RabbitRetryTemplateCustomizer</code> across your source tree.

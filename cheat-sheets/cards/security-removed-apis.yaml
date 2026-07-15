@@ -9,15 +9,14 @@ verify: >
   App starts and security filter chain initialises without errors
 
 further_info: >
-  Driven by Spring Security 7.0. The authorizeRequests(), antMatchers(), and
-  .and() chaining were deprecated in Security 5.7/6.0 and removed in 7.0.
-  The lambda DSL was introduced in Security 5.2 as the recommended
-  replacement. Affects all spring-boot-starter-security consumers. See also:
-  websecurity-adapter-removed, auth-default-deny.
+  Driven by Spring Security 7.0. The old DSL was deprecated in Security
+  5.7/6.0; the lambda DSL has been the recommended replacement since
+  Security 5.2. Affects every spring-boot-starter-security consumer.
+  See also: websecurity-adapter-removed, auth-default-deny.
 
 oneliner: >
   Spring Security removed authorizeRequests(), antMatchers(), and the
-  .and() chaining method. The entire HTTP security DSL must be rewritten.
+  .and() chaining method. The HTTP security DSL needs a full rewrite.
 
 error_output: |
   $ mvn compile
@@ -34,11 +33,11 @@ error_output: |
 
 what_changed: >
   Spring Security 7.0 (shipped with Boot 4.0) removed the deprecated
-  <code>authorizeRequests()</code> method — use
+  <code>authorizeRequests()</code> method: use
   <code>authorizeHttpRequests()</code> instead. <code>antMatchers()</code>,
   <code>mvcMatchers()</code>, and <code>regexMatchers()</code> are replaced
   by <code>requestMatchers()</code>. The <code>.and()</code> chaining method
-  is gone — use lambda DSL with separate method calls instead.
+  is gone; the lambda DSL takes its place.
 
 why_changed: >
   The lambda DSL is more readable and avoids a class of configuration
@@ -101,10 +100,10 @@ scope_check: >
 
 watch_out:
   - >
-    The <code>.and()</code> removal is the most disruptive part. If you
-    have a long chain with 5+ <code>.and()</code> calls, the rewrite
-    changes the entire structure of the method. Review the result carefully
-    — it's easy to accidentally nest a lambda inside the wrong block.
+    The <code>.and()</code> removal is the most disruptive part. A long
+    chain with 5+ <code>.and()</code> calls means restructuring the whole
+    method. Review the result carefully: it's easy to nest a lambda inside
+    the wrong block.
   - >
     <code>requestMatchers()</code> auto-detects MVC vs Ant matching. If
     you have Spring MVC on the classpath, it uses MVC matching (which is

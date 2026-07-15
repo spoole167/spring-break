@@ -9,12 +9,9 @@ verify: >
   mvn compile — no JsonSerializer/SerializerProvider errors
 
 further_info: >
-  Driven by Jackson 3.0 (upstream of Spring Boot 4.0). JsonSerializer became
-  ValueSerializer, SerializerProvider became SerializationContext, and
-  JsonDeserializer became ValueDeserializer. The rename was finalised in
-  Jackson 3.0-rc1. Affects all spring-boot-starter-json consumers with
-  custom serialisers. See also: jackson-group-id,
-  jackson-exception-hierarchy.
+  Driven by Jackson 3.0, upstream of Spring Boot 4.0, and finalised in
+  Jackson 3.0-rc1. Affects spring-boot-starter-json consumers with custom
+  serialisers. See also: jackson-group-id, jackson-exception-hierarchy.
 
 oneliner: >
   Jackson 3.0 renamed core classes like JsonSerializer, JsonDeserializer,
@@ -40,10 +37,9 @@ what_changed: >
   Method signatures on these classes also changed.
 
 why_changed: >
-  The "Json" prefix was misleading — Jackson handles YAML, XML, CBOR, and
-  other formats. The new names reflect that serialisers work with values,
-  not specifically JSON. The rename also aligned the class hierarchy with
-  the new streaming API.
+  The "Json" prefix was misleading: Jackson handles YAML, XML, CBOR, and
+  other formats, so serialisers work with values, not specifically JSON.
+  The rename also aligned the class hierarchy with the new streaming API.
 
 diffs:
   - comment: "// Custom serializer class"
@@ -97,11 +93,11 @@ scope_check: >
 
 watch_out:
   - >
-    The method signatures changed too, not just the class names.
-    <code>serialize()</code> now takes a <code>SerializationContext</code>
-    instead of <code>SerializerProvider</code>. If you only rename the
-    class but keep the old parameter type, you'll get an abstract method
-    error instead of a clean override.
+    The method signatures changed too. <code>serialize()</code> now takes
+    a <code>SerializationContext</code> instead of
+    <code>SerializerProvider</code>. Renaming the class but keeping the
+    old parameter type gives an abstract method error instead of a clean
+    override.
   - >
     Annotations like <code>@JsonSerialize(using = ...)</code> still work
     but must reference the new class names. A custom serialiser registered

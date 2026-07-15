@@ -9,10 +9,8 @@ verify: >
   Spring Batch job launches with no BATCH_ table not found errors
 
 further_info: >
-  Driven by Spring Batch 6.0 (upstream of Spring Boot 4.0). The sequence
-  rename was announced in the Batch 6.0 milestone notes. Only affects
-  applications with a persistent JDBC job repository; in-memory repositories
-  are unaffected. See also: batch-listener-classes.
+  The sequence rename was announced in the Batch 6.0 milestone notes.
+  See also: batch-listener-classes.
 
 oneliner: >
   Spring Batch 6 renamed its database sequences (e.g., BATCH_JOB_SEQ
@@ -92,7 +90,7 @@ scope_check: >
 
 watch_out:
   - >
-    The schema change is not just sequences. Column types and table
+    Sequences are only part of the schema change. Column types and table
     structures also changed in Spring Batch 6. Check the official
     migration SQL scripts for the full set of changes.
   - >

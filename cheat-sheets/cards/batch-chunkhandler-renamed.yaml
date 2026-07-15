@@ -9,10 +9,8 @@ verify: >
   mvn compile — no cannot find symbol for ChunkHandler or setJobLauncher
 
 further_info: >
-  Two related Spring Batch integration changes in 6.0. ChunkHandler is part
-  of the remote-chunking integration module. setJobLauncher on JobStep
-  was removed because JobLauncher was replaced by JobOperator as the
-  preferred way to launch jobs programmatically. Both are mechanical renames.
+  ChunkHandler belongs to the remote-chunking integration module. Both
+  changes are mechanical renames.
 
 oneliner: >
   ChunkHandler renamed to ChunkRequestHandler. JobStep.setJobLauncher
@@ -57,8 +55,8 @@ diffs:
 fixes:
   - label: "Rename ChunkHandler to ChunkRequestHandler."
     text: >
-      Update the import and all references. The interface contract is
-      the same — only the name changed.
+      Update the import and all references. Only the name changed; the
+      interface contract is the same.
   - label: "Replace setJobLauncher with setJobOperator."
     text: >
       Inject a <code>JobOperator</code> bean instead of <code>JobLauncher</code>
@@ -73,9 +71,8 @@ scope_check: >
 
 watch_out:
   - >
-    <code>JobLauncher</code> itself still exists — only its use in
-    <code>JobStep</code> was removed. Other usages of <code>JobLauncher</code>
-    are unaffected.
+    <code>JobLauncher</code> itself still exists. Only its use in
+    <code>JobStep</code> was removed; other usages are unaffected.
 
 footer_links:
   - text: "spring-break module: batch-chunkhandler-renamed"

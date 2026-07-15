@@ -9,14 +9,13 @@ verify: >
   mvn dependency:tree shows aligned Spring Retry version and retry works
 
 further_info: >
-  Spring Retry was removed from the Spring Boot 4.0 managed dependency BOM
-  because its release cadence diverged from Boot's. The library itself still
-  works; you just need an explicit version (2.0.x for Framework 7
-  compatibility). See also: retry-semantics, retryable-transaction-order.
+  The library itself is unchanged and still maintained; only Boot's
+  version management went away. See also: retry-semantics,
+  retryable-transaction-order.
 
 oneliner: >
   Spring Boot 4.0 removed spring-retry from its managed dependency BOM.
-  Projects that relied on version management must now declare the version explicitly.
+  Declare an explicit version or the build fails.
 
 error_output: |
   $ mvn compile
@@ -28,10 +27,9 @@ error_output: |
 
 what_changed: >
   <code>org.springframework.retry:spring-retry</code> is no longer
-  version-managed by the Spring Boot BOM. If you declared the dependency
-  without an explicit <code>&lt;version&gt;</code> tag, the build fails
-  because Maven/Gradle can't resolve it. The library itself still works
-  — it just isn't managed anymore.
+  version-managed by the Spring Boot BOM. Any declaration without an
+  explicit <code>&lt;version&gt;</code> tag fails because Maven/Gradle
+  can't resolve it.
 
 why_changed: >
   Spring Retry's release cadence diverged from Spring Boot's. Managing
@@ -72,7 +70,7 @@ fixes:
 scope_check: >
   Search for <code>spring-retry</code> in POM and Gradle files. Any
   declaration without an explicit version will fail. Also check for
-  <code>@Retryable</code> and <code>@EnableRetry</code> annotations —
+  <code>@Retryable</code> and <code>@EnableRetry</code> annotations:
   these confirm the library is actually in use.
 
 watch_out:
@@ -83,7 +81,7 @@ watch_out:
     avoid classpath surprises.
   - >
     Spring Retry 2.x requires Spring Framework 6.0+. Since Boot 4.0 ships
-    Framework 7.0, use Retry 2.0.x — older 1.x versions are incompatible.
+    Framework 7.0, use Retry 2.0.x: older 1.x versions are incompatible.
 
 footer_links:
   - text: "spring-break module: spring-retry-removed"

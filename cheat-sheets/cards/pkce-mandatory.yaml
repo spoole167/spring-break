@@ -9,10 +9,9 @@ verify: >
   OAuth2 login completes with PKCE challenge in the auth request
 
 further_info: >
-  Driven by Spring Security 7.0, aligning with OAuth 2.1 (RFC 9700) which
-  mandates PKCE for all clients. PKCE enforcement was tracked in
-  spring-security#16391. Affects spring-boot-starter-oauth2-client consumers
-  using the authorization_code grant. See also: oauth-password-grant.
+  PKCE enforcement was tracked in spring-security#16391. Affects
+  spring-boot-starter-oauth2-client consumers using the authorization_code
+  grant. See also: oauth-password-grant.
 
 oneliner: >
   Spring Security 7 enforces PKCE for all OAuth 2.0 clients, including
@@ -42,10 +41,10 @@ what_changed: >
   breaks.
 
 why_changed: >
-  OAuth 2.1 and the latest security best practices mandate PKCE for all
-  clients, not just public clients. PKCE prevents authorization code
-  interception attacks regardless of client type. Spring Security aligned
-  with this requirement.
+  OAuth 2.1 (RFC 9700) mandates PKCE for all clients, public and
+  confidential alike, because PKCE prevents authorization code
+  interception attacks regardless of client type. Spring Security
+  aligned with that requirement.
 
 diffs:
   - comment: "// application.yml — no changes needed on client side"
@@ -102,8 +101,8 @@ fixes:
     text: >
       Configure your authorization server (Keycloak, Auth0, Okta, Azure AD)
       to accept PKCE <code>code_challenge</code> parameters for confidential
-      clients. Most modern providers already support this — it may just need
-      to be enabled per client. Use <code>S256</code> as the challenge method.
+      clients. Most modern providers support this; it may need enabling
+      per client. Use <code>S256</code> as the challenge method.
   - label: "Verify no auth server rejects extra parameters."
     text: >
       Some older or custom authorization servers reject unknown parameters.

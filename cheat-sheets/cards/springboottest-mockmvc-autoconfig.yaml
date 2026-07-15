@@ -8,7 +8,7 @@ openrewrite: false
 no_module: true
 no_module_reason: >
   Premise unverifiable as a 3.5 → 4.0 break. Boot 3.5 also does not
-  auto-configure MockMvc without @AutoConfigureMockMvc — the @Autowired
+  auto-configure MockMvc without @AutoConfigureMockMvc: the @Autowired
   field is null on both versions. @AutoConfigureMockMvc has always been
   required to get a MockMvc bean in a @SpringBootTest. The migration guide
   entry appears to describe behaviour that was never present in 3.5.
@@ -16,12 +16,9 @@ verify: >
   MockMvc is available in @SpringBootTest tests after adding @AutoConfigureMockMvc
 
 further_info: >
-  Spring Boot 4.0 removed the implicit MockMvc auto-configuration from
-  @SpringBootTest. In Boot 3.5, a @SpringBootTest with MOCK webEnvironment
-  (the default) would configure MockMvc automatically, allowing it to be
-  @Autowired directly into the test. In Boot 4.0, MockMvc must be explicitly
-  requested via @AutoConfigureMockMvc. Tests that relied on the implicit
-  configuration fail with NoSuchBeanDefinitionException at runtime.
+  Per the migration guide, a Boot 3.5 @SpringBootTest with the default
+  MOCK webEnvironment supplied MockMvc without any extra annotation; tests
+  relying on that fail with NoSuchBeanDefinitionException on 4.0.
 
 oneliner: >
   <code>@SpringBootTest</code> no longer auto-configures <code>MockMvc</code>
@@ -49,16 +46,13 @@ error_output: |
 what_changed: >
   MockMvc auto-configuration was decoupled from <code>@SpringBootTest</code>.
   The MOCK webEnvironment still creates a mock servlet context, but the
-  <code>MockMvc</code> bean is no longer registered in that context
-  automatically. It must be opted into explicitly with
+  <code>MockMvc</code> bean must now be opted into with
   <code>@AutoConfigureMockMvc</code>.
 
 why_changed: >
-  The implicit auto-configuration created a hidden dependency: tests that
-  didn't explicitly declare they needed MockMvc were still getting it.
-  Making it opt-in aligns with Boot 4.0's broader theme of explicit
-  over implicit configuration, and allows the test context to be leaner
-  when MockMvc isn't needed.
+  The implicit bean was a hidden dependency: tests got MockMvc without
+  declaring they needed it. Opt-in matches Boot 4.0's explicit-over-implicit
+  theme and keeps the test context leaner when MockMvc isn't needed.
 
 diffs:
   - comment: "// Add @AutoConfigureMockMvc"
@@ -99,7 +93,7 @@ watch_out:
   - >
     The same change applies to <code>WebTestClient</code> and
     <code>TestRestTemplate</code>. Boot 4.0 also no longer auto-configures
-    these in <code>@SpringBootTest</code> — add
+    these in <code>@SpringBootTest</code>: add
     <code>@AutoConfigureRestTestClient</code> or
     <code>@AutoConfigureTestRestTemplate</code> respectively.
 

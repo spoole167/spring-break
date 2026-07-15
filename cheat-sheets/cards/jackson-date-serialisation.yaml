@@ -9,10 +9,8 @@ verify: >
   JSON responses show dates in expected format (check API output)
 
 further_info: >
-  Driven by Jackson 3.0 (upstream of Spring Boot 4.0). The default for
-  WRITE_DATES_AS_TIMESTAMPS flipped from true to false. Announced in the
-  Jackson 3.0 release notes. Affects all spring-boot-starter-json consumers
-  with date/time fields in DTOs. See also: jackson-dates-timestamps,
+  Driven by Jackson 3.0, upstream of Spring Boot 4.0, and announced in
+  its release notes. See also: jackson-dates-timestamps,
   jackson-property-inclusion.
 
 oneliner: >
@@ -86,12 +84,12 @@ scope_check: >
 watch_out:
   - >
     This change is invisible at compile time and at startup. The app runs
-    perfectly — until a client tries to parse the date field as a number.
-    If you have no contract tests, you won't catch this until production.
+    perfectly until a client tries to parse the date field as a number.
+    Without contract tests, you won't catch this before production.
   - >
     The <code>@JsonFormat</code> annotation on individual fields still
-    overrides the global default. If you've already annotated your dates,
-    those fields are unaffected. It's the unannotated ones that silently flip.
+    overrides the global default. Annotated dates are unaffected; the
+    unannotated ones flip.
 
 footer_links:
   - text: "spring-break module: jackson-date-serialisation"

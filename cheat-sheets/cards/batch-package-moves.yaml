@@ -9,10 +9,8 @@ verify: >
   mvn compile — no package does not exist errors for org.springframework.batch.core classes
 
 further_info: >
-  Spring Batch 6.0 restructured its domain model into subpackages under
-  org.springframework.batch.core. The classes still exist; only their
-  package changed. With many classes involved, this can mean a large number
-  of import fixes across any codebase that uses Batch domain types directly.
+  The classes are unchanged; only their packages moved. Expect a large
+  batch of import fixes if your code uses Batch domain types directly.
 
 oneliner: >
   Core Spring Batch domain classes (Job, JobExecution, etc.) moved from
@@ -32,9 +30,8 @@ what_changed: >
   <code>JobInstance</code>, and <code>JobParameters</code> among others.
 
 why_changed: >
-  Spring Batch 6.0 redesigned the domain model to give each concern its own
-  subpackage, making the module boundaries clearer and aligning with the
-  broader Spring Batch 6.0 architectural goals.
+  Spring Batch 6.0 redesigned the domain model to give each concern its
+  own subpackage and make the module boundaries clear.
 
 diffs:
   - comment: "// Core domain imports"
@@ -61,8 +58,7 @@ fixes:
 scope_check: >
   Search for <code>import org.springframework.batch.core.</code> across
   all Java/Kotlin sources. Any import that resolves directly to a class
-  in the root <code>core</code> package is likely affected. The scope
-  is proportional to how deeply your code interacts with Batch domain objects.
+  in the root <code>core</code> package is likely affected.
 
 watch_out:
   - >

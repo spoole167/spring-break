@@ -6,21 +6,18 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
 no_module: true
-no_module_reason: "Compile-time and IDE-only change — the card explicitly states runtime behaviour is unchanged; no JUnit assertion is meaningful"
+no_module_reason: "Compile-time and IDE-only change: runtime behaviour is unchanged, so no JUnit assertion is meaningful"
 verify: >
   No new NullPointerException at boundaries where nulls were OK before
 
 further_info: >
-  Introduced in Spring Framework 7.0 using JSpecify @NullMarked annotations
-  at the package level. This is a compile-time / IDE-time change; runtime
-  behaviour is unchanged. Kotlin interop improves because the compiler can
-  now infer nullability from Spring APIs. Affects all Spring Framework API
-  consumers.
+  Runtime behaviour is unchanged: the impact lands entirely in compilers,
+  IDEs, and static analysis tools.
 
 oneliner: >
-  Spring Framework 7 applies <code>@NullMarked</code> to all packages.
+  Spring Framework 7 applies <code>@NullMarked</code> to every package.
   IDEs and null-checking tools now flag your existing null-passing code
-  as warnings or errors — even though the runtime behaviour is unchanged.
+  as warnings or errors.
 
 error_output: |
   // Your existing code — unchanged, worked fine in Boot 3.5
@@ -50,9 +47,8 @@ what_changed: >
   violations.
 
 why_changed: >
-  Null safety has been a long-standing request. By declaring null contracts
-  formally, the framework helps tools catch <code>NullPointerException</code>
-  bugs at compile time instead of runtime. Kotlin interop also improves —
+  Formal null contracts let tools catch <code>NullPointerException</code>
+  bugs at compile time instead of runtime. Kotlin interop also improves:
   Kotlin's type system can now correctly infer nullability from Spring APIs.
 
 diffs:
@@ -82,9 +78,8 @@ fixes:
     text: >
       Follow the IDE warnings and add null checks, use
       <code>Optional</code>, or switch to non-null API variants like
-      <code>getRequiredProperty()</code>. These are real potential NPE
-      bugs that were always there — the framework is now telling you
-      about them.
+      <code>getRequiredProperty()</code>. These are real NPE bugs that
+      were always there; the framework now surfaces them.
   - label: "Suppress during migration."
     text: >
       If the volume of warnings is too high to fix at once, suppress
@@ -102,9 +97,9 @@ scope_check: >
 watch_out:
   - >
     If your CI pipeline uses <code>-Werror</code>, NullAway, ErrorProne, or
-    Checker Framework, the new null annotations will turn warnings into
-    build failures. Your build breaks not because of code changes, but
-    because the framework's null contracts are now visible to your tools.
+    Checker Framework, the new null annotations turn warnings into build
+    failures. The framework's null contracts are now visible to your tools;
+    unchanged code becomes a broken build.
   - >
     Kotlin projects are affected differently. Kotlin's compiler uses these
     annotations to infer platform types. A Spring method that returned

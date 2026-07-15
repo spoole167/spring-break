@@ -10,14 +10,12 @@ verify: >
 
 further_info: >
   Driven by a Spring Framework 7.0 change in default AOP advice ordering.
-  @Retryable now has higher precedence than @Transactional, so retry wraps
-  outside the transaction. The old default (retry inside transaction) led to
-  Hibernate session corruption. See also: retry-semantics, spring-retry-bom.
+  See also: retry-semantics, spring-retry-bom.
 
 oneliner: >
   The default AOP advice ordering flipped: retry now wraps outside the
-  transaction. A retried method gets a new transaction each attempt instead
-  of retrying inside the same one.
+  transaction. A retried method gets a fresh transaction each attempt
+  instead of retrying inside the same one.
 
 error_output: |
   // Before (Spring Boot 3.5) — retry inside transaction
@@ -43,16 +41,15 @@ error_output: |
 
 what_changed: >
   The default ordering of Spring AOP advice changed so that
-  <code>@Retryable</code> has a higher precedence (runs first) than
-  <code>@Transactional</code>. This means the retry logic wraps the
-  transaction, not the other way around. Each retry attempt runs in its
-  own transaction.
+  <code>@Retryable</code> has higher precedence (runs first) than
+  <code>@Transactional</code>. The retry logic now wraps the transaction,
+  so each retry attempt runs in its own transaction.
 
 why_changed: >
-  Retrying outside the transaction is generally safer — a failed transaction
-  is fully rolled back before the next attempt starts, avoiding stale
-  persistence context and dirty session state. The old default led to subtle
-  Hibernate session corruption when retrying inside a failed transaction.
+  Retrying outside the transaction is safer: a failed transaction rolls
+  back fully before the next attempt, avoiding stale persistence context
+  and dirty session state. The old default caused subtle Hibernate session
+  corruption when retrying inside a failed transaction.
 
 diffs:
   - comment: "// Force retry inside transaction (old behaviour)"

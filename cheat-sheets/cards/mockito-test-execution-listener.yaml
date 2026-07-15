@@ -9,13 +9,9 @@ verify: >
   @Mock fields in @SpringBootTest classes are initialised correctly
 
 further_info: >
-  Spring Boot 3.5 auto-registered MockitoTestExecutionListener alongside
-  the Spring TestContext Framework listeners. This listener called
-  MockitoAnnotations.openMocks() on each test instance, initialising
-  @Mock, @Spy, and @Captor fields before each test. Boot 4.0 removes this
-  listener. The replacement is Mockito's own JUnit 5 extension, which has
-  been available since Mockito 3.x and is already included via
-  spring-boot-starter-test.
+  The listener called MockitoAnnotations.openMocks() on each test instance,
+  initialising @Mock, @Spy, and @Captor fields before each test. Mockito's
+  own JUnit 5 extension has done the same job since Mockito 3.x.
 
 oneliner: >
   Spring Boot 4.0 removes MockitoTestExecutionListener. @Mock fields in
@@ -48,10 +44,9 @@ what_changed: >
   setup method.
 
 why_changed: >
-  The listener duplicated Mockito's own JUnit 5 extension, which does the
-  same job without requiring Spring Boot involvement. Removing the Boot-specific
-  listener reduces complexity and pushes tests toward the idiomatic
-  Mockito + JUnit 5 pattern that works everywhere, not just in Spring Boot.
+  The listener duplicated Mockito's own JUnit 5 extension. Removing it
+  pushes tests toward the idiomatic Mockito + JUnit 5 pattern that works
+  in any JUnit 5 project.
 
 diffs:
   - comment: "// Add MockitoExtension alongside @SpringBootTest"
@@ -86,8 +81,8 @@ fixes:
   - label: "Add @ExtendWith(MockitoExtension.class) to the test class."
     text: >
       This is the standard JUnit 5 way to enable Mockito annotation processing.
-      It works alongside <code>@SpringBootTest</code> and requires no additional
-      dependency — Mockito's JUnit 5 extension is already on the test classpath
+      It works alongside <code>@SpringBootTest</code> and needs no new
+      dependency: Mockito's JUnit 5 extension is already on the test classpath
       via <code>spring-boot-starter-test</code>.
   - label: "Use @MockitoBean instead of @Mock (if the mock belongs in the context)."
     text: >
@@ -110,7 +105,7 @@ watch_out:
     <code>@ExtendWith</code> from child to parent field initialisation.
   - >
     Tests that used <code>@MockBean</code> (Boot 3.5) are affected by a
-    separate change — <code>@MockBean</code> itself is removed in Boot 4.0
+    separate change: <code>@MockBean</code> itself is removed in Boot 4.0
     in favour of <code>@MockitoBean</code>. See the <code>mockbean-removed</code>
     card.
 

@@ -9,10 +9,8 @@ verify: >
   mvn compile — no JsonMappingException symbol errors
 
 further_info: >
-  Driven by Jackson 3.0 (upstream of Spring Boot 4.0). JacksonException was
-  moved from extending IOException to RuntimeException. The change was
-  announced in 2022 and finalised in Jackson 3.0-rc1. Affects all code with
-  catch(IOException) blocks near ObjectMapper calls. See also:
+  Driven by Jackson 3.0, upstream of Spring Boot 4.0. The change was
+  announced in 2022 and finalised in Jackson 3.0-rc1. See also:
   jackson-group-id, jackson-class-renames.
 
 oneliner: >
@@ -43,11 +41,10 @@ what_changed: >
   for Jackson work now throw unchecked exceptions instead.
 
 why_changed: >
-  Jackson parsing errors are not truly I/O errors. The original hierarchy
-  was a design mistake that forced callers to handle checked exceptions
-  even for in-memory parsing. Making <code>JacksonException</code> unchecked
-  aligns with modern Java conventions and removes boilerplate try/catch
-  from code that parses strings or byte arrays.
+  The original hierarchy was a design mistake: it forced checked-exception
+  handling even for in-memory parsing, which involves no I/O. Making
+  <code>JacksonException</code> unchecked aligns with modern Java
+  conventions and removes the boilerplate try/catch.
 
 diffs:
   - comment: "// Controller error handling — before"
@@ -96,20 +93,19 @@ fixes:
 scope_check: >
   Search for <code>catch (IOException</code>, <code>catch (JsonProcessingException</code>,
   and <code>throws IOException</code> near any <code>ObjectMapper</code> usage.
-  Every hit where the catch was meant to intercept Jackson errors is now
-  a silent miss at runtime. REST controllers, message listeners, and
+  Every hit where the catch was meant to intercept Jackson errors now
+  misses at runtime. REST controllers, message listeners, and
   integration test assertions are the most common locations.
 
 watch_out:
   - >
-    This is a silent behaviour change. The code compiles cleanly because
-    <code>JacksonException</code> is now unchecked. You only discover the
-    problem when bad input arrives and the catch block no longer fires,
-    producing 500 errors instead of 400s.
+    The code compiles cleanly because <code>JacksonException</code> is now
+    unchecked. You only discover the problem when bad input arrives, the
+    catch block no longer fires, and clients get 500 errors instead of 400s.
   - >
-    If you catch <code>Exception</code> broadly, you are technically still
-    catching Jackson errors, but you lose the ability to return a
-    domain-appropriate error message. Narrow your catch clauses.
+    A broad <code>catch (Exception</code> still catches Jackson errors,
+    but loses the ability to return a domain-appropriate error message.
+    Narrow your catch clauses.
   - >
     Spring's built-in <code>HttpMessageNotReadableException</code> still
     wraps Jackson errors for <code>@RequestBody</code> parsing. The risk

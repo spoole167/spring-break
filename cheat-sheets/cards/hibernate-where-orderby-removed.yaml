@@ -9,11 +9,8 @@ verify: >
   mvn compile — no cannot find symbol for @Where or @OrderBy from Hibernate
 
 further_info: >
-  @SQLRestriction and @SQLOrder were introduced in Hibernate 6.3 as the
-  designated replacements. The old annotations were deprecated then and
-  removed in Hibernate 7.0. Note: JPA's @jakarta.persistence.OrderBy
-  (which sorts by entity attribute) is unaffected — only Hibernate's
-  SQL-string variants are gone.
+  @SQLRestriction and @SQLOrder arrived in Hibernate 6.3; the old
+  annotations were deprecated then and removed in 7.0.
 
 oneliner: >
   Hibernate's @Where and @OrderBy are removed. Replace with @SQLRestriction
@@ -70,9 +67,7 @@ fixes:
   - label: "Replace @OrderBy with @SQLOrder."
     text: >
       Change the annotation name and attribute: <code>@OrderBy(clause = "...")</code>
-      becomes <code>@SQLOrder("...")</code>. Do not confuse with JPA's
-      <code>@jakarta.persistence.OrderBy</code>, which is a separate annotation
-      taking attribute names and is unaffected.
+      becomes <code>@SQLOrder("...")</code>.
 
 scope_check: >
   Search for <code>@Where</code> and <code>@OrderBy</code> from the
@@ -81,9 +76,9 @@ scope_check: >
 
 watch_out:
   - >
-    If you have both <code>@jakarta.persistence.OrderBy</code> and
-    <code>@org.hibernate.annotations.OrderBy</code> in use, only the
-    Hibernate one needs replacing. The JPA one is untouched.
+    Only Hibernate's <code>@OrderBy</code> needs replacing. JPA's
+    <code>@jakarta.persistence.OrderBy</code> takes attribute names,
+    not SQL, and is unaffected.
 
 footer_links:
   - text: "spring-break module: hibernate-where-orderby-removed"

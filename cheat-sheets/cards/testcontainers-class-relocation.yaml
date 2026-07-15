@@ -9,20 +9,12 @@ verify: >
   mvn test — Testcontainers start and tests pass
 
 further_info: >
-  Driven by Testcontainers 2.0 (managed by Spring Boot 4.0). The 2.0
-  release was a JPMS (Java Platform Module System) clean-up: in 1.x,
-  many different JARs all exported classes into the shared
-  org.testcontainers.containers package, which breaks JPMS split-package
-  rules. In 2.0, each module got its own sub-package. The Maven group ID
-  did NOT change — it remains org.testcontainers. Only the Java
-  package paths for specialised containers changed. GenericContainer
-  stays in org.testcontainers.containers on both versions.
+  Driven by Testcontainers 2.0, the version Spring Boot 4.0 now manages.
 
 oneliner: >
-  Testcontainers 2.0 moved database and middleware containers out of
-  the shared org.testcontainers.containers package into module-specific
-  sub-packages (e.g. org.testcontainers.postgresql). The Maven group ID
-  stays org.testcontainers.
+  Testcontainers 2.0 moved database and middleware containers into
+  module-specific sub-packages (e.g. org.testcontainers.postgresql).
+  The Maven group ID stays org.testcontainers.
 
 error_output: |
   $ mvn compile
@@ -45,9 +37,9 @@ what_changed: >
 why_changed: >
   JPMS forbids multiple JARs contributing to the same package (split
   packages). In Testcontainers 1.x every module dumped its containers
-  into <code>org.testcontainers.containers</code>, which made modular
-  JARs impossible. The 2.0 sub-package split fixes this and is a
-  prerequisite for Java 17+ module support.
+  into <code>org.testcontainers.containers</code>, making modular JARs
+  impossible. The 2.0 sub-package split is a prerequisite for Java 17+
+  module support.
 
 diffs:
   - comment: "// pom.xml — BOM: group ID stays org.testcontainers; remove explicit version if using Boot parent"
@@ -100,7 +92,7 @@ scope_check: >
 
 watch_out:
   - >
-    The Maven group ID is still <code>org.testcontainers</code> — do NOT
+    The Maven group ID is still <code>org.testcontainers</code>; do not
     change it to <code>com.testcontainers</code>. Only the Java package
     paths inside the JARs changed.
   - >
@@ -108,7 +100,7 @@ watch_out:
     container types by class. If you reference the old
     <code>org.testcontainers.containers.PostgreSQLContainer</code>
     import in a <code>@ServiceConnection</code> field, updating the
-    import is sufficient — no annotation change needed.
+    import is sufficient; no annotation change needed.
   - >
     If you use Testcontainers in a shared test library, update that
     module first. A mix of 1.x and 2.x imports on the classpath will

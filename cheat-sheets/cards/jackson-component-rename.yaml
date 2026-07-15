@@ -8,36 +8,30 @@ openrewrite: false
 no_module: true
 no_module_reason: >
   The @JsonComponent rename is a real Boot 4.0 break, but it cannot be
-  isolated in a standalone test module. Any custom serializer written with
+  isolated in a standalone test module. Any custom serialiser written with
   @JsonComponent must also import Jackson's JsonSerializer or JsonDeserializer
-  from com.fasterxml.jackson.databind — the Jackson 2 package path. On Boot
+  from com.fasterxml.jackson.databind, the Jackson 2 package path. On Boot
   4.0, Jackson 3 moved those classes to tools.jackson.databind, so the test
   class fails at runtime with NoClassDefFoundError before the annotation
-  rename is ever encountered.
+  rename is ever reached.
 
-  The root cause — Jackson 3 package migration — is already covered by the
-  jackson-group-id module. The @JsonComponent rename is a consequence of the
-  same migration and cannot be demonstrated independently of it. Developers
-  migrating to Boot 4.0 will encounter the Jackson 3 package change first;
-  the annotation rename is a secondary step once the Jackson 3 migration is
-  complete.
+  The root cause, the Jackson 3 package migration, is covered by the
+  jackson-group-id module. Developers migrating to Boot 4.0 hit the package
+  change first; the annotation rename is a secondary step once that
+  migration is complete.
 verify: >
   Custom serializers and mixins annotated with the new names register
   correctly with the auto-configured ObjectMapper
 
 further_info: >
-  Spring Boot 4.0 aligns its Jackson annotations with the Jackson 3 branding.
   @JsonComponent and @JsonMixin were Spring Boot-specific annotations that
-  registered custom serializers, deserializers, and mixins with the
-  auto-configured ObjectMapper. In Boot 4.0 they are renamed to
-  @JacksonComponent and @JacksonMixin respectively. Any class annotated
-  with the old names fails to compile on Boot 4.0 — the annotations are
-  removed entirely.
+  registered custom serialisers, deserialisers, and mixins with the
+  auto-configured ObjectMapper.
 
 oneliner: >
   <code>@JsonComponent</code> and <code>@JsonMixin</code> are removed in
-  Boot 4.0. Replace with <code>@JacksonComponent</code> and
-  <code>@JacksonMixin</code>. Code that uses the old names fails to compile.
+  Boot 4.0 and fail to compile. Replace with
+  <code>@JacksonComponent</code> and <code>@JacksonMixin</code>.
 
 error_output: |
   @JsonComponent
@@ -49,10 +43,10 @@ error_output: |
     location: class MoneySerializer
 
 what_changed: >
-  Spring Boot's custom serializer registration annotations were renamed
+  Spring Boot's custom serialiser registration annotations were renamed
   to align with Jackson 3's branding. <code>@JsonComponent</code> becomes
   <code>@JacksonComponent</code> and <code>@JsonMixin</code> becomes
-  <code>@JacksonMixin</code>. The functionality is identical — only the
+  <code>@JacksonMixin</code>. The functionality is identical: only the
   annotation names changed.
 
 why_changed: >
@@ -90,7 +84,7 @@ fixes:
     text: >
       Replace all <code>@JsonComponent</code> with <code>@JacksonComponent</code>
       and all <code>@JsonMixin</code> with <code>@JacksonMixin</code>. Update
-      the imports accordingly. The behaviour is identical.
+      the imports accordingly.
 
 scope_check: >
   Grep for <code>@JsonComponent</code> and <code>@JsonMixin</code> across
@@ -102,8 +96,8 @@ watch_out:
   - >
     Do not confuse Spring Boot's <code>@JacksonComponent</code> with Jackson's
     own <code>@JsonSerialize</code> / <code>@JsonDeserialize</code> annotations.
-    Spring Boot's annotation auto-registers the serializer with the
-    <code>ObjectMapper</code> bean — Jackson's own annotations require explicit
+    Spring Boot's annotation auto-registers the serialiser with the
+    <code>ObjectMapper</code> bean; Jackson's own annotations require explicit
     wiring.
 
 footer_links:

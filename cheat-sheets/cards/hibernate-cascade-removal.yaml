@@ -9,11 +9,8 @@ verify: >
   mvn compile — no CascadeType.SAVE_UPDATE errors
 
 further_info: >
-  Driven by Hibernate 7.0 (upstream of Spring Boot 4.0 via
-  spring-boot-starter-data-jpa). Session.saveOrUpdate() and
-  CascadeType.SAVE_UPDATE were deprecated in Hibernate 6.0 and removed in
-  7.0 as part of the alignment with the JPA EntityManager API. See also:
-  session-delete-removed, hibernate-dialect-removal.
+  Arrives via spring-boot-starter-data-jpa, which pulls in Hibernate 7.0.
+  See also: session-delete-removed, hibernate-dialect-removal.
 
 oneliner: >
   Hibernate 7 removed the proprietary CascadeType.SAVE_UPDATE. Entities
@@ -94,7 +91,7 @@ scope_check: >
   Search for <code>CascadeType.SAVE_UPDATE</code> and
   <code>@Cascade</code> (the Hibernate annotation, not JPA). Every hit
   is a mapping that will fail at startup. Also search for
-  <code>session.saveOrUpdate(</code> — that method is gone too.
+  <code>session.saveOrUpdate(</code>; that method is gone too.
 
 watch_out:
   - >

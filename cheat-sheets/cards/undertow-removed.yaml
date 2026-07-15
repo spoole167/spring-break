@@ -9,11 +9,8 @@ verify: >
   App starts on Tomcat/Jetty with no Undertow class errors
 
 further_info: >
-  Spring Boot 4.0 dropped spring-boot-starter-undertow. Undertow's Jakarta
-  EE 11 support lagged behind Tomcat and Jetty. Tomcat (default) and Jetty
-  are the remaining embedded servlet container options; Netty remains
-  available for reactive. Server-specific properties under server.undertow.*
-  are silently ignored.
+  One of the few 4.0 breaks with no like-for-like replacement: you must
+  change servers.
 
 oneliner: >
   Spring Boot 4.0 dropped Undertow as an embedded server option.
@@ -33,10 +30,9 @@ what_changed: >
   Netty (for reactive).
 
 why_changed: >
-  Undertow's development has slowed and its Jakarta EE support lagged
-  behind Tomcat and Jetty. Maintaining three servlet container
-  integrations was a support burden. Tomcat and Jetty cover the same
-  use cases with better Jakarta EE 11 compatibility.
+  Undertow's development slowed and its Jakarta EE 11 support lagged
+  behind Tomcat and Jetty. Maintaining a third servlet container
+  integration stopped being worth the support burden.
 
 diffs:
   - comment: "// pom.xml — remove Undertow starter"
@@ -80,8 +76,8 @@ fixes:
   - label: "Switch to Tomcat (default)."
     text: >
       Remove the <code>spring-boot-starter-undertow</code> dependency and
-      the Tomcat exclusion. Tomcat is the default — just use
-      <code>spring-boot-starter-web</code> without modifications.
+      the Tomcat exclusion. Tomcat is the default:
+      <code>spring-boot-starter-web</code> alone is enough.
   - label: "Switch to Jetty."
     text: >
       If you need a non-Tomcat server, use
@@ -91,7 +87,7 @@ fixes:
 scope_check: >
   Search for <code>spring-boot-starter-undertow</code> in POM and Gradle
   files. Also search for <code>server.undertow</code> in application
-  properties/YAML files — those properties won't cause a build failure
+  properties/YAML files: those properties won't cause a build failure
   but will be silently ignored.
 
 watch_out:

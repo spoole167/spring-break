@@ -9,11 +9,8 @@ verify: >
   Locale-sensitive fields render correctly in all target locales
 
 further_info: >
-  Driven by Jackson 3.0 (upstream of Spring Boot 4.0). Locale serialisation
-  switched from Java's toString() format (zh_CN) to IETF BCP 47 / RFC 5646
-  language tags (zh-CN). Affects any DTO with java.util.Locale fields
-  serialised via spring-boot-starter-json. See also: jackson-date-format,
-  jackson-group-id.
+  Driven by Jackson 3.0, upstream of Spring Boot 4.0. See also:
+  jackson-date-format, jackson-group-id.
 
 oneliner: >
   Jackson 3.0 serialises <code>Locale</code> using IETF BCP 47 format
@@ -27,7 +24,7 @@ error_output: |
   // API response — after (Spring Boot 4.0)
   {"userLocale": "zh-CN"}
 
-  // Downstream lookup fails silently
+  // Downstream lookup fails
   Map<String, String> labels = i18nMap.get(user.getLocale());
   // returns null — map keys use "zh_CN", response now sends "zh-CN"
 
@@ -84,14 +81,14 @@ scope_check: >
 watch_out:
   - >
     If you store locale strings in a database and compare them with
-    equality checks, the format flip will cause silent mismatches.
-    A <code>SELECT WHERE locale = 'zh_CN'</code> query won't match
-    the new <code>zh-CN</code> value sent by the API.
+    equality checks, the format flip causes mismatches that surface as
+    missing data, not errors. A <code>SELECT WHERE locale = 'zh_CN'</code>
+    query won't match the new <code>zh-CN</code> value sent by the API.
   - >
+    BCP 47 has subtag rules beyond swapping underscores for hyphens.
     Some locales have three components (e.g. <code>zh_Hant_TW</code>
-    becomes <code>zh-Hant-TW</code>). The conversion isn't just
-    replacing underscores with hyphens — BCP 47 has subtag rules.
-    Use <code>Locale.forLanguageTag()</code> for correct round-tripping.
+    becomes <code>zh-Hant-TW</code>). Use
+    <code>Locale.forLanguageTag()</code> for correct round-tripping.
 
 footer_links:
   - text: "spring-break module: jackson-locale-format"

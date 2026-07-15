@@ -10,19 +10,16 @@ verify: >
   spring-boot-starter-batch-jdbc is declared
 
 further_info: >
-  Spring Boot 4.0 changes the default Spring Batch job repository from
-  database-backed to in-memory. In Boot 3.5, adding spring-boot-starter-batch
-  with a JDBC datasource on the classpath would automatically create the Batch
-  schema tables and persist job executions to the database. In Boot 4.0,
-  the default is an in-memory map-based repository — no schema is created,
-  no executions are persisted. Code that relies on the Batch tables existing
-  (auditing, restart logic, admin UI) breaks at runtime.
+  In Boot 3.5, spring-boot-starter-batch with a JDBC datasource created
+  the Batch schema and persisted job executions automatically. Code that
+  relies on the Batch tables existing (auditing, restart logic, admin UI)
+  breaks at runtime.
 
 oneliner: >
-  Spring Batch defaults to an in-memory job repository in Boot 4.0.
-  The <code>BATCH_JOB_EXECUTION</code> and related tables are no longer
-  created automatically. Add <code>spring-boot-starter-batch-jdbc</code>
-  to restore database persistence.
+  Spring Batch defaults to an in-memory job repository in Boot 4.0, so
+  <code>BATCH_JOB_EXECUTION</code> and related tables are no longer
+  created. Add <code>spring-boot-starter-batch-jdbc</code> to restore
+  database persistence.
 
 error_output: |
   // Boot 3.5: BATCH_JOB_EXECUTION table created, job persisted.
@@ -34,7 +31,7 @@ error_output: |
     [SELECT JOB_INSTANCE_ID, JOB_NAME from BATCH_JOB_INSTANCE ...];
     Table "BATCH_JOB_INSTANCE" not found
 
-  // Or job restart logic silently ignores execution history.
+  // Or job restart logic ignores execution history.
 
 what_changed: >
   Spring Boot 4.0 introduced <code>spring-boot-starter-batch-jdbc</code>
@@ -45,11 +42,11 @@ what_changed: >
   JDBC starter is on the classpath.
 
 why_changed: >
-  Many Batch use cases — short-lived jobs, unit tests, development — do not
-  need database persistence. The old default forced every Batch application
-  to carry a datasource dependency and manage schema migrations even when
-  job history didn't matter. The in-memory default is the right starting
-  point; persistence is an explicit opt-in.
+  Many Batch use cases (short-lived jobs, unit tests, development) do not
+  need database persistence, yet the old default forced every Batch
+  application to carry a datasource and manage schema migrations. The
+  in-memory default is the right starting point; persistence is an
+  explicit opt-in.
 
 diffs:
   - comment: "// pom.xml — add the JDBC starter to restore database persistence"
@@ -78,10 +75,10 @@ fixes:
       behaviour.
   - label: "Embrace the in-memory default if persistence isn't needed."
     text: >
-      If your jobs are stateless or ephemeral — one-shot CLI jobs, test
-      fixtures, data imports — the in-memory repository is correct and
-      removes the need for a datasource entirely. No changes required beyond
-      removing schema initialisation configuration.
+      For stateless or ephemeral jobs (one-shot CLI jobs, test fixtures,
+      data imports) the in-memory repository is correct and removes the
+      need for a datasource. Just remove any schema initialisation
+      configuration.
 
 scope_check: >
   Check for code that queries Batch tables directly via JDBC, uses

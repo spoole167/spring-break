@@ -12,16 +12,13 @@ verify: >
 further_info: >
   Driven by the Jakarta EE transition completed in Spring Framework 7.0.
   The javax.inject:javax.inject:1 artifact still exists in Maven Central
-  and still compiles. The break is at runtime: Spring Framework 7.0
-  stopped recognising javax.inject annotations for dependency injection.
-  Fields annotated with @Inject are not wired — they stay null.
-  @Named beans may not be registered. No error is thrown at startup.
-  The first NullPointerException at call time is your only clue.
+  and still compiles. The break is at runtime, and the first
+  NullPointerException at call time is your only clue.
 
 oneliner: >
   Spring Framework 7.0 stopped processing javax.inject annotations.
   @Inject fields silently stay null. @Named beans may not be registered.
-  The code compiles and the app starts. Nothing tells you it's broken.
+  The code compiles, the app starts, and nothing warns you.
 
 error_output: |
   // No compile error — javax.inject:javax.inject still downloadable.
@@ -49,7 +46,6 @@ why_changed: >
   The Jakarta EE transition moved all <code>javax.*</code> APIs to
   <code>jakarta.*</code>. Spring Framework 7.0 completed this transition
   by dropping support for the legacy <code>javax.inject</code> artifact.
-  Only <code>jakarta.inject</code> is supported.
 
 diffs:
   - comment: "// Java imports"
@@ -87,7 +83,7 @@ fixes:
   - label: "Switch to jakarta.inject."
     text: >
       Replace <code>javax.inject</code> imports with
-      <code>jakarta.inject</code>. The annotations are identical — only
+      <code>jakarta.inject</code>. The annotations are identical: only
       the package name changed. The <code>jakarta.inject-api</code>
       artifact is managed by the Spring Boot BOM.
   - label: "Switch to Spring annotations (recommended)."
@@ -107,7 +103,7 @@ watch_out:
   - >
     If you're using <code>@Inject</code> for CDI compatibility (e.g.,
     shared code between Spring and a Jakarta EE server), switch to
-    <code>jakarta.inject</code> — it works in both environments. Don't
+    <code>jakarta.inject</code>: it works in both environments. Don't
     switch to Spring-specific annotations if portability matters.
   - >
     Constructor injection with <code>@Inject</code> on a single-constructor

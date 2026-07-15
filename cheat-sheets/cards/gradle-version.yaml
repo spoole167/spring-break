@@ -6,15 +6,12 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 no_module: true
-no_module_reason: "Gradle plugin version constraint — only observable via a Gradle build, not mvn test"
+no_module_reason: "Gradle plugin version constraint: only observable via a Gradle build, not mvn test"
 verify: >
   ./gradlew --version shows 8.x+ and build succeeds
 
 further_info: >
-  Spring Boot 4.0's Gradle plugin requires Gradle 8.14 as a minimum; Gradle
-  9.0 is fully supported. The plugin uses configuration-cache-stable APIs
-  introduced in 8.14. Projects on Gradle 7.x need a staged upgrade through
-  8.0 first. Does not affect Maven-based builds.
+  Maven builds are unaffected.
 
 oneliner: >
   Spring Boot 4.0's Gradle plugin requires Gradle 8.14 or later.
@@ -33,8 +30,6 @@ error_output: |
 what_changed: >
   The Spring Boot Gradle plugin now requires Gradle 8.14 as a minimum.
   Gradle 9.0 is fully supported and recommended for new projects.
-  The plugin uses Gradle APIs introduced in 8.14 that don't exist in
-  earlier versions.
 
 why_changed: >
   Gradle 8.14 introduced configuration cache stability and improved

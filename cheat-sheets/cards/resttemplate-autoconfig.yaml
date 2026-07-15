@@ -10,18 +10,13 @@ verify: >
   does not exist" errors; HTTP calls succeed
 
 further_info: >
-  RestTemplate has been in maintenance mode since Spring Framework 5.0.
-  RestClient was introduced in Spring Framework 6.1 as the modern
-  replacement. Spring Boot 4.0's modularisation moved RestTemplate and
-  RestClient support into the spring-boot-restclient module, taking the
-  old org.springframework.boot.web.client package with it.
-  RestClient.Builder is auto-configured in Boot 4.0.
+  Part of Spring Boot 4.0's wider modularisation of HTTP client support.
   See also: okhttp3-removed.
 
 oneliner: >
-  Spring Boot 4.0 removed the org.springframework.boot.web.client
-  package; RestTemplateBuilder moved to the new spring-boot-restclient
-  module. Code importing it from the old package fails to compile.
+  RestTemplateBuilder moved to the new spring-boot-restclient module.
+  Imports from the old org.springframework.boot.web.client package no
+  longer compile.
 
 error_output: |
   $ mvn clean compile
@@ -39,16 +34,13 @@ what_changed: >
   <code>org.springframework.boot.web.client</code> package.
   <code>RestTemplateBuilder</code> and its support classes relocated to
   the new <code>spring-boot-restclient</code> module, which covers both
-  <code>RestClient</code> and <code>RestTemplate</code>. Code importing
-  <code>RestTemplateBuilder</code> from the old package fails to compile
-  on 4.0.
+  <code>RestClient</code> and <code>RestTemplate</code>.
 
 why_changed: >
-  <code>RestTemplate</code> has been in maintenance mode since Spring 5.
-  Spring Framework 6.1 introduced <code>RestClient</code> as the modern,
-  fluent replacement. Spring Boot 4.0 completed the transition by removing
-  the auto-configuration, encouraging migration to <code>RestClient</code>
-  or <code>WebClient</code>.
+  <code>RestTemplate</code> has been in maintenance mode since Spring 5,
+  and Spring Framework 6.1 introduced <code>RestClient</code> as its
+  fluent replacement. Removing the auto-configuration pushes migration
+  to <code>RestClient</code> or <code>WebClient</code>.
 
 diffs:
   - comment: "// Injecting the HTTP client — service class"
@@ -112,22 +104,20 @@ fixes:
       supports the same customizers.
   - label: "Update the RestTemplateBuilder import."
     text: >
-      If migration is too large to do immediately, keep
-      <code>RestTemplate</code> and update the import:
-      <code>RestTemplateBuilder</code> now lives in the
-      <code>spring-boot-restclient</code> module. Add that module (or its
-      starter) to your build. This restores the old behaviour while you
-      plan the migration.
+      If migration is too large to do now, keep <code>RestTemplate</code>:
+      add the <code>spring-boot-restclient</code> module (or its starter)
+      to your build and update the <code>RestTemplateBuilder</code> import.
+      This restores the old behaviour while you plan the migration.
   - label: "Use WebClient for reactive code."
     text: >
-      If your application is reactive, use <code>WebClient</code> instead.
-      It remains fully auto-configured in Spring Boot 4.0.
+      Reactive applications should use <code>WebClient</code>, which
+      remains auto-configured in Spring Boot 4.0.
 
 scope_check: >
   Search for <code>RestTemplate</code>, <code>RestTemplateBuilder</code>,
   and <code>RestTemplateCustomizer</code> across your codebase. Every
   import from the old package is a compile failure. Also check test classes
-  that use <code>TestRestTemplate</code> — its auto-configuration may
+  that use <code>TestRestTemplate</code>: its auto-configuration may
   also be affected.
 
 watch_out:
@@ -141,9 +131,9 @@ watch_out:
     Check transitive dependencies.
   - >
     The <code>RestClient</code> API is different from <code>RestTemplate</code>.
-    Methods like <code>getForObject()</code>, <code>postForEntity()</code>
+    Methods like <code>getForObject()</code> and <code>postForEntity()</code>
     become chained <code>.get().uri().retrieve().body()</code> calls.
-    Plan time for the API change, not just the bean swap.
+    Budget time for the API rewrite as well as the bean swap.
 
 footer_links:
   - text: "Spring-Break Demo"

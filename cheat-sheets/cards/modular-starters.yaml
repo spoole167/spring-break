@@ -7,43 +7,27 @@ effort: M
 openrewrite: false
 no_module: true
 no_module_reason: >
-  This break cannot be reduced to a single reproducible test case. The
-  underlying change is real — Boot 4.0 split spring-boot-autoconfigure into
-  focused, feature-specific modules — but which implicit auto-configurations
-  go missing depends entirely on the specific combination of starters and
-  third-party libraries an application declares. There is no universal "this
-  class is gone" moment.
-
-  The canonical example in this card (ObjectMapper missing after declaring
-  only spring-boot-starter-web) was tested and does not reproduce on Boot 4.0:
-  the Spring team preserved the Jackson transitive dependency through the web
-  starter to avoid breaking the most common case. Other transitive paths may
-  have been cut, but they are application-specific.
-
-  The card is kept because the architectural advice is correct and important:
-  every team migrating to Boot 4.0 must audit their dependency tree and make
-  implicit auto-configuration dependencies explicit. The Migration Guide's
-  starter mapping table is the right tool for that audit. A single test module
-  cannot substitute for it.
+  Which auto-configurations go missing depends on each application's mix of
+  starters and third-party libraries; there is no universal "this class is
+  gone" moment to assert in a single test. The canonical example (ObjectMapper
+  missing after declaring only spring-boot-starter-web) does not reproduce on
+  Boot 4.0: the Spring team preserved the Jackson transitive dependency
+  through the web starter. The card stays because the audit advice holds:
+  every team must make implicit auto-configuration dependencies explicit,
+  using the Migration Guide's starter mapping table.
 verify: >
   App starts and ObjectMapper, Validator, and other auto-configured beans
   are present — confirm with a test that autowires each one
 
 further_info: >
-  Spring Boot 4.0 splits the monolithic spring-boot-autoconfigure jar into
-  focused, feature-specific modules. In Boot 3.x every starter dragged in
-  the entire auto-configuration bundle, so features like Jackson, Bean
-  Validation, and Micrometer were configured automatically even without an
-  explicit dependency. In Boot 4.0 each auto-configuration module activates
-  only when its dedicated starter is on the classpath. Features you were
-  getting for free become explicit opt-ins. The app compiles and starts —
-  it just doesn't have the beans you expected.
+  In Boot 3.x every starter dragged in the entire auto-configuration bundle,
+  so features like Jackson, Bean Validation, and Micrometer configured
+  themselves without a declared dependency.
 
 oneliner: >
-  Spring Boot 4.0 split the monolithic auto-configuration jar into modules.
-  Beans you got for free (ObjectMapper, Validator) are now missing unless you
-  add the explicit starter. The app starts. NoSuchBeanDefinitionException hits
-  at first use.
+  Boot 4.0 split auto-configuration into per-feature modules. Free beans
+  (ObjectMapper, Validator) vanish without their starter. The app starts;
+  NoSuchBeanDefinitionException hits at first use.
 
 error_output: |
   // App compiles and starts. Failure at first injection or endpoint call:
@@ -57,19 +41,17 @@ error_output: |
     No converter for [class com.example.OrderDto]
 
 what_changed: >
-  The <code>spring-boot-autoconfigure</code> jar was a single monolithic
-  module that bundled auto-configuration for every Spring Boot feature.
-  In Boot 4.0 it is split into focused modules — one per feature area.
-  Each module's auto-configuration only activates when its corresponding
+  The <code>spring-boot-autoconfigure</code> jar bundled auto-configuration
+  for every Spring Boot feature. Boot 4.0 splits it into focused modules,
+  one per feature area, and each activates only when its corresponding
   starter is explicitly present. Adding <code>spring-boot-starter-web</code>
   no longer implicitly enables Jackson, validation, or actuator
   auto-configuration.
 
 why_changed: >
-  The monolithic auto-configure jar created a hidden coupling problem: adding
-  any Spring Boot starter pulled in auto-configuration for hundreds of features
-  the application never used. The split reduces startup time, lowers memory
-  footprint, and makes dependency management explicit — you only pay for what
+  The monolithic jar meant any starter pulled in auto-configuration for
+  hundreds of features the application never used. The split cuts startup
+  time and memory, and makes dependencies explicit: you only pay for what
   you declare.
 
 diffs:
@@ -103,7 +85,7 @@ fixes:
       application uses: <code>spring-boot-starter-json</code> for Jackson,
       <code>spring-boot-starter-validation</code> for Bean Validation,
       <code>spring-boot-starter-actuator</code> for Micrometer metrics.
-  - label: "Watch for silent failures in @RestController endpoints."
+  - label: "Watch @RestController endpoints."
     text: >
       If a controller returns an object that Jackson used to serialise
       automatically, the endpoint now returns <code>406 Not Acceptable</code>
@@ -116,22 +98,21 @@ scope_check: >
   startup logs. Also grep your code for <code>@Autowired ObjectMapper</code>,
   <code>@Autowired Validator</code>, and similar injections that relied on
   implicit auto-configuration. Check <code>@RestController</code> methods
-  that return non-String types — these rely on Jackson message converters.
+  that return non-String types: these rely on Jackson message converters.
 
 watch_out:
   - >
-    The failure is not at startup. Spring context loads successfully; the
-    missing bean is only discovered when something tries to inject it or a
-    converter is needed. Endpoint smoke tests are the fastest way to find gaps.
+    The context loads fine; the missing bean surfaces at first injection
+    or when a converter is needed. Endpoint smoke tests find the gaps fastest.
   - >
     <code>spring-boot-starter-web</code> still brings Jackson onto the
-    <em>classpath</em> as a transitive compile dependency — the classes are
-    present, just not auto-configured into a bean. This means the app
-    compiles, no import errors, no obvious signal that anything is wrong.
+    <em>classpath</em> as a transitive compile dependency: the classes are
+    present but never configured into beans. The app compiles with no
+    import errors and no signal that anything is wrong.
   - >
-    Each team's application will hit a different subset of missing beans
-    depending on what features it uses. There is no single fix — it requires
-    an audit. Use the Migration Guide's starter mapping table as a checklist.
+    Each application hits a different subset of missing beans depending on
+    the features it uses. There is no single fix: audit, using the
+    Migration Guide's starter mapping table as a checklist.
 
 footer_links:
   - text: "spring-break module: modular-starters"

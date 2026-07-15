@@ -9,11 +9,9 @@ verify: >
   mvn compile — no cannot find symbol for alwaysApplyingWhenNonNull
 
 further_info: >
-  PropertyMapper is an internal Spring Boot utility used mostly in
-  autoconfiguration classes to map configuration properties onto builder
-  objects. alwaysApplyingWhenNonNull() was the opt-in way to skip null
-  values. In Spring Boot 4.0 that behaviour became the default, making
-  the method redundant.
+  PropertyMapper is an internal Spring Boot utility, used mostly in
+  auto-configuration classes to map configuration properties onto
+  builder objects.
 
 oneliner: >
   PropertyMapper.alwaysApplyingWhenNonNull() is removed because skipping
@@ -27,10 +25,10 @@ error_output: |
       location: class PropertyMapper
 
 what_changed: >
-  <code>PropertyMapper.alwaysApplyingWhenNonNull()</code> has been removed
-  because its behaviour — skipping mappings when the source value is
-  <code>null</code> — is now the default behaviour of <code>PropertyMapper</code>.
-  Calling it was a no-op from 4.0 onward, so the method was removed.
+  <code>PropertyMapper.alwaysApplyingWhenNonNull()</code> is gone. Its
+  behaviour, skipping mappings when the source value is <code>null</code>,
+  is now the default for <code>PropertyMapper</code>, so calling it was
+  a no-op from 4.0 onward.
 
 why_changed: >
   The non-null default was the right behaviour for virtually all use cases.
@@ -45,7 +43,7 @@ diffs:
 fixes:
   - label: "Delete the alwaysApplyingWhenNonNull() call."
     text: >
-      Simply remove <code>.alwaysApplyingWhenNonNull()</code> from the chain.
+      Remove <code>.alwaysApplyingWhenNonNull()</code> from the chain.
       The mapper behaves identically on Boot 4.0 without it.
       If you explicitly want to map null values, use <code>.always()</code>
       on individual mappings.
@@ -58,7 +56,7 @@ scope_check: >
 watch_out:
   - >
     If you were relying on the absence of <code>alwaysApplyingWhenNonNull()</code>
-    to intentionally map null values through, that behaviour has also changed —
+    to intentionally map null values through, that behaviour has also changed:
     nulls are now skipped by default. Add <code>.always()</code> on the
     specific mappings that need to pass nulls.
 

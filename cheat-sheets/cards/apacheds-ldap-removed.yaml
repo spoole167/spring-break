@@ -9,10 +9,7 @@ verify: >
   mvn compile — no cannot find symbol for ApacheDSContainer
 
 further_info: >
-  Spring Security 7.0 dropped ApacheDS as the embedded LDAP provider.
-  UnboundID is now the supported option. Both were available in 3.5;
-  only UnboundID survives in 4.0. If your tests or configuration use
-  ApacheDSContainer directly, they will not compile.
+  Both containers were available in 3.5; only UnboundID survives in 4.0.
 
 oneliner: >
   ApacheDSContainer is removed in Spring Security 7.0.
@@ -63,7 +60,7 @@ fixes:
   - label: "Replace ApacheDSContainer with UnboundIdContainer."
     text: >
       Swap the dependency in your build file and update the import and
-      instantiation. The constructor signature is the same — base DN and
+      instantiation. The constructor signature is the same: base DN and
       LDIF classpath location. The LDIF format is also compatible.
   - label: "Use Spring Boot's embedded LDAP auto-configuration."
     text: >

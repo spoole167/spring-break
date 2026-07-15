@@ -11,11 +11,8 @@ verify: >
   native-image --version shows 25+ and mvn -Pnative package succeeds
 
 further_info: >
-  Spring Boot 4.0 targets GraalVM 25 (based on JDK 25) and
-  native-maven-plugin 0.10.6+. The reachability metadata format changed in
-  GraalVM 25, making older native-image compilers (22.x, 23.x) incompatible.
-  Only applies to projects building native images via the
-  spring-boot-starter-parent native profile.
+  Applies only to native image builds via the spring-boot-starter-parent
+  native profile; standard JVM deployments are unaffected.
 
 oneliner: >
   Spring Boot 4.0 requires GraalVM 25 for native image compilation.
@@ -86,8 +83,7 @@ scope_check: >
   Search for <code>native-maven-plugin</code> and
   <code>org.graalvm.buildtools.native</code> in build files. Check CI
   pipelines for <code>GRAALVM_HOME</code> or <code>native-image</code>
-  version references. If you don't build native images, this card
-  doesn't apply.
+  version references.
 
 watch_out:
   - >

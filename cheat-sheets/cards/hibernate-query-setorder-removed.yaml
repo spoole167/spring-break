@@ -9,11 +9,8 @@ verify: >
   mvn compile — no cannot find symbol for setOrder on SelectionQuery
 
 further_info: >
-  setOrder() was introduced in Hibernate 6.x as an @Incubating API for
-  programmatic ordering, intended to support Jakarta Data. It was never
-  stable and was removed in Hibernate 7.0. Any code that adopted it
-  during the 6.x window must now migrate to HQL ORDER BY or the
-  SelectionSpecification API.
+  setOrder() only existed during the Hibernate 6.x window. Code that
+  adopted it must move to HQL ORDER BY or the SelectionSpecification API.
 
 oneliner: >
   Hibernate's incubating SelectionQuery.setOrder() was removed in 7.0.
@@ -34,8 +31,8 @@ what_changed: >
 
 why_changed: >
   The method was always experimental. Hibernate 7.0 completed the Jakarta Data
-  integration under a different, more stable API surface and removed the
-  incubating intermediate.
+  integration under a more stable API surface and removed the incubating
+  intermediate.
 
 diffs:
   - comment: "// Programmatic order via removed setOrder()"
@@ -57,12 +54,11 @@ fixes:
     text: >
       For fully programmatic ordering, use the JPA Criteria API:
       <code>criteriaQuery.orderBy(builder.asc(root.get("name")))</code>.
-      This is the stable alternative.
 
 scope_check: >
   Search for <code>.setOrder(</code> on query objects across all repository
-  and data-access classes. This is uncommon outside of code written
-  specifically to experiment with the Hibernate 6.x incubating API.
+  and data-access classes. Rare outside code written to try the
+  Hibernate 6.x incubating API.
 
 watch_out:
   - >

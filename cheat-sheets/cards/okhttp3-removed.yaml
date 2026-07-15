@@ -9,11 +9,8 @@ verify: >
   mvn dependency:tree shows no okhttp3 and build compiles
 
 further_info: >
-  OkHttp3ClientHttpRequestFactory was removed from Spring Framework 7.0 and
-  the com.squareup.okhttp3 BOM entry was dropped from Spring Boot 4.0. The
-  JDK's java.net.http.HttpClient (since Java 11) and Apache HttpClient 5 are
-  the supported alternatives. Affects spring-boot-starter-web consumers
-  using OkHttp.
+  OkHttp itself still works as a plain library; what vanished is Spring's
+  factory integration and the managed BOM version.
 
 oneliner: >
   Spring Boot 4.0 dropped the OkHttp3 client factory and BOM entry.
@@ -84,15 +81,14 @@ fixes:
 scope_check: >
   Search for <code>OkHttp3</code> and <code>com.squareup.okhttp3</code>
   across your codebase and build files. Check both production code and
-  test configurations — OkHttp's <code>MockWebServer</code> is also
+  test configurations: OkHttp's <code>MockWebServer</code> is also
   affected.
 
 watch_out:
   - >
-    If you used OkHttp interceptors for logging, retries, or authentication,
-    those don't have a direct equivalent in the JDK client. You'll need to
-    reimplement that logic using Spring's <code>ClientHttpRequestInterceptor</code>
-    instead.
+    OkHttp interceptors for logging, retries, or authentication have no
+    direct equivalent in the JDK client. Reimplement that logic with
+    Spring's <code>ClientHttpRequestInterceptor</code>.
   - >
     OkHttp's <code>MockWebServer</code> is popular in tests. If you only
     use OkHttp for testing, consider switching to

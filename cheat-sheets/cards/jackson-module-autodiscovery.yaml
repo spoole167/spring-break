@@ -10,20 +10,15 @@ verify: >
   unexpected module behaviour is controlled with spring.jackson.find-and-add-modules
 
 further_info: >
-  Jackson 3 changed module registration to automatic service-loader-based
-  discovery. In Boot 3.5 (Jackson 2), Spring Boot registered a fixed set of
-  well-known Jackson modules: the Java time module, parameter names module,
-  and a handful of others. Any other Jackson module on the classpath had to
-  be registered explicitly. In Boot 4.0 (Jackson 3), all Jackson modules
-  present on the classpath are auto-discovered and registered automatically.
-  This can cause unexpected serialization changes — a module you added for
-  a library's internal use may now alter your own <code>ObjectMapper</code>
-  output.
+  In Boot 3.5 (Jackson 2), Spring Boot registered a fixed set of well-known
+  modules: Java time, parameter names, and a handful of others. Everything
+  else needed explicit registration. A module a library brought in for its
+  own internal use can now alter your own <code>ObjectMapper</code> output.
 
 oneliner: >
-  Jackson 3 registers every module it finds on the classpath. Modules you
-  added as transitive dependencies may now change your JSON output silently.
-  Disable auto-discovery with <code>spring.jackson.find-and-add-modules=false</code>.
+  Jackson 3 registers every module it finds on the classpath. Modules that
+  arrive as transitive dependencies can silently change your JSON output.
+  Disable with <code>spring.jackson.find-and-add-modules=false</code>.
 
 error_output: |
   // Boot 3.5: only well-known modules registered. Output is predictable.
@@ -33,20 +28,18 @@ error_output: |
   // BigDecimal serialization:
   {"amount": "150.00", "currency": "EUR"}
 
-  // No error, no warning. The JSON schema changed silently.
+  // No error, no warning. The JSON schema changed.
 
 what_changed: >
   Jackson 3 uses the Java ServiceLoader mechanism to find and register all
   <code>com.fasterxml.jackson.databind.Module</code> implementations on the
-  classpath. Spring Boot no longer controls which modules are registered
-  — every module present is activated. In Boot 3.5, Spring Boot explicitly
-  registered only well-known modules.
+  classpath. Spring Boot no longer controls which modules are registered:
+  every module present is activated.
 
 why_changed: >
-  Jackson 3 adopted automatic module discovery as the standard approach,
-  making it easier for library authors to provide Jackson integration without
+  Automatic discovery lets library authors ship Jackson integration without
   requiring explicit registration. Spring Boot aligned with Jackson 3's
-  conventions.
+  convention.
 
 diffs:
   - comment: "// application.properties — disable auto-discovery to restore Boot 3.5 behaviour"
@@ -87,7 +80,7 @@ watch_out:
     conflict.
   - >
     Test suites that stub or mock the <code>ObjectMapper</code> will not
-    catch this — the change only manifests with a real, auto-configured
+    catch this: the change only manifests with a real, auto-configured
     <code>ObjectMapper</code> bean.
 
 footer_links:

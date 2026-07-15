@@ -9,10 +9,8 @@ verify: >
   mvn compile and Batch job completes with listener callbacks firing
 
 further_info: >
-  Driven by Spring Batch 6.0 (upstream of Spring Boot 4.0). The
-  *ListenerSupport classes were deprecated in Spring Batch 5.0 when the
-  interfaces gained Java 8 default methods. Affects
-  spring-boot-starter-batch consumers. See also: batch-schema-rename.
+  The *ListenerSupport classes were deprecated in Spring Batch 5.0 when
+  the interfaces gained default methods. See also: batch-schema-rename.
 
 oneliner: >
   Spring Batch 6.0 removed the abstract listener base classes like
@@ -37,10 +35,9 @@ what_changed: >
   have had default methods since Batch 5.0.
 
 why_changed: >
-  Java 8 default methods made the support classes unnecessary. The
-  interfaces now provide no-op defaults for every callback, so there's
-  nothing to inherit from. Removing the support classes simplifies the
-  class hierarchy.
+  Java 8 default methods made the support classes unnecessary: the
+  interfaces provide no-op defaults for every callback, so there's
+  nothing left to inherit.
 
 diffs:
   - comment: "// Job listener"
@@ -84,7 +81,7 @@ fixes:
       Spring Batch also supports annotation-based listeners. Annotate
       methods with <code>@BeforeJob</code>, <code>@AfterJob</code>,
       <code>@BeforeStep</code>, <code>@AfterStep</code> etc. on any
-      POJO — no interface needed.
+      POJO; no interface needed.
 
 scope_check: >
   Search for <code>ListenerSupport</code> and

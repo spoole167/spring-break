@@ -9,10 +9,9 @@ verify: >
   mvn compile — no ListenableFuture symbol errors
 
 further_info: >
-  ListenableFuture was deprecated in Spring Framework 6.0 and removed in 7.0
-  (tracked in spring-framework#33808). CompletableFuture has been the
-  recommended alternative since Java 8. Also affects Spring Kafka and Spring
-  AMQP return types that previously used ListenableFuture.
+  Deprecated in Spring Framework 6.0, removed in 7.0 (tracked in
+  spring-framework#33808). Spring Kafka and Spring AMQP return types that
+  previously used ListenableFuture changed too.
 
 oneliner: >
   Spring Framework removed ListenableFuture entirely.
@@ -40,8 +39,7 @@ what_changed: >
 why_changed: >
   <code>ListenableFuture</code> predated Java 8. Once
   <code>CompletableFuture</code> arrived in the JDK, maintaining a
-  parallel abstraction added complexity with no benefit. The migration
-  was staged over several releases with deprecation warnings.
+  parallel abstraction added complexity with no benefit.
 
 diffs:
   - comment: "// Async method return type"
@@ -90,8 +88,8 @@ fixes:
 scope_check: >
   Search for <code>ListenableFuture</code>, <code>ListenableFutureCallback</code>,
   and <code>AsyncResult</code>. Also check for <code>addCallback(</code>
-  calls — these are the usage sites that need rewriting even if the
-  declaration is in a library.
+  calls: these usage sites need rewriting even if the declaration is
+  in a library.
 
 watch_out:
   - >

@@ -11,16 +11,13 @@ verify: >
   OTLP exporter sends traces to collector (check collector logs)
 
 further_info: >
-  Introduced in Spring Boot 4.0, aligning with the OpenTelemetry
-  specification's recommendation of HTTP/protobuf as the default OTLP
-  transport. The default port changed from 4317 (gRPC) to 4318 (HTTP).
   Affects spring-boot-starter-actuator consumers using OTLP tracing or
   metrics export.
 
 oneliner: >
   Spring Boot 4.0 changed the default OTLP transport from gRPC to HTTP/protobuf.
-  Applications exporting to gRPC-only collectors fail silently or get
-  connection refused errors at runtime.
+  Exports aimed at gRPC-only collectors get connection refused or vanish
+  without an error.
 
 error_output: |
   WARN [otel.exporter] io.opentelemetry.exporter.otlp.http.OtlpHttpSpanExporter:
@@ -33,7 +30,7 @@ error_output: |
     java.net.ConnectException: Connection refused
     target=http://otel-collector:4318/v1/traces
   ---
-  # Metrics and traces silently stop arriving in your backend.
+  # Metrics and traces stop arriving in your backend.
   # Application continues running but observability data is lost.
 
 what_changed: >
@@ -105,9 +102,9 @@ scope_check: >
 
 watch_out:
   - >
-    This is a silent failure in production. The application starts and runs
-    normally. You only notice when traces and metrics stop appearing in
-    your observability backend. Add health checks for telemetry export.
+    The application starts and runs normally. You only notice when traces
+    and metrics stop appearing in your observability backend. Add health
+    checks for telemetry export.
   - >
     If you use a service mesh or network policy that only allows port
     4317, you need to open port 4318 as well.

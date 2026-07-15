@@ -9,10 +9,9 @@ verify: >
   mvn compile succeeds with no com.fasterxml errors
 
 further_info: >
-  Driven by Jackson 3.0 (upstream of Spring Boot 4.0). The FasterXML to
+  Driven by Jackson 3.0, upstream of Spring Boot 4.0. The FasterXML to
   tools.jackson rename was announced in 2023 and finalised in Jackson
-  3.0-rc1. Affects all spring-boot-starter-json consumers. See also:
-  jackson-class-renames, jackson-exception-hierarchy.
+  3.0-rc1. See also: jackson-class-renames, jackson-exception-hierarchy.
 
 oneliner: >
   Jackson 3.0 moved from com.fasterxml.jackson to tools.jackson.
@@ -31,8 +30,7 @@ what_changed: >
   group to <code>tools.jackson</code>. Spring Boot 4.0's managed
   dependencies point to Jackson 3.0, so the old group ID no longer
   resolves. Every import statement using <code>com.fasterxml.jackson</code>
-  breaks. See also: jackson-class-renames (for the class-level renames
-  that come with the same upgrade), jackson-exception-hierarchy.
+  breaks.
 
 why_changed: >
   Jackson's maintainers separated the project identity from the original
@@ -68,25 +66,23 @@ fixes:
   - label: "Manual: update Maven coordinates first."
     text: >
       Replace <code>com.fasterxml.jackson</code> with
-      <code>tools.jackson</code> in all POM or Gradle files. Then fix
-      imports file by file. Note that the group ID fix alone is not
-      enough — class names also changed. See: jackson-class-renames.
+      <code>tools.jackson</code> in all POM or Gradle files, then fix
+      imports file by file.
 
 scope_check: >
   Search your codebase for <code>com.fasterxml.jackson</code>. Every
   hit is a coordinate or import that needs updating. If you use
   <code>spring-boot-starter-json</code> or
-  <code>spring-boot-starter-web</code>, Jackson is already on your
-  classpath transitively — you still need to update any explicit
-  dependency declarations and all source-level imports.
+  <code>spring-boot-starter-web</code>, Jackson arrives transitively.
+  You still need to update explicit dependency declarations and all
+  source-level imports.
 
 watch_out:
   - >
-    The group ID change and the class renames (JsonSerializer →
-    ValueSerializer, SerializerProvider → SerializationContext) happen
-    in the same Jackson 3.0 upgrade. Fixing only the group ID leaves
-    broken class references. See jackson-class-renames for the full
-    list of renamed types.
+    The class renames (JsonSerializer → ValueSerializer,
+    SerializerProvider → SerializationContext) arrive in the same
+    Jackson 3.0 upgrade. Fixing only the group ID leaves broken class
+    references. See jackson-class-renames for the full list.
   - >
     Jackson exceptions (<code>JsonMappingException</code>,
     <code>JsonProcessingException</code>) are <code>Serializable</code>.

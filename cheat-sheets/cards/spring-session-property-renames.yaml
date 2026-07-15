@@ -10,14 +10,9 @@ verify: >
   confirm sessions persist to Redis or MongoDB with the new configuration
 
 further_info: >
-  Spring Boot 4.0 renamed the configuration properties for Spring Session's
-  Redis and MongoDB backends. The Redis session properties moved from
-  <code>spring.session.redis.*</code> to <code>spring.session.data.redis.*</code>.
-  The MongoDB session properties moved from <code>spring.session.mongodb.*</code>
-  to <code>spring.session.data.mongodb.*</code>. Properties still using the
-  old prefixes are silently ignored — sessions are stored with defaults
-  (wrong namespace, wrong collection, wrong TTL) or the auto-configuration
-  falls back to the first available store type.
+  Old-prefix properties still parse, so the app starts cleanly. Sessions
+  fall back to defaults (wrong namespace, wrong collection, wrong TTL) or
+  the auto-configuration picks the first available store type.
 
 oneliner: >
   <code>spring.session.redis.*</code> and <code>spring.session.mongodb.*</code>
@@ -26,7 +21,7 @@ oneliner: >
   <code>spring.session.data.mongodb.*</code>.
 
 error_output: |
-  # application.properties (Boot 3.5 style — silently ignored on 4.0):
+  # application.properties (Boot 3.5 style, ignored on 4.0):
   spring.session.redis.namespace=myapp
   spring.session.redis.flush-mode=on-save
   spring.session.mongodb.collection-name=sessions
@@ -41,15 +36,11 @@ what_changed: >
   MongoDB backend properties moved from <code>spring.session.mongodb.*</code>
   to <code>spring.session.data.mongodb.*</code>. This mirrors the MongoDB
   connection property rename pattern (<code>spring.data.mongodb</code> →
-  <code>spring.mongodb</code>) and aligns with the session backends being
-  tied to Spring Data modules.
+  <code>spring.mongodb</code>).
 
 why_changed: >
-  Spring Boot 4.0 restructured session auto-configuration to more clearly
-  tie session store configuration to the corresponding Spring Data module
-  configuration namespace. The <code>data</code> infix makes the relationship
-  explicit: Redis session configuration lives under the Spring Data Redis
-  namespace.
+  The <code>data</code> infix ties each session store's configuration to
+  its Spring Data module namespace, making the relationship explicit.
 
 diffs:
   - comment: "// Redis session properties"
@@ -86,10 +77,10 @@ watch_out:
     The session store type property (<code>spring.session.store-type</code>)
     is unchanged. Only the store-specific configuration sub-keys are affected.
   - >
-    Silent failure makes this hard to catch in testing. A wrong namespace
-    in Redis means sessions are stored but never found — users appear logged
-    out immediately after login. Confirm the fix by verifying session keys
-    exist in Redis under the expected namespace.
+    Nothing fails at startup, which makes this hard to catch in testing.
+    A wrong namespace in Redis means sessions are stored but never found:
+    users appear logged out immediately after login. Confirm the fix by
+    checking session keys exist in Redis under the expected namespace.
 
 footer_links:
   - text: "Spring Boot 4.0 Migration Guide"

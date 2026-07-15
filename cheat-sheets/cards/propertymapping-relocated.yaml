@@ -11,8 +11,7 @@ verify: >
 further_info: >
   @PropertyMapping is used when authoring custom test slice annotations.
   It binds annotation attributes to Spring Boot auto-configuration properties.
-  The move is part of the same test-infrastructure cleanup that also relocated
-  several other test-autoconfigure classes in Spring Boot 4.0.
+  Several other test-autoconfigure classes moved in the same cleanup.
 
 oneliner: >
   @PropertyMapping moved from org.springframework.boot.test.autoconfigure.properties
@@ -49,7 +48,7 @@ fixes:
 scope_check: >
   Search for <code>@PropertyMapping</code> and the old import path in your
   test source tree. Only affects teams that have written custom test slice
-  annotations — most applications won't have this at all.
+  annotations; most applications won't have this at all.
 
 watch_out:
   - >

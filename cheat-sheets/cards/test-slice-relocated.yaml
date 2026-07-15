@@ -14,15 +14,13 @@ further_info: >
   out of the monolithic spring-boot-test-autoconfigure module into
   per-technology test modules (spring-boot-data-jpa-test,
   spring-boot-webmvc-test, and so on), and the annotation packages moved
-  with it. Custom test slices referencing old TypeExcludeFilter classes or
-  spring.factories entries need updating too. The spring.factories to
-  AutoConfiguration.imports migration is now enforced.
+  with it.
 
 oneliner: >
   Spring Boot 4.0 relocated the test-slice annotations. The old packages
   (e.g. org.springframework.boot.test.autoconfigure.orm.jpa) no longer
-  exist, so test sources importing @DataJpaTest, @WebMvcTest, and friends
-  fail to compile.
+  exist, so imports of @DataJpaTest, @WebMvcTest, and friends fail to
+  compile.
 
 error_output: |
   $ mvn clean test
@@ -41,15 +39,13 @@ what_changed: >
   <code>org.springframework.boot.test.autoconfigure.orm.jpa</code>, no
   longer exist, so existing imports of <code>@DataJpaTest</code>,
   <code>@WebMvcTest</code>, and the other slice annotations fail to
-  compile in test sources. The annotations now live in the new
-  per-technology test modules. Custom test slices that referenced the
-  old filter classes by fully qualified name need updating too.
+  compile. The annotations now live in the new per-technology test
+  modules.
 
 why_changed: >
   The test auto-configuration was restructured to support the new bean
   override mechanism and to align the package structure with Spring
-  Framework 7's test context changes. The reorganisation also improved
-  modularity by moving test-slice support into dedicated modules.
+  Framework 7's test context changes.
 
 diffs:
   - comment: "// Custom test-slice annotation"
@@ -113,7 +109,7 @@ fixes:
 
 scope_check: >
   Search test sources for imports from
-  <code>org.springframework.boot.test.autoconfigure</code> — every one of
+  <code>org.springframework.boot.test.autoconfigure</code>: every one of
   them fails to compile on 4.0. Also search for custom annotations that
   use <code>@TypeExcludeFilters</code>,
   <code>@OverrideAutoConfiguration</code>, or
@@ -134,7 +130,7 @@ watch_out:
     If your test suite uses <code>spring.factories</code> for test
     auto-configuration and you haven't migrated to
     <code>AutoConfiguration.imports</code>, those configurations are
-    silently ignored.
+    ignored.
 
 footer_links:
   - text: "Spring-Break Demo"

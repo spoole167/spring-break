@@ -9,10 +9,8 @@ verify: >
   mvn compile — no cannot find symbol for AccessDecisionManager or related classes
 
 further_info: >
-  Spring Security 7.0 moved the legacy Access API out of spring-security-core
-  into a separate spring-security-access module. This was done to allow teams
-  to continue using the legacy API during migration without it polluting the
-  core module. The modern replacement is AuthorizationManager.
+  Driven by Spring Security 7.0; the spring.io announcement in the footer
+  covers the full background.
 
 oneliner: >
   AccessDecisionManager and related legacy authorisation classes moved to
@@ -30,10 +28,10 @@ what_changed: >
   standalone <code>spring-security-access</code> artifact.
 
 why_changed: >
-  Spring Security 7.0 promotes the modern <code>AuthorizationManager</code>
-  API as the sole supported approach. The legacy Access API is preserved for
-  migration purposes but isolated into its own module so teams that have
-  completed migration do not carry the dead weight.
+  Spring Security 7.0 makes <code>AuthorizationManager</code> the sole
+  supported authorisation API. The legacy Access API survives for
+  migration, isolated in its own module so finished migrations don't
+  carry the dead weight.
 
 diffs:
   - comment: "// pom.xml — add legacy module if needed"

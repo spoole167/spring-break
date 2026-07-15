@@ -9,10 +9,8 @@ verify: >
   mvn compile — no cannot find symbol for JobBuilder(String) constructor
 
 further_info: >
-  Spring Batch 6.0 enforces that a JobRepository is always provided at
-  construction time. The same change applies to StepBuilder and other
-  builder classes. The JobRepository is no longer optional or deferrable —
-  it must be injected and passed in when the builder is created.
+  Spring Batch 6.0 makes the JobRepository compulsory framework-wide;
+  it can no longer be deferred or omitted anywhere.
 
 oneliner: >
   JobBuilder(String) is removed. JobRepository is now mandatory at
@@ -76,9 +74,9 @@ scope_check: >
 
 watch_out:
   - >
-    The <code>.repository()</code> method is also gone. If you try to add
-    the repository via the fluent chain rather than the constructor, it
-    won't compile either. Pass it in the constructor — there is no fallback.
+    The <code>.repository()</code> method is also gone, so adding the
+    repository via the fluent chain won't compile either. Pass it in the
+    constructor; there is no fallback.
 
 footer_links:
   - text: "spring-break module: batch-job-builder-string-constructor"

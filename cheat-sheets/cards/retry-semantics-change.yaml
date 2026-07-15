@@ -9,15 +9,14 @@ verify: >
   Retried operations use correct backoff timing and max attempts
 
 further_info: >
-  Driven by Spring Retry 2.x (upstream of Spring Boot 4.0). The maxAttempts
-  parameter changed from meaning total attempts to meaning retry count
-  (excluding the initial call). Spring Retry was also removed from the Boot
-  BOM in 4.0, requiring an explicit version. See also: spring-retry-bom,
-  retryable-transaction-order.
+  Driven by Spring Retry 2.x (upstream of Spring Boot 4.0). Spring Retry
+  also left the Boot BOM in 4.0, so it needs an explicit version.
+  See also: spring-retry-bom, retryable-transaction-order.
 
 oneliner: >
   <code>@Retryable(maxAttempts = 3)</code> now performs 3 retries (4 total
-  calls) instead of 3 total attempts. Your retry budget silently doubles.
+  calls) instead of 3 total attempts. Every retry site silently gains an
+  extra call.
 
 error_output: |
   // Before (Spring Boot 3.5): 3 total attempts
@@ -44,15 +43,14 @@ error_output: |
 
 what_changed: >
   The <code>maxAttempts</code> parameter in <code>@Retryable</code> changed
-  semantics. In Spring Retry 1.x (Boot 3.5), it meant total attempts
-  including the initial call. In the new version (Boot 4.0), it means the
-  number of retries after the initial call. So <code>maxAttempts = 3</code>
-  now results in 4 total calls.
+  semantics. In Spring Retry 1.x (Boot 3.5) it meant total attempts
+  including the initial call. In Boot 4.0 it means retries after the
+  initial call. <code>maxAttempts = 3</code> now makes 4 calls.
 
 why_changed: >
-  The old naming was misleading — "max attempts" of 3 producing only 2
-  retries was a constant source of off-by-one bugs. The new semantics align
-  the parameter name with its actual meaning: the number of retry attempts.
+  The old naming was misleading: "max attempts" of 3 producing only 2
+  retries was a constant source of off-by-one bugs. The parameter name
+  now matches what it counts, the number of retries.
 
 diffs:
   - comment: "// Fix: reduce maxAttempts by 1 to preserve old behaviour"
@@ -87,15 +85,14 @@ fixes:
 scope_check: >
   Search for <code>@Retryable</code>, <code>RetryTemplate</code>, and any
   <code>maxAttempts</code> configuration in properties files. Every instance
-  is now making one extra call than before. For services with tight SLAs or
+  now makes one more call than before. For services with tight SLAs or
   rate-limited downstream APIs, this can cause cascading failures.
 
 watch_out:
   - >
     The extra retry is invisible in logs unless you count carefully.
-    Services with exponential backoff will take longer to fail — a
-    <code>maxAttempts = 5</code> with 2-second backoff now takes
-    62 seconds total instead of 30.
+    Exponential backoff stretches the delay: <code>maxAttempts = 5</code>
+    with 2-second backoff now takes 62 seconds to fail instead of 30.
   - >
     If your downstream service has rate limiting, the extra call per
     failure scenario may push you over the limit. Multiply the extra

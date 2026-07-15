@@ -10,14 +10,8 @@ verify: >
   removing the dependency on Boot's auto-configuration
 
 further_info: >
-  Spring Boot 4.0 removed the auto-configuration for Spring Pulsar's reactive
-  client. In Boot 3.5, <code>spring-boot-starter-pulsar-reactive</code>
-  auto-configured a <code>ReactivePulsarClient</code>,
-  <code>ReactivePulsarTemplate</code>, and related beans. In Boot 4.0 the
-  reactive auto-configuration classes no longer exist. Applications that
-  relied on them fail at startup with <code>NoSuchBeanDefinitionException</code>
-  when anything tries to inject a reactive Pulsar bean. The imperative
-  (non-reactive) Pulsar integration is unaffected.
+  The Spring Pulsar reactive library itself survives; only Boot's
+  auto-configuration went away, so the beans must be declared by hand.
 
 oneliner: >
   Spring Boot 4.0 dropped reactive Pulsar auto-configuration.
@@ -37,14 +31,14 @@ error_output: |
 what_changed: >
   <code>spring-boot-starter-pulsar-reactive</code> and the
   corresponding auto-configuration module were removed from Spring Boot 4.0.
-  The reactive Pulsar client management — including
-  <code>ReactivePulsarClient</code>, <code>ReactivePulsarTemplate</code>, and
-  <code>ReactiveMessageListenerContainer</code> auto-configuration — no longer
-  exists in Boot's auto-configure artifact.
+  The auto-configuration for <code>ReactivePulsarClient</code>,
+  <code>ReactivePulsarTemplate</code>, and
+  <code>ReactiveMessageListenerContainer</code> no longer exists in
+  Boot's auto-configure artifact.
 
 why_changed: >
-  Spring Boot 4.0's modular restructuring removed auto-configurations for
-  reactive integration layers that had limited adoption relative to their
+  Boot 4.0's modular restructuring dropped auto-configurations for
+  reactive integration layers with limited adoption relative to their
   maintenance cost. The imperative Spring Pulsar integration remains
   fully supported.
 

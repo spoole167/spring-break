@@ -10,22 +10,16 @@ verify: >
   present or absent as expected after reviewing probe configuration
 
 further_info: >
-  Spring Boot 4.0 enables liveness and readiness probes by default for all
-  applications, not just those running inside Kubernetes. In Boot 3.5, the
-  probes were only activated when the application detected a Kubernetes
-  environment (via environment variables) or when explicitly enabled with
-  <code>management.endpoint.health.probes.enabled=true</code>. In Boot 4.0
-  they are always on. The <code>/actuator/health/liveness</code> and
-  <code>/actuator/health/readiness</code> endpoints are always available,
-  and the main <code>/actuator/health</code> response always includes
-  <code>liveness</code> and <code>readiness</code> groups. This can break
-  downstream consumers that parse the health response body, and may expose
-  probe endpoints to networks where they were not expected.
+  Boot 3.5 activated the probes only when it detected a Kubernetes
+  environment (via environment variables) or when
+  <code>management.endpoint.health.probes.enabled=true</code> was set
+  explicitly. Boot 4.0 drops the detection, which can expose probe
+  endpoints to networks that never expected them.
 
 oneliner: >
-  Boot 4.0 enables liveness and readiness probes for all apps, not just
-  those in Kubernetes. The <code>/actuator/health</code> response changes
-  shape. Downstream parsers and security rules may break.
+  Boot 4.0 enables liveness and readiness probes everywhere, Kubernetes
+  or not. The <code>/actuator/health</code> response changes shape.
+  Downstream parsers and security rules may break.
 
 error_output: |
   // Boot 3.5 (outside Kubernetes): /actuator/health response
@@ -88,7 +82,7 @@ watch_out:
   - >
     Application liveness state can be changed programmatically via
     <code>ApplicationAvailability</code>. If your code already does this,
-    the probes will now always be reachable — confirm the state transitions
+    the probes are now always reachable: confirm the state transitions
     are correct before going to production.
 
 footer_links:

@@ -10,21 +10,15 @@ verify: >
   the MongoDB-team-maintained integration
 
 further_info: >
-  Spring Boot 4.0 removed its built-in auto-configuration for Spring Session
-  backed by MongoDB. In Boot 3.5, declaring
-  <code>spring-session-data-mongodb</code> on the classpath with
-  <code>spring.session.store-type=mongodb</code> was enough for Boot to
-  configure a MongoDB session repository automatically. In Boot 4.0 the
-  auto-configuration classes are gone. Applications that relied on them fail
-  at startup with <code>NoSuchBeanDefinitionException</code> for the session
-  repository. The MongoDB team now owns and publishes the integration
-  separately as part of Spring Data MongoDB.
+  In Boot 3.5, <code>spring-session-data-mongodb</code> on the classpath
+  plus <code>spring.session.store-type=mongodb</code> was enough: Boot
+  wired the session repository for you. That wiring is what disappeared;
+  the integration now ships as part of Spring Data MongoDB.
 
 oneliner: >
   Spring Boot 4.0 dropped built-in MongoDB session auto-configuration.
-  The app compiles but fails at startup with <code>NoSuchBeanDefinitionException</code>.
-  Migrate to the MongoDB-team-maintained Spring Session integration in
-  Spring Data MongoDB.
+  The app compiles but fails at startup with
+  <code>NoSuchBeanDefinitionException</code>.
 
 error_output: |
   // Boot 4.0 startup failure:
@@ -42,11 +36,10 @@ what_changed: >
   took ownership of the integration.
 
 why_changed: >
-  Spring Boot 4.0 transferred ownership of several Spring Session store
-  integrations to the teams closest to those technologies. MongoDB and
-  Hazelcast now maintain their own Spring Session integrations, keeping
-  Boot itself lean and ensuring integrations evolve alongside the underlying
-  technology's own release cycle.
+  Boot 4.0 handed several Spring Session store integrations to the teams
+  closest to the technology. MongoDB and Hazelcast now maintain their own,
+  keeping Boot lean and letting each integration track its store's release
+  cycle.
 
 diffs:
   - comment: "// pom.xml — switch to Spring Data MongoDB's own session support"
@@ -76,9 +69,7 @@ fixes:
 scope_check: >
   Check <code>spring.session.store-type=mongodb</code> in your properties.
   Grep for <code>MongoIndexedSessionRepository</code> and
-  <code>MongoSessionConfiguration</code> in your source. Also note that
-  MongoDB configuration property prefixes changed from
-  <code>spring.session.mongodb.*</code> to <code>spring.session.data.mongodb.*</code>.
+  <code>MongoSessionConfiguration</code> in your source.
 
 watch_out:
   - >

@@ -9,11 +9,8 @@ verify: >
   mvn compile uses hibernate-processor and metamodel generates
 
 further_info: >
-  Driven by Hibernate 7.0. The hibernate-jpamodelgen artifact was renamed to
-  hibernate-processor to reflect its expanded scope: it now validates
-  HQL/JPQL queries at compile time in addition to generating the JPA static
-  metamodel. Version is managed by the Spring Boot BOM. See also:
-  cascade-save-update, session-delete-removed.
+  Driven by Hibernate 7.0. See also: cascade-save-update,
+  session-delete-removed.
 
 oneliner: >
   Hibernate renamed its annotation processor artifact from
@@ -30,14 +27,12 @@ error_output: |
 what_changed: >
   Hibernate 7.0 (shipped with Spring Boot 4.0) renamed the annotation
   processor artifact from <code>org.hibernate.orm:hibernate-jpamodelgen</code>
-  to <code>org.hibernate.orm:hibernate-processor</code>. The processor
-  now handles both JPA static metamodel generation and Hibernate's new
-  query validation.
+  to <code>org.hibernate.orm:hibernate-processor</code>.
 
 why_changed: >
-  The processor does more than JPA metamodel generation now. It also
-  validates HQL/JPQL queries at compile time and generates type-safe
-  query methods. The new name reflects its broader scope.
+  The processor now validates HQL/JPQL queries at compile time and
+  generates type-safe query methods as well as the JPA static metamodel.
+  The new name reflects the broader scope.
 
 diffs:
   - comment: "// pom.xml — annotation processor dependency"
@@ -73,14 +68,12 @@ fixes:
     text: >
       Replace <code>hibernate-jpamodelgen</code> with
       <code>hibernate-processor</code> in your POM or Gradle build file.
-      The version is managed by the Spring Boot BOM — just change the
-      artifact ID.
+      The Spring Boot BOM manages the version: change only the artifact ID.
   - label: "Check compiler plugin configuration."
     text: >
       If you declared the processor in
       <code>maven-compiler-plugin</code>'s
-      <code>annotationProcessorPaths</code>, update it there too. Both
-      the dependency and the processor path must use the new name.
+      <code>annotationProcessorPaths</code>, update it there too.
 
 scope_check: >
   Search for <code>hibernate-jpamodelgen</code> in all POM and Gradle
@@ -89,15 +82,14 @@ scope_check: >
 
 watch_out:
   - >
-    The new <code>hibernate-processor</code> will try to validate your
-    HQL queries at compile time by default. If you have invalid queries
-    that previously only failed at runtime, they'll now fail at build
-    time. This is a feature, but it may surface hidden bugs.
+    The new <code>hibernate-processor</code> validates your HQL queries
+    at compile time by default. Invalid queries that previously failed
+    only at runtime now fail the build. That is a feature, but it can
+    surface hidden bugs.
   - >
     If your IDE configures annotation processors separately (e.g.,
-    IntelliJ's annotation processor settings), update that configuration
-    too. Otherwise you'll get metamodel generation in Maven but not in
-    the IDE.
+    IntelliJ's settings), update that too. Otherwise the metamodel
+    generates in Maven but not in the IDE.
 
 footer_links:
   - text: "Spring-Break Demo"

@@ -10,11 +10,8 @@ verify: >
   classes; SAML login flow completes with OpenSAML 5 libraries
 
 further_info: >
-  Driven by Spring Security 7.0. OpenSAML 4 is no longer maintained; OpenSAML 5
-  is now required. The OpenSaml4AuthenticationProvider was replaced by
-  OpenSaml5AuthenticationProvider. Affects spring-boot-starter-security
-  consumers using SAML 2.0 login (saml2Login()). The Shibboleth Maven
-  repository is still required for OpenSAML artifacts.
+  The change comes from Spring Security 7.0, which Spring Boot 4.0 ships.
+  Affects spring-boot-starter-security consumers using SAML 2.0 login.
 
 oneliner: >
   Spring Security 7 dropped OpenSAML 4 support and requires OpenSAML 5.
@@ -31,8 +28,8 @@ error_output: |
   The build stops at compile. The application never starts.
 
 what_changed: >
-  Spring Security 7 removed all OpenSAML 4 compatibility classes and now
-  requires OpenSAML 5 exclusively. The internal SAML support classes
+  Spring Security 7 removed the OpenSAML 4 compatibility classes and
+  requires OpenSAML 5. The SAML support classes
   (<code>OpenSaml4AuthenticationProvider</code>,
   <code>OpenSaml4AuthenticationRequestResolver</code>, etc.) were replaced
   with OpenSAML 5 equivalents. OpenSAML 5 changed package structures and

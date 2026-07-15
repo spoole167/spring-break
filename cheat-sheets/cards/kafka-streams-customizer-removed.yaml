@@ -9,10 +9,8 @@ verify: >
   mvn compile — no cannot find symbol for StreamsBuilderFactoryBeanCustomizer
 
 further_info: >
-  Spring Boot's StreamsBuilderFactoryBeanCustomizer was always a thin wrapper
-  around Spring Kafka's own configurer interface. Spring Boot 4.0 removed the
-  duplicate and directs users to the upstream interface directly, reducing
-  the surface area of Boot's Kafka autoconfiguration.
+  The removal is part of shrinking Boot's Kafka auto-configuration surface;
+  the upstream Spring Kafka interface is the long-term home.
 
 oneliner: >
   Spring Boot's StreamsBuilderFactoryBeanCustomizer is gone. Replace it with
@@ -31,9 +29,8 @@ what_changed: >
   from Spring Kafka itself.
 
 why_changed: >
-  Spring Boot's interface was a duplicate of an equivalent already provided
-  by Spring Kafka. Removing the Boot-specific version eliminates redundancy
-  and removes an unnecessary indirection.
+  Spring Boot's interface was a thin duplicate of one Spring Kafka already
+  provides. Removing it cuts an unnecessary indirection.
 
 diffs:
   - comment: "// Import"
@@ -50,7 +47,7 @@ fixes:
   - label: "Switch to StreamsBuilderFactoryBeanConfigurer."
     text: >
       Replace the import and the implements / return type declaration.
-      The interface method signature is compatible — the method you override
+      The interface method signature is compatible: the method you override
       is <code>configure(StreamsBuilderFactoryBean)</code> in both cases.
 
 scope_check: >
@@ -61,7 +58,7 @@ watch_out:
   - >
     The method name on <code>StreamsBuilderFactoryBeanConfigurer</code> is
     <code>configure</code>, same as the old <code>customize</code>. Verify the
-    exact method name in the Spring Kafka version you're using — it differs
+    exact method name in the Spring Kafka version you're using: it differs
     between minor versions.
 
 footer_links:

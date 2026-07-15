@@ -10,20 +10,15 @@ verify: >
   in both console and file appenders after the charset change
 
 further_info: >
-  Spring Boot 4.0 harmonizes Logback's default charset to UTF-8 for file
-  appenders. For console appenders, Boot 4.0 uses the value returned by
-  <code>Console#charset()</code> if available (Java 17+), falling back to
-  UTF-8. In Boot 3.5, the charset defaulted to the platform's default
-  encoding — on Windows this is often Cp1252 or GBK, on Linux it may be
-  ISO-8859-1 in some configurations. Applications logging non-ASCII characters
-  (international text, currency symbols, emoji) may see garbled output or
-  question-mark substitutions if the consumer of the log file expected the
-  old platform encoding.
+  Boot 3.5 used the platform's default encoding: often Cp1252 or GBK on
+  Windows, sometimes ISO-8859-1 on Linux. Consumers built around those
+  encodings will misread the new UTF-8 bytes in international text,
+  currency symbols, and emoji.
 
 oneliner: >
-  Boot 4.0 forces Logback file appenders to UTF-8. Logs containing non-ASCII
-  characters may appear garbled to tools or systems that expected the
-  platform's default encoding. No error — wrong characters.
+  Boot 4.0 forces Logback file appenders to UTF-8. Non-ASCII characters
+  appear garbled to tools expecting the platform's default encoding.
+  No error: just wrong characters.
 
 error_output: |
   # Boot 3.5 (platform encoding = Windows-1252):
@@ -43,10 +38,9 @@ what_changed: >
   unaffected.
 
 why_changed: >
-  UTF-8 is the universal standard for text encoding. The platform-default
-  encoding caused log files to contain different byte sequences on different
-  operating systems, making cross-platform log analysis unreliable.
-  Harmonizing to UTF-8 ensures log files mean the same thing everywhere.
+  UTF-8 is the universal standard for text encoding. Platform-default
+  encoding produced different bytes on different operating systems,
+  making cross-platform log analysis unreliable.
 
 diffs:
   - comment: "// logback-spring.xml — if you need to override the default"
@@ -84,8 +78,8 @@ fixes:
 scope_check: >
   Check <code>logback-spring.xml</code> and <code>logback.xml</code> for
   file appenders that do not specify a <code>&lt;charset&gt;</code>. Also
-  audit any downstream tools — Splunk forwarders, Fluentd parsers, Elastic
-  Filebeat configs — that specify the input encoding for log files.
+  audit downstream tools that specify the input encoding for log files:
+  Splunk forwarders, Fluentd parsers, Elastic Filebeat configs.
 
 watch_out:
   - >
@@ -94,7 +88,7 @@ watch_out:
   - >
     Custom Logback configurations that already declare
     <code>&lt;charset&gt;UTF-8&lt;/charset&gt;</code> explicitly are
-    completely unaffected.
+    unaffected.
 
 footer_links:
   - text: "Spring Boot 4.0 Migration Guide"

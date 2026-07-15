@@ -12,11 +12,7 @@ verify: >
 
 further_info: >
   Complements batch-listener-classes: both modules demonstrate the same
-  underlying Batch 6.0 removal, and both fail at compile time on Boot 4.0
-  because the imports no longer resolve. Only dynamic references (Spring
-  XML config, reflection-based frameworks, AOP proxies) bypass the
-  compiler, so fix the source-level uses first and then sweep your
-  configuration files.
+  underlying Batch 6.0 removal.
 
 oneliner: >
   <code>JobExecutionListenerSupport</code>, <code>StepExecutionListenerSupport</code>,
@@ -25,9 +21,9 @@ oneliner: >
   "cannot find symbol".
 
 error_output: |
-  // Boot 3.5 (Batch 5.x): classes present, deprecated since 5.0 — compiles fine.
+  // Boot 3.5 (Batch 5.x): classes present, deprecated since 5.0; compiles fine.
 
-  // Boot 4.0 (Batch 6.0): classes removed — compilation fails.
+  // Boot 4.0 (Batch 6.0): classes removed; compilation fails.
   $ mvn clean compile
   [ERROR] COMPILATION ERROR :
   [ERROR] MyJobListener.java:[4,47] cannot find symbol
@@ -40,8 +36,7 @@ what_changed: >
   <code>JobExecutionListenerSupport</code>,
   <code>StepExecutionListenerSupport</code>, and
   <code>ChunkListenerSupport</code>. These classes provided empty default
-  implementations of listener methods, a pattern made redundant by Java 8
-  interface default methods.
+  implementations of listener methods.
 
 why_changed: >
   Java 8 interface default methods eliminate the need for adapter-style base
@@ -74,8 +69,8 @@ fixes:
       <code>StepExecutionListenerSupport</code> →
       <code>StepExecutionListener</code> and
       <code>ChunkListenerSupport</code> → <code>ChunkListener</code>.
-      You only need to implement the methods you actually use — all others
-      have default no-op implementations on the interface.
+      Implement only the methods you use: the rest have default no-op
+      implementations on the interface.
 
 scope_check: >
   Search for <code>extends JobExecutionListenerSupport</code>,
@@ -88,10 +83,8 @@ watch_out:
   - >
     The compiler only catches direct imports and <code>extends</code>
     clauses. Listeners referenced by class name in Spring XML config or
-    loaded via reflection bypass the compiler and only fail when that code
-    path runs. Search configuration files as well as source. The
-    <code>batch-listener-classes</code> module demonstrates the same
-    removal.
+    loaded via reflection bypass the compiler and fail only when that
+    code path runs. Search configuration files as well as source.
 
 footer_links:
   - text: "spring-break module: batch-job-serialisation"

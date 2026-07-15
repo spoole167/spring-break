@@ -10,15 +10,12 @@ verify: >
   for @MockBean or @SpyBean
 
 further_info: >
-  The @MockBean and @SpyBean annotations were deprecated in Spring Boot 3.4
-  and removed in 4.0. Their replacements (@MockitoBean, @MockitoSpyBean)
-  live in Spring Framework 7's test context
-  (org.springframework.test.context.bean.override.mockito), not in Spring
-  Boot. The new implementation uses a cleaner bean override mechanism.
+  The whole org.springframework.boot.test.mock.mockito package is gone,
+  so any other import from it fails too.
 
 oneliner: >
-  Spring Boot 4.0 removed the @MockBean and @SpyBean annotations along
-  with their package. Test sources that import them fail to compile.
+  Spring Boot 4.0 removed the @MockBean and @SpyBean annotations.
+  Test sources that import them fail to compile.
   Replace with @MockitoBean and @MockitoSpyBean.
 
 error_output: |
@@ -41,10 +38,9 @@ what_changed: >
   which live in Spring Framework 7 itself rather than Spring Boot.
 
 why_changed: >
-  The new annotations are part of Spring Framework's test context, not
-  Spring Boot. This means they work in plain Spring Framework tests too,
-  not just Boot tests. The new implementation also uses a cleaner bean
-  override mechanism that avoids some of the context caching issues that
+  The new annotations live in Spring Framework's test context, so they
+  work in plain Framework tests as well as Boot tests. Their cleaner bean
+  override mechanism also avoids some of the context caching issues that
   plagued <code>@MockBean</code>.
 
 diffs:
@@ -88,17 +84,17 @@ fixes:
 scope_check: >
   Search for <code>@MockBean</code> and <code>@SpyBean</code> across
   <code>src/test</code>. Every test class using these annotations needs
-  updating. In a typical Spring Boot project, this can be dozens or
-  hundreds of test files. Count them before starting.
+  updating. That can be dozens or hundreds of test files.
+  Count them before starting.
 
 watch_out:
   - >
     If you upgrade without running <code>mvn clean</code>, stale test classes
     compiled against 3.5 can still load and run. Spring no longer recognises
     the old annotations, so the mock fields silently stay <code>null</code>
-    and the first symptom is a <code>NullPointerException</code> mid-test.
-    That looks like a runtime injection failure. It is not: run a clean
-    build and the compile failure appears.
+    and the first symptom is a <code>NullPointerException</code> mid-test,
+    which looks like a runtime injection failure. Run a clean build and
+    the real compile failure appears.
   - >
     The <code>@MockitoBean</code> reset behaviour between tests may differ
     from <code>@MockBean</code>. If you relied on mocks being reset between

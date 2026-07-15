@@ -9,11 +9,8 @@ verify: >
   mvn compile — no package does not exist errors for BootstrapRegistry or EnvironmentPostProcessor
 
 further_info: >
-  Both classes moved as part of Spring Boot 4.0's package reorganisation.
-  BootstrapRegistry moved deeper into a dedicated bootstrap subpackage.
-  EnvironmentPostProcessor moved in the opposite direction — up to the root
-  boot package. The change affects any code that customises early application
-  startup or environment configuration.
+  Affects code that customises early application startup or environment
+  configuration.
 
 oneliner: >
   BootstrapRegistry moved to org.springframework.boot.bootstrap and
@@ -31,15 +28,15 @@ what_changed: >
   <code>BootstrapRegistry</code> and <code>ConfigurableBootstrapContext</code>
   moved from <code>org.springframework.boot</code> to
   <code>org.springframework.boot.bootstrap</code>.
-  <code>EnvironmentPostProcessor</code> moved in the opposite direction —
-  from <code>org.springframework.boot.env</code> to
+  <code>EnvironmentPostProcessor</code> moved the other way, from
+  <code>org.springframework.boot.env</code> to
   <code>org.springframework.boot</code>.
 
 why_changed: >
-  Spring Boot 4.0 reorganised its internal packages to group related
-  infrastructure by concern. The bootstrap lifecycle classes got their own
-  subpackage. EnvironmentPostProcessor, used across many contexts, moved
-  to the root package for easier discoverability.
+  Spring Boot 4.0 groups its infrastructure by concern: bootstrap
+  lifecycle classes got their own subpackage, while
+  EnvironmentPostProcessor, used across many contexts, moved to the root
+  package for discoverability.
 
 diffs:
   - comment: "// BootstrapRegistry import"
@@ -56,7 +53,7 @@ fixes:
   - label: "Update imports."
     text: >
       Find all usages of the old package paths and replace with the new ones.
-      Both changes are pure package moves — no method signatures or behaviour changed.
+      Both changes are pure package moves: no method signatures or behaviour changed.
   - label: "Search spring.factories / AutoConfiguration.imports."
     text: >
       If you register an <code>EnvironmentPostProcessor</code> in
@@ -74,8 +71,8 @@ scope_check: >
 watch_out:
   - >
     The <code>spring.factories</code> key for <code>EnvironmentPostProcessor</code>
-    must also be updated. A wrong key silently skips your processor at startup
-    with no error — your environment customisation just won't run.
+    must also be updated. With the old key your processor is skipped at
+    startup: no error, your environment customisation just never runs.
 
 footer_links:
   - text: "spring-break module: bootstrap-registry-relocated"

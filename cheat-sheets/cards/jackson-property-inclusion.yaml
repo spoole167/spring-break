@@ -10,10 +10,8 @@ verify: >
 
 further_info: >
   Driven by the combination of Jackson 3.0 and Spring Boot 4.0's
-  auto-configuration changes. The spring.jackson.default-property-inclusion
-  property binding was removed because Jackson 3.0 restructured its
-  inclusion configuration API. Affects all spring-boot-starter-json
-  consumers. See also: jackson-dates-timestamps, jackson-date-format.
+  auto-configuration changes. See also: jackson-dates-timestamps,
+  jackson-date-format.
 
 oneliner: >
   The <code>spring.jackson.default-property-inclusion</code> property no
@@ -38,15 +36,14 @@ error_output: |
 what_changed: >
   Spring Boot 4.0's auto-configuration for Jackson 3 no longer reads the
   <code>spring.jackson.default-property-inclusion</code> property. The
-  property sits in your config file doing nothing — no deprecation warning,
+  property sits in your config file doing nothing: no deprecation warning,
   no startup error. The ObjectMapper reverts to Jackson's default inclusion
   policy: <code>ALWAYS</code> (include everything, including nulls).
 
 why_changed: >
-  Jackson 3 restructured how serialisation inclusion is configured, moving
-  from a single global enum to a more granular per-type system. The old
-  Spring Boot property didn't map cleanly to the new API, so the
-  auto-configuration binding was removed pending a redesign.
+  Jackson 3 moved inclusion configuration from a single global enum to a
+  granular per-type system. The old Spring Boot property didn't map cleanly
+  to the new API, so the binding was removed pending a redesign.
 
 diffs:
   - comment: "// application.properties — old (silently ignored)"
@@ -82,18 +79,16 @@ scope_check: >
   Check whether your <code>application.properties</code> or
   <code>application.yml</code> sets
   <code>spring.jackson.default-property-inclusion</code>. If it does,
-  that setting is now dead. Every API response from your app may now include
-  null fields that were previously omitted.
+  that setting is now dead.
 
 watch_out:
   - >
-    There is no deprecation warning at startup. The property is silently
-    ignored. The only signal is larger JSON payloads with unexpected null
-    fields — easy to miss without contract tests.
+    The only signal is larger JSON payloads with unexpected null fields.
+    Without contract tests, that is easy to miss.
   - >
     If your front-end checks for key presence (e.g.
     <code>if ("middleName" in user)</code>) instead of checking for null
-    values, the extra null fields will change branching logic silently.
+    values, the extra null fields change its branching logic.
 
 footer_links:
   - text: "Spring-Break Demo"

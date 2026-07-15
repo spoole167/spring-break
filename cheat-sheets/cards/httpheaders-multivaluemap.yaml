@@ -9,12 +9,8 @@ verify: >
   mvn compile — no incompatible types or cannot find symbol errors on HttpHeaders usage
 
 further_info: >
-  Driven by Spring Framework 7.0. HttpHeaders was a subtype of
-  MultiValueMap since early in Spring's history. The break affects any
-  code that relies on that structural relationship: method parameters
-  typed as MultiValueMap that receive HttpHeaders, or direct calls to
-  Map methods like containsKey(), keySet(), entrySet() on an HttpHeaders
-  reference.
+  Driven by Spring Framework 7.0. HttpHeaders had been a MultiValueMap
+  subtype since early in Spring's history.
 
 oneliner: >
   HttpHeaders no longer implements MultiValueMap. Code that treats
@@ -37,10 +33,9 @@ what_changed: >
   methods replace them.
 
 why_changed: >
-  Treating HTTP headers as a generic map encouraged misuse and prevented
-  performance optimisations in the header handling implementation. The
-  dedicated <code>HttpHeaders</code> API is more expressive and allows
-  the backing store to be optimised independently of the Map contract.
+  Treating HTTP headers as a generic map encouraged misuse and blocked
+  performance work. The dedicated <code>HttpHeaders</code> API is more
+  expressive and frees the backing store from the Map contract.
 
 diffs:
   - comment: "// Replace Map method calls with HttpHeaders equivalents"

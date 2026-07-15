@@ -9,11 +9,8 @@ verify: >
   SELECT queries return correct date/time types (check ResultSet)
 
 further_info: >
-  Driven by Hibernate 7.0 (upstream of Spring Boot 4.0). The switch from
-  java.sql date/time types to java.time (JSR 310) in native query results
-  was announced in the Hibernate 7.0 migration guide. Only affects native
-  queries returning raw Object[] rows; JPQL typed queries are unaffected.
-  See also: hibernate-dialect-removal.
+  Driven by Hibernate 7.0, upstream of Spring Boot 4.0, and documented
+  in its migration guide. See also: hibernate-dialect-removal.
 
 oneliner: >
   Native SQL queries now return <code>java.time.LocalDate</code> instead
@@ -49,9 +46,9 @@ what_changed: >
 
 why_changed: >
   The <code>java.sql</code> date/time classes are legacy wrappers around
-  <code>java.util.Date</code> with known bugs (timezone handling, nanosecond
-  truncation). The <code>java.time</code> API is immutable, thread-safe, and
-  the modern standard. Hibernate aligned its defaults with the JSR 310 types.
+  <code>java.util.Date</code> with known timezone and truncation bugs.
+  Hibernate aligned its defaults with <code>java.time</code>: immutable,
+  thread-safe, the modern standard.
 
 diffs:
   - comment: "// Fix native query result handling"
@@ -79,8 +76,7 @@ fixes:
       Replace all <code>java.sql.Date</code> casts with
       <code>java.time.LocalDate</code>, <code>java.sql.Time</code> with
       <code>java.time.LocalTime</code>, and <code>java.sql.Timestamp</code>
-      with <code>java.time.LocalDateTime</code>. This is the correct
-      modern approach.
+      with <code>java.time.LocalDateTime</code>.
   - label: "Force old types with explicit addScalar()."
     text: >
       For legacy code that can't be updated, use Hibernate's
@@ -90,9 +86,7 @@ fixes:
 scope_check: >
   Search for <code>nativeQuery = true</code>, <code>createNativeQuery</code>,
   and any cast to <code>java.sql.Date</code>, <code>java.sql.Time</code>, or
-  <code>java.sql.Timestamp</code> in query result handling code. JPQL queries
-  with typed results are unaffected — only native queries and untyped
-  result sets change.
+  <code>java.sql.Timestamp</code> in query result handling code.
 
 watch_out:
   - >

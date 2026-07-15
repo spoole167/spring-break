@@ -11,20 +11,17 @@ verify: >
   Trace dashboard shows controller-level spans after re-enabling
 
 further_info: >
-  Introduced in Spring Boot 4.0 as part of the Micrometer Tracing defaults
-  overhaul. The change reduces default trace cardinality and overhead for
-  high-traffic services. Affects spring-boot-starter-actuator with
-  Micrometer Tracing on the classpath. See also:
-  observability-dashboard-gaps, aspectj-observed.
+  Part of Spring Boot 4.0's Micrometer Tracing defaults overhaul. See
+  also: observability-dashboard-gaps, aspectj-observed.
 
 oneliner: >
   Spring Boot 4.0 disables controller and view rendering spans by default
-  in Micrometer tracing. Dashboards, alerts, and SLOs relying on these
-  spans silently lose data.
+  in Micrometer tracing. Dashboards, alerts, and SLOs built on those
+  spans go dark.
 
 error_output: |
-  # No startup error — this is a silent behaviour change.
-  # Detected when spans are missing in your observability platform:
+  # No startup error. Detected when spans are missing
+  # in your observability platform:
 
   $ curl -s http://localhost:16686/api/traces?service=my-app | jq '.data[0].spans[].operationName'
   "HTTP GET /api/orders"
@@ -101,9 +98,8 @@ scope_check: >
 
 watch_out:
   - >
-    This is completely silent at the application level. No errors, no
-    warnings. You only discover it when your dashboards go blank or
-    alerts fire for missing data.
+    The application gives no errors and no warnings. You discover the
+    change when dashboards go blank or missing-data alerts fire.
   - >
     If you use distributed tracing to debug latency between the HTTP
     layer and the controller, the missing span makes it harder to
