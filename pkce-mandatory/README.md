@@ -23,9 +23,9 @@ The test module contains a standard Spring Security OAuth2 configuration without
 The test cannot be run in isolation (it requires a real OAuth provider), but the breaking change is visible by:
 - Enabling debug logging and checking for PKCE parameter presence in request logs
 - Testing against a legacy OAuth provider that rejects PKCE parameters
-- Comparing HTTP request payloads between Spring Boot 3.5.14 and 4.0
+- Comparing HTTP request payloads between Spring Boot 3.5.16 and 4.0
 
-## On Spring Boot 3.5.14 (Spring Security 6.x)
+## On Spring Boot 3.5.16 (Spring Security 6.x)
 
 ```bash
 mvn spring-boot:run
@@ -44,7 +44,7 @@ GET /oauth/authorize?client_id=...&redirect_uri=...&response_type=code&scope=...
 ## On Spring Boot 4.0 (Spring Security 7.x)
 
 ```bash
-mvn spring-boot:run -Dspring-boot.version=4.0.6
+mvn spring-boot:run -Dspring-boot.version=4.0.7
 ```
 
 Same OAuth2 configuration now includes PKCE automatically:

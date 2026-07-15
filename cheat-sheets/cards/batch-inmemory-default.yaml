@@ -5,20 +5,6 @@ title: "Spring Batch Now Uses In-Memory Job Repository by Default"
 series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
-no_module: true
-no_module_reason: >
-  The Boot 3.5 baseline fails with the same error as Boot 4.0: "Table
-  BATCH_JOB_INSTANCE not found (this database is empty)". Boot 3.5 with
-  spring-boot-starter-batch + H2 also does not auto-create the Batch schema
-  tables when spring.batch.job.enabled=false. The auto-creation depends on
-  spring-boot-starter-batch-jdbc being on the classpath, not on the Boot
-  version. The change is real — Boot 4.0 made the in-memory repository the
-  explicit default — but the behavioural difference between 3.5 and 4.0 is
-  only visible when the JDBC starter is present and the old auto-creation
-  behaviour kicks in. That scenario cannot be reduced to a standalone test
-  module that reliably green-lines on 3.5 and red-lines on 4.0 without
-  layering in additional configuration complexity that obscures the break
-  being demonstrated.
 verify: >
   Batch jobs persist execution history to the database when
   spring-boot-starter-batch-jdbc is declared
@@ -112,5 +98,7 @@ watch_out:
     migration handles both changes.
 
 footer_links:
+  - text: "spring-break module: batch-in-memory-default"
+    url: "https://github.com/spoole167/spring-break/tree/main/batch-in-memory-default"
   - text: "Spring Boot 4.0 Migration Guide"
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

@@ -31,8 +31,8 @@
 
 **Test versions:**
 
-- Default (passes): Spring Boot **3.5.14**
-- Override (fails): Spring Boot **4.0.6**
+- Default (passes): Spring Boot **3.5.16**
+- Override (fails): Spring Boot **4.0.7**
 - Versions controlled by `<spring-boot.version>` property in `test-cases/pom.xml`
 
 ---
@@ -93,7 +93,7 @@ test-cases/<module-name>/
 </project>
 ```
 
-Do **not** declare a Spring Boot version in module poms. The version comes from the parent's `<spring-boot.version>` property, which is overridden via `-Dspring-boot.version=4.0.6` for the failing run.
+Do **not** declare a Spring Boot version in module poms. The version comes from the parent's `<spring-boot.version>` property, which is overridden via `-Dspring-boot.version=4.0.7` for the failing run.
 
 ### README.md template (every module needs one)
 
@@ -340,7 +340,7 @@ If the test fails on 3.5, the test is wrong. Fix it before continuing.
 
 ```bash
 cd test-cases
-mvn -B -ntp -pl <module-name> test -Dspring-boot.version=4.0.6
+mvn -B -ntp -pl <module-name> test -Dspring-boot.version=4.0.7
 ```
 
 Expected outcome depends on tier:
@@ -352,7 +352,7 @@ Expected outcome depends on tier:
 
 **Critical:** if the test passes on 4.0, the module is wrong. Either:
 
-- The change isn't real on 4.0.6 (the master-list claim is wrong — flag it, do not commit the module).
+- The change isn't real on 4.0.7 (the master-list claim is wrong — flag it, do not commit the module).
 - The test isn't exercising the change (rewrite the test).
 
 Three modules have already been deleted from the suite for failing this check (`auth-default-deny`, plus the original framings of `path-matching-engine` and `jackson-property-inclusion`). Do not repeat those mistakes.
@@ -375,7 +375,7 @@ Add `<module><module-name></module>` to the appropriate tier block. Update the c
 
 ```xml
 <!-- 57 modules organised by migration failure mode.
-     Run on 3.5.14: all pass.  Run on 4.0.6: all fail. -->
+     Run on 3.5.16: all pass.  Run on 4.0.7: all fail. -->
 <modules>
     <!-- Tier 1 — Won't Build on 4.0  (38 modules) -->
     ...
@@ -531,8 +531,8 @@ After building one or more modules, report back with:
 
 1. **Module name(s) created**
 2. **Master-list entry number(s)** that each module covers
-3. **Verification log:** copy the last 5–10 lines of each `mvn test` (3.5) and `mvn test -Dspring-boot.version=4.0.6` output, showing the test outcomes.
+3. **Verification log:** copy the last 5–10 lines of each `mvn test` (3.5) and `mvn test -Dspring-boot.version=4.0.7` output, showing the test outcomes.
 4. **Documentation updates applied:** confirm parent pom, run-all-tests.sh, master list, verification status, and TODO have all been updated.
-5. **Any items skipped or flagged:** if a master-list claim couldn't be reproduced on 4.0.6, record the entry number and the unexpected outcome — do **not** force a fake demo.
+5. **Any items skipped or flagged:** if a master-list claim couldn't be reproduced on 4.0.7, record the entry number and the unexpected outcome — do **not** force a fake demo.
 
 That's the runbook. Pick a row from Section 8 and go.

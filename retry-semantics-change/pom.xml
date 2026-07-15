@@ -17,7 +17,7 @@
 
     <properties>
         <!-- spring-retry is NOT managed by the Spring Boot BOM — explicit version required -->
-        <!-- Align with Boot 3.4.x — adjust to the version in your local BOM if needed -->
+        <!-- Aligned with the suite baseline — adjust to the version in your local BOM if needed -->
         <spring-retry.version>2.0.10</spring-retry.version>
     </properties>
 

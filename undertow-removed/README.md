@@ -15,11 +15,11 @@ Spring Boot 4.0 **completely removes** Undertow as a supported embedded server o
 The test module demonstrates the Undertow removal by:
 
 - **UndertowApp.java**: A simple Spring Boot REST application with no Undertow-specific code
-- **pom.xml**: Explicitly declares `spring-boot-starter-undertow` dependency (for Boot 3.5.14 compatibility)
+- **pom.xml**: Explicitly declares `spring-boot-starter-undertow` dependency (for Boot 3.5.16 compatibility)
 
 The application code is generic and works on any embedded server. The breaking change is purely in the dependency configuration.
 
-## On Spring Boot 3.5.14
+## On Spring Boot 3.5.16
 
 ```bash
 mvn clean package

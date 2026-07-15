@@ -9,7 +9,7 @@ verify: >
   SAML login flow completes with OpenSAML 5 libraries
 
 further_info: >
-  Driven by Spring Security 7.0. OpenSAML 4 reached end of life; OpenSAML 5
+  Driven by Spring Security 7.0. OpenSAML 4 is no longer maintained; OpenSAML 5
   is now required. The OpenSaml4AuthenticationProvider was replaced by
   OpenSaml5AuthenticationProvider. Affects spring-boot-starter-security
   consumers using SAML 2.0 login (saml2Login()). The Shibboleth Maven
@@ -43,7 +43,7 @@ what_changed: >
   removed the marshaller/unmarshaller split.
 
 why_changed: >
-  OpenSAML 4 reached end of life. OpenSAML 5 brought significant API
+  OpenSAML 4 is no longer maintained. OpenSAML 5 brought significant API
   improvements, including a simplified object-provider model and better
   XML security defaults. Maintaining dual support across two major
   OpenSAML versions was unsustainable.

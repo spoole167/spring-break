@@ -1,0 +1,48 @@
+# Review Findings — spring-break suite
+
+Updated 15 July 2026. Round 1 was a static review; round 2 executed the full suite on Spring Boot 3.5.16 and 4.0.7 (in a Linux sandbox, JDK 17, Maven 3.9.9) and tested all 16 unwired directories. The suite now has 60 wired modules.
+
+## Verified results (15 July 2026)
+
+Baseline 3.5.16: 60/60 pass. Target 4.0.7: 60/60 fail, none pass by accident. Measured failure stages: 9 at dependency resolution, 38 at compile, 10 at runtime, 3 with silently different results. Per-module logs were kept in the sandbox run; the tier arrays in `run-all-tests.sh` now match these measurements exactly.
+
+## Fixed in this pass
+
+- Versions bumped everywhere from 3.5.14/4.0.6 to 3.5.16/4.0.7 (both confirmed present on Maven Central; 3.5.16 is the final 3.5 patch).
+- EOL/unsupported/countdown wording removed; content now leads with migration challenges. quiz.csv trimmed from 26 to 22 questions (four EOL-timeline/pitch questions dropped, one rewritten as a version fact). `cta-end.html` rewritten — it also claimed 3.5 support ends "November 2026", which was factually wrong. `opensaml4-removed` card rephrased.
+- Nine modules re-tiered from Tier 2/3 to Tier 1 because they measurably fail at compile on 4.0.7, not at runtime: `hibernate-dialect-removal`, `oauth-password-grant-removed`, `mockbean-removed`, `batch-job-serialisation`, `opensaml4-removed`, `resttemplate-autoconfig`, `test-slice-relocated`, `actuator-nullable-removed`, `jackson-dates-timestamps`. This resolves round 1's `mockbean-removed` contradiction: on a clean build it never gets past test-compile ("package org.springframework.boot.test.mock.mockito does not exist"). The old "fields stay null → NPE" story only happens when stale 3.5-compiled classes run against the 4.0 classpath.
+- The two other disputed modules resolved the opposite way: `javax-annotation-removed` and `javax-inject-removed` genuinely compile on 4.0.7 and fail at runtime (annotation silently ignored / bean not registered). They stay Tier 2; their READMEs claiming "Tier 1: Won't Compile" are wrong and still need editing.
+- Three formerly unwired modules tested clean (pass 3.5.16, fail 4.0.7 for their advertised reason) and are now wired into the pom and script as Tier 2: `batch-in-memory-default`, `health-probes-default-on`, `httpmessageconverters-deprecated`. Suite is now 60 modules: 47/10/3.
+- Cards updated: `batch-inmemory-default.yaml` no longer claims `no_module` (the module now works — its old no-module reasoning is obsolete) and links to the module; `liveness-readiness-probes-default.yaml` links to `health-probes-default-on`.
+- README updated: counts, tier tables corrected (the wrong `retry-semantics-change` Tier 3 row is gone), tables labelled as highlights, verification date added, and quick-start now warns to always `mvn clean` (stale `target/` dirs run 3.5-compiled classes against the 4.0 classpath and produce false results) and to run 4.x builds from inside the module directory (the root reactor is unreadable on 4.0 because nine poms lose managed versions).
+- Stale "Align with Boot 3.4.x" comment fixed in `retry-semantics-change/pom.xml`.
+
+## Unwired directories — all 16 resolved (15 July 2026)
+
+The suite is now 62 modules (48/11/3). Every formerly unwired directory is either wired in, fixed, or deleted:
+
+- **Wired in as-is (3):** `batch-in-memory-default`, `health-probes-default-on`, `httpmessageconverters-deprecated` — passed 3.5.16, failed 4.0.7 for their advertised reasons.
+- **Fixed and wired in (2):**
+  - `cors-empty-config-not-rejected` (Tier 2) — test rewritten to build MockMvc manually instead of `@AutoConfigureMockMvc` (whose relocation was masking the real demo). Verified: preflight against an empty CORS config gets 403 on 3.5.16 and 200 on 4.0.7. Requests that used to be blocked get through — arguably the best silent-change story in the suite.
+  - `httpcomponents-setconnecttimeout-removed` (Tier 1, renamed from `obs-`) — rebuilt around `HttpComponentsClientHttpRequestFactory.setConnectTimeout(int)`, deprecated in Framework 6.1 and removed in 7.0. The old version targeted `RequestConfig.Builder.setSocketTimeout(int)`, which died at the Boot 2→3 boundary and could never compile on the 3.5 baseline. Verified: compiles/passes on 3.5.16, `cannot find symbol: setConnectTimeout(int)` on 4.0.7.
+- **Deleted, no demo (6):** `batch-static-meterregistry-removed`, `jersey-jackson2-required`, `modular-starters`, `obs-junit4-vintage-removed`, `obs-reactor-take-prefetch`, `springextension-method-scope` — tests passed on both versions.
+- **Deleted, duplicate (1):** `obs-javax-inject-removed` (same demo as the wired `javax-inject-removed`).
+- **Deleted, false premise (2):** `obs-config-props-field-binding`, `obs-like-pattern-escaping` — both demonstrate pre-3.5 changes, not the 3.5→4.0 boundary.
+- **Deleted, empty shells (2):** `resttemplatebuilder-settimeout-removed` (its distinct story is masked by the package move `resttemplate-autoconfig` already demos), `webclient-system-proxy-optin` (no source; remains on the TODO.md backlog as row 2.18 if ever wanted).
+
+Also cleared: all 60 stale April `target/` directories, so in-place builds no longer risk running 3.5-compiled classes against the 4.0 classpath. `delete-no-demo-dirs.sh` has served its purpose and can be deleted whenever.
+
+## Still open from round 1
+
+- **`actuator-nullable-removed` demos the wrong change.** Its test breaks at compile on the `@AutoConfigureMockMvc` relocation before the intended Nullable-parameter behaviour is ever exercised. Re-tiered to match measured reality, but if the Nullable change deserves a demo, the test needs rewriting without MockMvc.
+- **Rebuild candidates:** several re-tiered modules (`hibernate-dialect-removal`, `oauth-password-grant-removed`, `batch-schema-change`-style properties-driven breaks) could be rewritten to reference removed classes via strings/config instead of imports, making them true runtime demos — that's what their READMEs promise.
+- **11 wired modules still have no README:** `batch-listener-classes`, `hibernate-processor-rename`, `jackson-class-renames`, `jackson-dates-timestamps`, `javax-inject-removed`, `listenable-future-removed`, `okhttp3-removed`, `opensaml4-removed`, `resttemplate-autoconfig`, `spring-jcl-removed`, `test-slice-relocated`.
+- **`undertow-removed` has no test class** — its baseline pass is a zero-test `mvn test`.
+- **Module README tier labels** need a sweep: the nine re-tiered modules, the two javax modules, and the 12 READMEs with no tier label in the title. Pick one tier vocabulary first (README says "Won't Build/Won't Run/Different Results", the article series says "Won't Launch, Won't Run, Wrong Results", module READMEs mix "Won't Compile/Won't Resolve/Won't Launch").
+- ~~Cheat-sheet static pages disagree with the suite~~ **Fixed 15 July:** `cover.html` and `cta-end.html` now show 83 changes at 39/27/17 — the card counts, since these pages front the card deck (the old 19/13/13 matched neither cards nor modules). Caveat: those are the tiers *declared in the card YAML*. The nine modules re-tiered from runtime to compile suggest some cards (`mockbean-removed` at least — `@MockBean` removal is a compile break for real users too) carry the wrong tier, which would shift these counts again. A card-tier review pass is worth doing before the next PDF regeneration.
+- **`deprecated-classes-removed.yaml` card says `no_module: true`** while a wired module with that exact name exists (the card argues the module doesn't isolate the card's topic). Rename one or reconcile.
+- **`webjars-locator-core-removed`** still carries TODO.md's "do not build until a verbatim source quote is found" flag despite being built, wired, and now verified to fail on 4.0.7 (compile: `WebJarAssetLocator` not found). The behaviour is real; the backlog note needs updating with a source.
+- **TODO.md staleness:** `test-cases/` path prefix throughout (the repo root is the suite), references to `test-cases-todo.md` / `test-cases-audit.md` that don't exist, "six primary sources" listing seven, backlog rows out of sync with reality (row 1.34 marked done but only an `obs-` shell exists; rows for the three newly wired modules still unchecked; row 2.14 correct).
+- **`batch-listener-classes`** uses package `com.example.batch` against the stated flat `com.example` convention.
+- **Tracked scratch files:** `.effective-pom-406.xml`, `modules_ls.txt`, `modules_pom.txt` at the repo root.
+- **Stale `target/` directories from April** exist across the repo on disk. They're gitignored but poison in-place builds (and the sandbox mount can't delete some of them). Run `mvn clean` locally or delete them before the next test round.

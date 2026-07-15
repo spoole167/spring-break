@@ -20,7 +20,7 @@ The test module demonstrates untyped vs. typed Hibernate queries:
 - **Product.java**: Simple JPA entity
 - **App.java**: Minimal Spring Boot application
 
-## On Spring Boot 3.5.14
+## On Spring Boot 3.5.16
 
 ```bash
 mvn clean test

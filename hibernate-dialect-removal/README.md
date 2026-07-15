@@ -33,7 +33,7 @@ The test combines CRUD operations with a reflection check:
 - **testCreateAndRetrieveProduct()** / **testFindProductById()**: Verify basic JPA operations work with auto-detected dialect (H2 in-memory database).
 - **versionSpecificDialectClassShouldBeLoadable()**: Uses reflection to load MySQL8Dialect. Passes on Hibernate 6.x (class exists), fails on Hibernate 7.x (class removed).
 
-## On Spring Boot 3.5.14
+## On Spring Boot 3.5.16
 
 ```bash
 mvn clean test

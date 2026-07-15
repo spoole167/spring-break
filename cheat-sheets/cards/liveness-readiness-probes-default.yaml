@@ -92,6 +92,8 @@ watch_out:
     are correct before going to production.
 
 footer_links:
+  - text: "spring-break module: health-probes-default-on"
+    url: "https://github.com/spoole167/spring-break/tree/main/health-probes-default-on"
   - text: "Spring Boot 4.0 Migration Guide"
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
   - text: "Spring Boot Liveness and Readiness Probes"

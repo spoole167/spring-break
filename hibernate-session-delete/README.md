@@ -21,7 +21,7 @@ The test module uses reflection to check whether Hibernate Session API methods e
   - `sessionDeleteMethodShouldExist()` — checks `Session.delete(Object)` (exists on 6.x, removed on 7.x)
 - **App.java**: Minimal Spring Boot application
 
-## On Spring Boot 3.5.14
+## On Spring Boot 3.5.16
 
 ```bash
 mvn clean test
@@ -131,13 +131,13 @@ This is the recommended approach and is **not affected** by this breaking change
 ## Testing
 
 This module includes a test that checks if the `delete` method exists on Hibernate Session:
-- **Boot 3.5.14 (Hibernate 6.x)**: Test passes — `delete()` method is present
-- **Boot 4.0.6 (Hibernate 7.x)**: Test fails — `delete()` method is removed
+- **Boot 3.5.16 (Hibernate 6.x)**: Test passes — `delete()` method is present
+- **Boot 4.0.7 (Hibernate 7.x)**: Test fails — `delete()` method is removed
 
 Run:
 ```bash
-mvn test                                    # Boot 3.5.14 — passes
-mvn test -Dspring-boot.version=4.0.6       # Boot 4.0 — fails
+mvn test                                    # Boot 3.5.16 — passes
+mvn test -Dspring-boot.version=4.0.7       # Boot 4.0 — fails
 ```
 
 ## Impact Level

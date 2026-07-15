@@ -4,8 +4,8 @@
 # the type of breakage they demonstrate.
 #
 # Usage:
-#   ./run-all-tests.sh                        # 3.5.14 baseline — every module should pass
-#   ./run-all-tests.sh -v 4.0.6              # 4.0 target  — every module should FAIL
+#   ./run-all-tests.sh                        # 3.5.16 baseline — every module should pass
+#   ./run-all-tests.sh -v 4.0.7              # 4.0 target  — every module should FAIL
 #   ./run-all-tests.sh -q                    # quiet mode  (summary + failures only)
 #   ./run-all-tests.sh module1 module2       # run a subset
 #   ./run-all-tests.sh -v 4.0.2 -q          # combine flags
@@ -89,31 +89,37 @@ TIER_1=(
   batch-chunkhandler-renamed
   batch-listener-classes
   webjars-locator-core-removed
-)
-
-# Tier 2 — Won't Run: compiles on both versions, but throws at runtime on 4.0.
-TIER_2=(
-  hibernate-query-type-required
-  jackson-exception-hierarchy
+  # Re-tiered 2026-07-15: measured as compile-stage failures on 4.0.7
   hibernate-dialect-removal
   oauth-password-grant-removed
   mockbean-removed
-  batch-schema-change
   batch-job-serialisation
-  pkce-mandatory
   opensaml4-removed
   resttemplate-autoconfig
   test-slice-relocated
+  actuator-nullable-removed
+  jackson-dates-timestamps
+  httpcomponents-setconnecttimeout-removed
+)
+
+# Tier 2 — Won't Run: compiles on both versions, but fails at runtime on 4.0.
+TIER_2=(
+  hibernate-query-type-required
+  jackson-exception-hierarchy
+  batch-schema-change
+  pkce-mandatory
   mockito-test-execution-listener
   javax-annotation-removed
   javax-inject-removed
-  actuator-nullable-removed
+  batch-in-memory-default
+  health-probes-default-on
+  httpmessageconverters-deprecated
+  cors-empty-config-not-rejected
 )
 
 # Tier 3 — Different Results: runs on both, assertions detect different behaviour.
 TIER_3=(
   jackson-date-serialisation
-  jackson-dates-timestamps
   jackson-locale-format
   hibernate-native-datetime
 )
@@ -163,7 +169,7 @@ PASSED=()
 FAILED=()
 START_TS=$(date +%s)
 
-VERSION_LABEL="${BOOT_VERSION:-3.5.14 (default)}"
+VERSION_LABEL="${BOOT_VERSION:-3.5.16 (default)}"
 
 # ── Banner ────────────────────────────────────────────────────────────
 printf "\n%s━━━ Spring Boot 3.5 → 4.0 Migration Test Suite ━━━%s\n" "$BOLD" "$RESET"

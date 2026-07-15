@@ -29,7 +29,7 @@ The test uses reflection to verify the enum constant exists:
 - **cascadeTypeAllShouldWork()**: Loads the Parent entity class (uses standard JPA CascadeType.ALL). Works identically on both versions.
 - **saveUpdateCascadeTypeShouldExist()**: Uses reflection to load org.hibernate.annotations.CascadeType and check if SAVE_UPDATE constant exists. Passes on Hibernate 6.x, fails on 7.x.
 
-## On Spring Boot 3.5.14
+## On Spring Boot 3.5.16
 
 ```bash
 mvn clean test

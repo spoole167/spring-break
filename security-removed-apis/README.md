@@ -21,7 +21,7 @@ The test module demonstrates the breaking changes using:
 - **SecurityConfigTest.java**: Tests that authorization rules are properly applied
 - **SecurityApp.java**: Simple REST endpoints with different security requirements
 
-## On Spring Boot 3.5.14
+## On Spring Boot 3.5.16
 
 ```bash
 mvn clean compile
