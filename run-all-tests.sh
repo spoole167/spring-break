@@ -98,6 +98,10 @@ TIER_1=(
   resttemplate-autoconfig
   test-slice-relocated
   httpcomponents-setconnecttimeout-removed
+  auto-configure-observability-removed
+  conditional-on-enabled-tracing-renamed
+  webmvc-test-relocated
+  jackson-component-rename
 )
 
 # Tier 2 — Won't Run: compiles on both versions, but fails at runtime on 4.0.
@@ -121,6 +125,10 @@ TIER_3=(
   jackson-date-serialisation
   jackson-locale-format
   hibernate-native-datetime
+  tracing-autoconfig-relocated
+  tracing-export-property-renamed
+  mongodb-property-renames
+  spring-session-property-renames
 )
 
 # Portable tier lookup (works on bash 3.x / macOS)

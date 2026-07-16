@@ -5,15 +5,6 @@ title: "@JsonComponent and @JsonMixin Renamed to @JacksonComponent and @JacksonM
 series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
-no_module: true
-no_module_reason: >
-  The @JsonComponent rename is a real Boot 4.0 break, but it cannot be
-  isolated in a standalone test module. Any custom serialiser written with
-  @JsonComponent must also import Jackson's JsonSerializer or JsonDeserializer
-  from com.fasterxml.jackson.databind, the Jackson 2 package path. On Boot
-  4.0, Jackson 3 moved those classes to tools.jackson.databind, so the test
-  class fails at runtime with NoClassDefFoundError before the annotation
-  rename is ever reached.
 
   The root cause, the Jackson 3 package migration, is covered by the
   jackson-group-id module. Developers migrating to Boot 4.0 hit the package

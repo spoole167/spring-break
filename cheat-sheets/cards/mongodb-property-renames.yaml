@@ -82,5 +82,7 @@ watch_out:
     Check the spring-session-property-renames card.
 
 footer_links:
+  - text: "spring-break module: mongodb-property-renames"
+    url: "https://github.com/spoole167/spring-break/tree/main/mongodb-property-renames"
   - text: "Spring Boot 4.0 Migration Guide"
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"

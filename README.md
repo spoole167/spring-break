@@ -1,8 +1,8 @@
 # Spring Boot 3.5 → 4.0 Migration Test Cases
 
-61 self-contained Maven modules, each demonstrating a specific breaking change at the 3.5→4.0 boundary. The default build uses Spring Boot 3.5.16 — all tests pass. Override the version to see what breaks.
+69 self-contained Maven modules, each demonstrating a specific breaking change at the 3.5→4.0 boundary. The default build uses Spring Boot 3.5.16 — all tests pass. Override the version to see what breaks.
 
-Last full verification: 15 July 2026 — all 61 modules pass on 3.5.16, all 61 fail on 4.0.7 (9 at dependency resolution, 37 at compile, 12 at runtime, 3 with silently different results).
+Last full verification: 15 July 2026 — all 69 modules pass on 3.5.16, all 69 fail on 4.0.7 (9 at dependency resolution, 41 at compile, 12 at runtime, 7 with silently different results).
 
 ## Quick start
 
@@ -28,7 +28,7 @@ mvn clean test -pl jackson-date-serialisation
 
 ## Modules by tier
 
-### Tier 1 — Won't Build — 46 modules
+### Tier 1 — Won't Build — 50 modules
 
 Your build breaks immediately. Loud, obvious, caught before deploy. Highlights (see `run-all-tests.sh` for the full tier lists):
 
@@ -64,12 +64,13 @@ Compiles fine. Fails at runtime on specific code paths.
 | `httpmessageconverters-deprecated` | `HttpMessageConverters` gone at runtime — `NoClassDefFoundError` |
 | `pkce-mandatory` | PKCE enforced for all OAuth 2.0 clients — authorization requests change shape |
 
-### Tier 3 — Different Results — 3 modules
+### Tier 3 — Different Results — 7 modules
 
 Compiles, starts, runs, passes your existing tests. Produces different output.
 
 | Module | What breaks |
 |--------|------------|
+| `mongodb-property-renames` | `spring.data.mongodb.*` ignored on 4.0 — the app connects to `localhost:27017/test` instead of your configured database |
 | `jackson-date-serialisation` | Dates flip from `1699257000000` to `"2023-11-06T05:30:00Z"` |
 | `jackson-locale-format` | `Locale.US` serialises as `en-US` instead of `en_US` — breaks caching, i18n |
 | `hibernate-native-datetime` | Native queries return `java.time.LocalDate` instead of `java.sql.Date` — silent type change |
