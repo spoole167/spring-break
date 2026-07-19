@@ -1,0 +1,5 @@
+# Console First theme — A5 print layout for the Spring Boot 4.0 migration
+# cheat-sheet cards. Error output leads the page (light console panel, no
+# dark blocks), then title band, what/why/scope strip, fix band, watch-out
+# card grid, link footer. Pair with: pt build -s A5 --theme console-first
+theme.css

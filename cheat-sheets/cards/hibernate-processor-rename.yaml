@@ -96,3 +96,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/hibernate-processor-rename"
   - text: "Hibernate 7 migration guide"
     url: "https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html"
+
+subsystem: hibernate

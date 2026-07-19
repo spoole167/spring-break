@@ -115,3 +115,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/security-removed-apis"
   - text: "Spring Security 7 migration guide"
     url: "https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html"
+
+subsystem: security

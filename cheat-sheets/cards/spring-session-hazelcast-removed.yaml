@@ -79,3 +79,5 @@ footer_links:
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
   - text: "Hazelcast Spring Session Documentation"
     url: "https://docs.hazelcast.com/hazelcast/latest/spring/spring-session"
+
+subsystem: data-messaging

@@ -108,3 +108,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/listenable-future-removed"
   - text: "Spring Framework ListenableFuture removal"
     url: "https://github.com/spring-projects/spring-framework/issues/33808"
+
+subsystem: core

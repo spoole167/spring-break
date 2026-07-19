@@ -114,3 +114,5 @@ footer_links:
     url: "https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html"
   - text: "Spring Boot 4.0 Migration Guide"
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+
+subsystem: hibernate

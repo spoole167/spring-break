@@ -70,3 +70,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/testrest-template-removed"
   - text: "Spring Boot 4.0 Migration Guide"
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+
+subsystem: testing

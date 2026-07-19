@@ -97,3 +97,5 @@ footer_links:
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
   - text: "Jackson 3 in Spring (blog)"
     url: "https://spring.io/blog/2025/10/07/introducing-jackson-3-support-in-spring/"
+
+subsystem: jackson

@@ -75,3 +75,5 @@ footer_links:
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
   - text: "Spring Boot DevTools Documentation"
     url: "https://docs.spring.io/spring-boot/reference/using/devtools.html"
+
+subsystem: web

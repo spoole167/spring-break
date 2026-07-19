@@ -92,3 +92,5 @@ footer_links:
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
   - text: "Spring Boot Liveness and Readiness Probes"
     url: "https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints.kubernetes-probes"
+
+subsystem: observability

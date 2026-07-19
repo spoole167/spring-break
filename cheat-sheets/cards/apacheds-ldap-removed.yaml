@@ -84,3 +84,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/apacheds-ldap-removed"
   - text: "Spring Security 7 LDAP migration"
     url: "https://docs.spring.io/spring-security/reference/6.5/migration-7/ldap.html"
+
+subsystem: security

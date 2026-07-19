@@ -103,3 +103,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/retry-semantics-change"
   - text: "Spring Framework Resilience docs"
     url: "https://docs.spring.io/spring-framework/reference/core/resilience.html"
+
+subsystem: core

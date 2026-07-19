@@ -1,0 +1,7 @@
+# Margin Notes theme — A5 print layout, slot-enforced.
+# Main story column (error, what changed, fix) with a margin rail of
+# contextual callouts (scope, watch-outs, verify, further info). Uses the
+# block-slots structural API strictly: no rest() catch-all, so a card that
+# grows a section this layout doesn't place fails the build (exit 4)
+# instead of rendering oddly. Pair with: pt build -s A5 --theme margin-notes
+theme.css

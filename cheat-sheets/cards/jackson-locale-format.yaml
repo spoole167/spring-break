@@ -97,3 +97,5 @@ footer_links:
     url: "https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md"
   - text: "IETF BCP 47 (RFC 5646)"
     url: "https://www.rfc-editor.org/rfc/rfc5646"
+
+subsystem: jackson

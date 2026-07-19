@@ -74,3 +74,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/simpdest-message-matcher-removed"
   - text: "Spring Security 7 messaging migration"
     url: "https://docs.spring.io/spring-security/reference/6.5/migration-7/messaging.html"
+
+subsystem: security

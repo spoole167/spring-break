@@ -98,3 +98,5 @@ footer_links:
     url: "https://spring.io/blog/2025/11/12/null-safe-applications-with-spring-boot-4"
   - text: "Spring Boot 4.0 Migration Guide"
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+
+subsystem: observability

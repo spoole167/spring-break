@@ -78,3 +78,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/spring-security-access-relocated"
   - text: "Spring Security access API moves"
     url: "https://spring.io/blog/2025/09/09/access-api-moves-to-spring-security-access"
+
+subsystem: security

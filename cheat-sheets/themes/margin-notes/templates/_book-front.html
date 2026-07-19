@@ -1,0 +1,77 @@
+{# Generated front section: the Planning Matrix and the Robot/Human split.
+
+   Rendered by the _book-front hook in book.html, between the cover and
+   the first card. Everything here is derived from card frontmatter at
+   build time (cards arrive in walk order: sort [tier, id]), so these
+   pages can never drift out of date with the cards. No hand maintenance.
+
+   Two pages (each flows over if it must):
+     1. bf-matrix — every card: tier, title (internal link), impact,
+        OpenRewrite. What a tech lead photographs for the planning doc.
+     2. bf-split  — cards partitioned by the openrewrite flag: what the
+        recipe fixes while you get coffee vs what needs a person who
+        understands your code.
+
+   Glyph discipline: plain text only (Y / dot), no ⚙/✓ — openhtmltopdf's
+   embedded fonts drop them. #}
+
+<section class="book-front" id="book-front">
+  <h1>The Planning Matrix</h1>
+  <p class="bf-lead">Every change in this book, in book order. Impact is the
+    effort per occurrence once found (S small, M moderate, L large), not how
+    many you have. Auto means the OpenRewrite Boot 4.0 recipe handles it.</p>
+
+  <div class="bf-stats">
+    <span class="bf-stat">{{ cards | length }} changes</span>
+    {% for g in axisGroupings %}{% if g.axis.name == 'tier' %}
+    {% for v in g.values %}{% if v.count > 0 %}
+    <span class="bf-stat bf-stat-tier-{{ v.id }}">{{ v.count }} × {{ v.label }}</span>
+    {% endif %}{% endfor %}
+    {% endif %}{% endfor %}
+  </div>
+
+  <table class="bf-matrix">
+    <thead>
+      <tr><th class="bf-t">Tier</th><th>Change</th><th class="bf-e">Impact</th><th class="bf-or">Auto</th></tr>
+    </thead>
+    <tbody>
+    {% for card in cards %}
+      <tr{% if card.axes.tier is not null %} class="bf-row-tier-{{ card.axes.tier.id }}"{% endif %}>
+        <td class="bf-t">{% if card.axes.tier is not null %}{{ card.axes.tier.id }}{% endif %}</td>
+        <td class="bf-title"><a href="#card-{{ card.id }}">{{ card.title | default(card.id) }}</a></td>
+        <td class="bf-e bf-e-{{ card.frontmatter.effort }}">{{ card.frontmatter.effort | default('·') }}</td>
+        <td class="bf-or">{% if card.frontmatter.openrewrite %}Y{% else %}·{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="book-front bf-split" id="book-front-split">
+  <h1>The Robot List vs The Human List</h1>
+  <p class="bf-lead">The left column is what the OpenRewrite Boot 4.0 recipe
+    fixes while you get coffee. The right column needs a person who
+    understands your code. This split is the honest size of the migration:
+    the renames are free, the behaviour changes are the work.</p>
+
+  <div class="bf-cols">
+    <div class="bf-col bf-robot">
+      <h2>The Robot List</h2>
+      <p class="bf-colnote">Run the recipe, review the diff, done.</p>
+      <ul>
+      {% for card in cards %}{% if card.frontmatter.openrewrite %}
+        <li><a href="#card-{{ card.id }}">{{ card.title | default(card.id) }}</a></li>
+      {% endif %}{% endfor %}
+      </ul>
+    </div>
+    <div class="bf-col bf-human">
+      <h2>The Human List</h2>
+      <p class="bf-colnote">Read the card. Check your code. Decide.</p>
+      <ul>
+      {% for card in cards %}{% if not card.frontmatter.openrewrite %}
+        <li><a href="#card-{{ card.id }}">{{ card.title | default(card.id) }}</a></li>
+      {% endif %}{% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>

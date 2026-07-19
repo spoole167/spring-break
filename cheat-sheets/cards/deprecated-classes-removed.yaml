@@ -104,3 +104,5 @@ footer_links:
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
   - text: "RestClient migration guide"
     url: "https://docs.spring.io/spring-framework/reference/integration/rest-clients.html"
+
+subsystem: core

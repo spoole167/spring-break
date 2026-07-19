@@ -1,0 +1,37 @@
+/* =============================================================================
+ * editions.css — per-edition styling keyed off publication identity classes.
+ *
+ * `pt publish` stamps <html> with `edition-{id}` plus each declared class
+ * (see publication: in pagewright.yaml). This file is in the book css:
+ * chain, so it loads for every edition under every theme; the selectors
+ * only fire where the classes match. Plain `pt build` runs carry no
+ * edition classes and are untouched.
+ *
+ * Accent colours match the subsystem axis declaration, so a guide's cover
+ * wears its subsystem's colour.
+ * ===========================================================================*/
+
+/* Every mini-guide: mark the cover as part of the series. */
+html.mini-guide .cover-subtitle::after {
+  content: " · Mini Guide";
+  color: #8a8f98;
+}
+
+html.mini-guide .cover-footnote::before {
+  content: "One stack from the full Spring Break Cheat Sheets. ";
+}
+
+/* Per-stack cover and back-page accents (subsystem axis colours). */
+html.stack-batch          .cover-a5 { border-top-color: #a61e4d; }
+html.stack-hibernate      .cover-a5 { border-top-color: #b35c00; }
+html.stack-security       .cover-a5 { border-top-color: #862e9c; }
+html.stack-data-messaging .cover-a5 { border-top-color: #1864ab; }
+html.stack-testing        .cover-a5 { border-top-color: #087f5b; }
+html.stack-observability  .cover-a5 { border-top-color: #2b8a3e; }
+html.stack-jackson        .cover-a5 { border-top-color: #5f3dc4; }
+html.stack-web            .cover-a5 { border-top-color: #0b7285; }
+html.stack-core           .cover-a5 { border-top-color: #495057; }
+
+/* The cover's tier legend is redundant noise on a 6-page mini guide when
+   the guide is single-tier heavy; keep it, but tone it down. */
+html.mini-guide .cover-tiers { opacity: 0.85; }

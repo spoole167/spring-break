@@ -105,3 +105,5 @@ footer_links:
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
   - text: "Spock Framework GitHub"
     url: "https://github.com/spockframework/spock"
+
+subsystem: testing

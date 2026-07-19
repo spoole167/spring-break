@@ -71,3 +71,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/hibernate-query-setorder-removed"
   - text: "Hibernate 7.0 Migration Guide"
     url: "https://docs.hibernate.org/orm/7.0/migration-guide/migration-guide.html"
+
+subsystem: hibernate

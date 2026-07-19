@@ -108,3 +108,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/jackson-class-renames"
   - text: "Jackson 3 migration guide"
     url: "https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md"
+
+subsystem: jackson

@@ -1,0 +1,98 @@
+{# Diagnosis / Treatment theme override — a structural (slot-based) skeleton.
+
+   The page mirrors how developers debug: symptom and cure side by side.
+
+     dt-head   — title + oneliner (intro slot) left, badges right
+     dt-cols   — grid:
+       dt-diag ("⚠ Symptom"): error-output, what-changed, why-changed,
+                              scope-check
+       dt-trt  ("✓ Fix"):     diffs, fixes, verify (green done-when box)
+     dt-watch  — watch-out full-width band, bullets as trap cards
+     dt-extra  — further-info, quiet, full-width
+     dt-foot   — footer-links strip
+
+   Same enforcement contract as margin-notes: what-changed and fixes are
+   require()d, and there is deliberately NO card.slots.rest() catch-all —
+   a card that grows a section this layout doesn't place fails the build
+   (SlotPlacementException) instead of silently rendering an odd page.
+   Slot names are the cardSchema field names, with heading-slug spellings
+   as aliases for hand-written markdown cards. #}
+{% extends "_card-body-base" %}
+
+{% block header %}
+<div class="dt-head">
+  <div class="dt-titletext">
+    <h1 class="card-title">{{ card.title | default(card.id) }}</h1>
+    {% for b in card.slots.take('intro') %}
+    <div class="oneliner">{{ b.html | raw }}</div>
+    {% endfor %}
+  </div>
+  <div class="dt-badges">
+    {% for entry in card.axes %}
+    <span class="tier-badge axis-badge axis-badge-{{ entry.key }}">{{ entry.value.label }}</span>
+    {% endfor %}
+    {% if card.frontmatter.effort %}<span class="effort-badge {{ card.frontmatter.effort }}">Impact: {{ card.frontmatter.effort }}</span>{% endif %}
+    {% if card.frontmatter.openrewrite %}<span class="openrewrite-badge">⚙ OpenRewrite</span>{% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block meta %}{% endblock %}
+
+{% block cardBlocks %}
+<div class="dt-cols">
+  <div class="dt-col dt-diag">
+    <div class="dt-colhead">⚠ Symptom</div>
+
+    {% for b in card.slots.take(['error-output', 'what-youll-see']) %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+
+    {% for b in card.slots.require('what-changed') %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+
+    {% for b in card.slots.take(['why-changed', 'why']) %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+
+    {% for b in card.slots.take('scope-check') %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+  </div>
+
+  <div class="dt-col dt-trt">
+    <div class="dt-colhead">✓ Fix</div>
+
+    {% for b in card.slots.take(['diffs', 'the-fix']) %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+
+    {% for b in card.slots.require(['fixes', 'how-to-fix']) %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+
+    {% for b in card.slots.take(['verify', 'check']) %}
+    <div class="dt-verify">{% include "_block-section" with {"block": b} %}</div>
+    {% endfor %}
+  </div>
+</div>
+
+{% for b in card.slots.take('watch-out') %}
+<div class="dt-watch">
+  {% include "_block-section" with {"block": b} %}
+</div>
+{% endfor %}
+
+{% for b in card.slots.take('further-info') %}
+<div class="dt-extra">
+  {% include "_block-section" with {"block": b} %}
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block footer %}
+{% for b in card.slots.take('footer-links') %}
+<footer class="dt-foot">{{ b.html | raw }}</footer>
+{% endfor %}
+{% endblock %}

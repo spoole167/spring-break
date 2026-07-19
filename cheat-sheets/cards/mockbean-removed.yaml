@@ -115,3 +115,5 @@ footer_links:
     url: "https://rieckpil.de/whats-new-for-testing-in-spring-boot-4-0-and-spring-framework-7/"
   - text: "Spring Boot 4.0 Migration Guide"
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+
+subsystem: testing

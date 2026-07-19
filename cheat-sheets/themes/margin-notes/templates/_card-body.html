@@ -1,0 +1,96 @@
+{# Margin Notes theme override — a structural (slot-based) skeleton.
+
+   Unlike console-first's class-filtered loops, this template PLACES blocks
+   via card.slots, which buys two things:
+
+     1. The skeleton, not the source file, decides where each block
+        renders: main story column on the left, contextual callouts in the
+        right-hand margin rail.
+     2. Enforcement. There is deliberately NO card.slots.rest() catch-all
+        here, and the two sections the layout's story depends on are
+        require()d — so a card missing its narrative spine, or growing a
+        section this layout doesn't know where to put, fails the build
+        with exit code 4 (SlotPlacementException) instead of silently
+        rendering an odd page. To soften that contract later, add a
+        {% for b in card.slots.rest() %} region at the end of mn-main.
+
+   Slot names are the cardSchema field names (what YamlCardTranspiler sets
+   as each section's class), with the heading-slug spellings as aliases so
+   hand-written markdown cards using the same headings still place.
+
+   Page shape:
+     mn-head  — title + oneliner (intro slot) left, badges right
+     mn-body  — grid: mn-main (story) | mn-rail (callouts)
+     mn-foot  — footer-links strip
+#}
+{% extends "_card-body-base" %}
+
+{% block header %}
+<div class="mn-head">
+  <div class="mn-titletext">
+    <h1 class="card-title">{{ card.title | default(card.id) }}</h1>
+    {% for b in card.slots.take('intro') %}
+    <div class="oneliner">{{ b.html | raw }}</div>
+    {% endfor %}
+  </div>
+  <div class="mn-badges">
+    {% for entry in card.axes %}
+    <span class="tier-badge axis-badge axis-badge-{{ entry.key }}">{{ entry.value.label }}</span>
+    {% endfor %}
+    {% if card.frontmatter.effort %}<span class="effort-badge {{ card.frontmatter.effort }}">Impact: {{ card.frontmatter.effort }}</span>{% endif %}
+    {% if card.frontmatter.openrewrite %}<span class="openrewrite-badge">⚙ OpenRewrite</span>{% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block meta %}{% endblock %}
+
+{% block cardBlocks %}
+<div class="mn-body">
+  <div class="mn-main">
+    {% for b in card.slots.take(['error-output', 'what-youll-see']) %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+
+    {% for b in card.slots.require('what-changed') %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+
+    {% for b in card.slots.take(['why-changed', 'why']) %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+
+    {% for b in card.slots.take(['diffs', 'the-fix']) %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+
+    {% for b in card.slots.require(['fixes', 'how-to-fix']) %}
+    {% include "_block-section" with {"block": b} %}
+    {% endfor %}
+  </div>
+
+  <aside class="mn-rail">
+    {% for b in card.slots.take('scope-check') %}
+    <div class="mn-note mn-note-scope">{% include "_block-section" with {"block": b} %}</div>
+    {% endfor %}
+
+    {% for b in card.slots.take('watch-out') %}
+    <div class="mn-note mn-note-watch">{% include "_block-section" with {"block": b} %}</div>
+    {% endfor %}
+
+    {% for b in card.slots.take(['verify', 'check']) %}
+    <div class="mn-note mn-note-verify">{% include "_block-section" with {"block": b} %}</div>
+    {% endfor %}
+
+    {% for b in card.slots.take('further-info') %}
+    <div class="mn-note mn-note-info">{% include "_block-section" with {"block": b} %}</div>
+    {% endfor %}
+  </aside>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% for b in card.slots.take('footer-links') %}
+<footer class="mn-foot">{{ b.html | raw }}</footer>
+{% endfor %}
+{% endblock %}

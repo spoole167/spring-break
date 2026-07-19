@@ -111,3 +111,5 @@ footer_links:
     url: "https://github.com/spoole167/spring-break/tree/main/testcontainers-class-relocation"
   - text: "Testcontainers 2.0 migration guide"
     url: "https://testcontainers.com/guides/testcontainers-2-migration-guide/"
+
+subsystem: testing

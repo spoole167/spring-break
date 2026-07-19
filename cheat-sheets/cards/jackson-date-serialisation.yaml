@@ -98,3 +98,5 @@ footer_links:
     url: "https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md"
   - text: "Jackson 3 in Spring (blog)"
     url: "https://spring.io/blog/2025/10/07/introducing-jackson-3-support-in-spring/"
+
+subsystem: jackson

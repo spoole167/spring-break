@@ -1,0 +1,7 @@
+# Diagnosis / Treatment theme — A5 print layout, slot-enforced.
+# Two columns mirroring the debugging mental model: what's wrong on the
+# left (error, what changed, why, scope), what to do on the right (diffs,
+# fix steps, verify), traps full-width at the bottom. Slot-based like
+# margin-notes: no rest() catch-all, what-changed and fixes are required.
+# Pair with: pt build -s A5 --theme diagnosis-treatment
+theme.css

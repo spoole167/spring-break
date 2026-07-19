@@ -1,0 +1,595 @@
+/* =============================================================================
+ * Theme: console-first
+ *
+ * A5 print layout for the Spring Boot 4.0 migration cheat-sheet cards.
+ * The page opens with the error output as a light "console" panel (no dark
+ * ink-heavy blocks — this is a print theme), then title band, a
+ * what/why/scope column strip, the fix band, watch-out cards, link footer.
+ *
+ * Pairs with this theme's templates/_card-body.html, which hoists the
+ * what-youll-see block above the title and dispatches the remaining blocks
+ * into the cf-* regions styled here. Quiet cards with no error output
+ * simply open with the title band.
+ *
+ * Build:  pt build -s A5 --theme console-first --theme-dir themes cards out.pdf
+ * Tier palette matches the book yaml's axis colours:
+ *   tier-1 #c0392b · tier-2 #d68910 · tier-3 #2471a3
+ * ===========================================================================*/
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── Page & body ──────────────────────────────────────────────────────────
+ * Zero page margin so the hero band and footer strip run full-bleed;
+ * every region carries its own 7mm side padding instead. Cards are
+ * designed to fit one A5 page — check with --report-pages /
+ * --max-pages-per-card 1.                                                  */
+@page { size: 148mm 210mm; margin: 0; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", sans-serif;
+  margin: 0;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+article.card {
+  max-width: none;
+  margin: 0;
+  padding-bottom: 4mm;
+}
+
+/* Tier accents. Explicit per-tier rules rather than a --tier custom
+   property: openhtmltopdf (the pure-Java fallback renderer) has no
+   custom-property support and silently drops any declaration using
+   var(), which turned the tier badge into white-on-white. Grouped here
+   so retinting a tier means touching one place. */
+.tier-badge                     { background: #6a737d; }  /* axis-less */
+article.card.tier-1 .tier-badge { background: #c0392b; }
+article.card.tier-2 .tier-badge { background: #d68910; }
+article.card.tier-3 .tier-badge { background: #2471a3; }
+
+article.card.tier-1 .cf-hero, article.card.tier-1 > .cf-titleband:first-child { border-color: #c0392b; }
+article.card.tier-2 .cf-hero, article.card.tier-2 > .cf-titleband:first-child { border-color: #d68910; }
+article.card.tier-3 .cf-hero, article.card.tier-3 > .cf-titleband:first-child { border-color: #2471a3; }
+
+article.card.tier-1 .cf-threecol section.block h2 { color: #c0392b; }
+article.card.tier-2 .cf-threecol section.block h2 { color: #d68910; }
+article.card.tier-3 .cf-threecol section.block h2 { color: #2471a3; }
+
+article.card.tier-1 section.block pre { border-left-color: #c0392b; }
+article.card.tier-2 section.block pre { border-left-color: #d68910; }
+article.card.tier-3 section.block pre { border-left-color: #2471a3; }
+
+/* ── 1 · Console hero ─────────────────────────────────────────────────── */
+.cf-hero {
+  background: #f6f8fa;
+  border-bottom: 2.5pt solid #c0392b;   /* per-tier override above */
+  padding: 6mm 7mm 4mm;
+}
+
+.cf-hero-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2mm;
+}
+
+.cf-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6pt;
+  font-weight: 700;
+  color: #8a8f98;
+  text-transform: uppercase;
+  letter-spacing: 0.5pt;
+}
+
+/* The error-output pre sits directly in the hero: strip the box styling
+   the scaffold gives every <pre> and let the band be the container. */
+.cf-hero pre,
+.cf-hero pre.error-output {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.8pt;
+  line-height: 1.5;
+  color: #3a4048;
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+pre.error-output .err-error  { color: #c0392b; }
+pre.error-output .err-prompt { color: #1d7a3d; font-weight: 700; }
+
+/* ── 2 · Title band ───────────────────────────────────────────────────── */
+.cf-titleband {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 4mm;
+  padding: 3.5mm 7mm 2.5mm;
+  border-bottom: 0.5pt solid #e5e5e5;
+}
+
+/* No hero (quiet cards): the title band opens the page and picks up the
+   tier rule the hero would have carried. */
+article.card > .cf-titleband:first-child {
+  border-top: 2.5pt solid #c0392b;      /* per-tier override above */
+  padding-top: 5mm;
+}
+
+h1.card-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11pt;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 1mm;
+}
+
+.oneliner, .oneliner p {
+  font-size: 7.4pt;
+  color: #555;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.cf-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.2mm;
+  flex-shrink: 0;
+  margin-top: 0.5mm;
+}
+
+.tier-badge, .effort-badge, .openrewrite-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3pt;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.tier-badge {
+  color: #fff;
+  font-size: 6.5pt;
+  padding: 1.5pt 6pt;
+}
+
+.effort-badge   { font-size: 6.2pt; padding: 1.2pt 5pt; }
+.effort-badge.S { background: #d4edda; color: #155724; }
+.effort-badge.M { background: #fff3cd; color: #856404; }
+.effort-badge.L { background: #f8d7da; color: #721c24; }
+
+.openrewrite-badge {
+  background: #e8f0fe;
+  color: #1a56db;
+  font-size: 6.2pt;
+  font-weight: 600;
+  padding: 1.2pt 5pt;
+}
+
+/* applies-if (inherited from the base template) rides under the band. */
+.applies-if {
+  padding: 1.5mm 7mm;
+  font-size: 7pt;
+  color: #555;
+  background: #fafbfe;
+  border-bottom: 0.5pt solid #e5e5e5;
+}
+.applies-if-label { font-weight: 700; color: #1a56db; }
+
+/* ── 3 · What / Why / Scope strip ─────────────────────────────────────── */
+.cf-threecol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 3.5mm;
+  padding: 2.5mm 7mm;
+  border-bottom: 0.5pt solid #e5e5e5;
+}
+
+.cf-threecol section.block { margin: 0; min-width: 0; }
+
+.cf-threecol section.block h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.3pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #c0392b;                        /* per-tier override above */
+  margin: 0 0 0.8mm;
+}
+
+.cf-threecol section.block p {
+  font-size: 6.8pt;
+  line-height: 1.4;
+  margin: 0 0 1mm;
+}
+
+/* ── 4 · Fix band ─────────────────────────────────────────────────────── */
+.cf-fixband { padding: 2.5mm 7mm 1mm; }
+
+.cf-fixband section.block { margin: 0 0 1.5mm; }
+
+.cf-fixband section.block h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7.2pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #1d7a3d;
+  margin: 0 0 1mm;
+}
+
+.cf-fixband p, .cf-fixband li {
+  font-size: 7.1pt;
+  line-height: 1.42;
+  margin: 0 0 0.8mm;
+}
+
+.cf-fixband ul, .cf-fixband ol { margin: 0 0 1mm 3.8mm; padding: 0; }
+
+/* Verify → the green "done when" box. */
+.cf-fixband section.verify {
+  background: #f0faf0;
+  border: 0.5pt solid #c3e6c3;
+  border-radius: 3px;
+  padding: 1.4mm 2.2mm;
+}
+.cf-fixband section.verify h2 { margin-bottom: 0.5mm; }
+.cf-fixband section.verify p  { font-size: 6.9pt; margin: 0; }
+
+/* ── Diff cards (structural + colour; nothing else ships this) ────────── */
+figure.diff-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 0.5pt solid #ddd;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 1mm 0 1.5mm;
+}
+
+figure.diff-card.diff-card-additions-only { grid-template-columns: 1fr; }
+
+figure.diff-card figcaption {
+  grid-column: 1 / -1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.2pt;
+  color: #8a8f98;
+  padding: 1.2mm 2.2mm;
+  background: #fafafa;
+  border-bottom: 0.5pt solid #eee;
+}
+
+.diff-side { min-width: 0; }
+.diff-side + .diff-side { border-left: 0.5pt solid #ddd; }
+
+.diff-side > header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.2pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5pt;
+  padding: 1.2mm 2.2mm;
+}
+
+.diff-side-removed > header { background: #fdecea; color: #c0392b; }
+.diff-side-added   > header { background: #e8f6ec; color: #1d7a3d; }
+
+.diff-side > pre {
+  background: #fffafa;
+  border: none;
+  margin: 0;
+  padding: 1.4mm 2.2mm 1.8mm;
+  font-size: 6pt;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+.diff-side-added > pre { background: #fafffb; }
+
+/* Prism runs over the diff columns; keep token colours print-quiet. */
+.diff-side code[class*="language-"] { background: transparent; font-size: inherit; }
+
+/* ── 5 · Watch-out card grid ──────────────────────────────────────────── */
+.cf-watch { padding: 0 7mm; }
+
+.cf-watch section.block { margin: 0 0 1.5mm; }
+
+.cf-watch section.block h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7.2pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #e8590c;
+  margin: 0 0 1mm;
+}
+
+.cf-watch ul {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2mm;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cf-watch ul li {
+  background: #fff8f2;
+  border: 0.5pt solid #f3d9c3;
+  border-left: 2.5pt solid #e8590c;
+  border-radius: 3px;
+  padding: 1.4mm 2mm;
+  font-size: 6.5pt;
+  line-height: 1.38;
+}
+
+/* ── 6 · Unplaced blocks (further-info, future sections) ──────────────── */
+.cf-rest { padding: 0 7mm; }
+
+.cf-rest section.block { margin: 0 0 1.5mm; }
+
+.cf-rest section.block h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.8pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #666;
+  margin: 0 0 0.8mm;
+}
+
+.cf-rest p, .cf-rest li { font-size: 6.9pt; line-height: 1.4; margin: 0 0 0.8mm; }
+
+/* ── 7 · Footer links strip ───────────────────────────────────────────── */
+footer.cf-foot {
+  background: #f4f4f4;
+  padding: 1.8mm 7mm;
+  margin-top: 2mm;
+}
+
+footer.cf-foot ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 4mm;
+  margin: 0;
+  padding: 0;
+}
+
+footer.cf-foot li { font-size: 6pt; color: #666; }
+footer.cf-foot a  { color: #666; text-decoration: none; }
+
+/* ── Shared code / inline ─────────────────────────────────────────────── */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.94em;
+  background: #f1f1f1;
+  padding: 0 2pt;
+  border-radius: 2px;
+}
+
+pre { page-break-inside: avoid; }
+pre code { background: transparent; padding: 0; }
+
+/* Generic pre outside the hero (error output quoted mid-card, etc.). */
+section.block pre {
+  background: #f6f8fa;
+  border: 0.5pt solid #d7dde3;
+  border-left: 2.5pt solid #c0392b;      /* per-tier override above */
+  border-radius: 3px;
+  padding: 1.5mm 2.2mm;
+  font-size: 6.4pt;
+  line-height: 1.48;
+  white-space: pre-wrap;
+  margin: 0.8mm 0 1.5mm;
+}
+
+/* ── Book furniture ───────────────────────────────────────────────────────
+ * The scaffold gives .book-cover page-break-after and .book-back
+ * page-break-before, but tier dividers get NO break rules from the
+ * scaffold — the theme must supply both sides or the divider shares a
+ * page with the following card.                                          */
+
+/* Cover (layouts/cover-a5.html) */
+.book-cover { height: 209mm; }
+.cover-a5 {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14mm;
+  border-top: 6mm solid #c0392b;
+}
+.cover-series {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8pt; color: #8a8f98;
+  text-transform: uppercase; letter-spacing: 1pt;
+  margin-bottom: 4mm;
+}
+h1.cover-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24pt; line-height: 1.15;
+  margin: 0 0 3mm;
+}
+.cover-subtitle { font-size: 11pt; color: #555; margin-bottom: 8mm; }
+.cover-tiers { display: flex; flex-direction: column; gap: 2mm; margin-bottom: 10mm; }
+.cover-tier {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7.5pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4pt;
+  color: #fff; padding: 1.8mm 3mm; border-radius: 2px;
+  align-self: flex-start;
+}
+.cover-tier-1 { background: #c0392b; }
+.cover-tier-2 { background: #d68910; }
+.cover-tier-3 { background: #2471a3; }
+.cover-author { font-size: 10pt; font-weight: 600; margin-bottom: 2mm; }
+.cover-footnote { font-size: 7.5pt; color: #8a8f98; line-height: 1.5; max-width: 100mm; }
+
+/* Tier dividers — full A5 sheet, inline background colour comes from the
+   axis value declared in the book yaml, so text just needs to be white. */
+.tier-divider {
+  page-break-before: always;
+  page-break-after: always;
+  height: 209mm;
+  color: #fff;
+  padding: 0;
+}
+.tier-divider-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14mm;
+}
+.tier-divider .tier-badge-lg {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1pt;
+  opacity: 0.85; margin-bottom: 3mm;
+}
+.tier-divider h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20pt; line-height: 1.15; margin: 0 0 2mm;
+}
+.tier-divider .tier-count { font-size: 9pt; opacity: 0.85; margin-bottom: 6mm; }
+.tier-divider .tier-toc {
+  font-size: 6.8pt; line-height: 1.55;
+  columns: 2; column-gap: 8mm;
+  padding-left: 4mm; margin: 0;
+}
+.tier-divider .tier-toc a { color: #fff; text-decoration: none; }
+
+/* Section dividers (axis-less fallback) — same geometry, neutral colours. */
+.section-divider {
+  page-break-before: always; page-break-after: always;
+  height: 209mm; padding: 0; border: none;
+}
+.section-divider h1 { font-family: 'JetBrains Mono', monospace; font-size: 18pt; padding: 80mm 14mm 0; }
+.section-divider .tier-count { font-size: 8pt; padding: 0 14mm; }
+.section-divider .tier-toc { font-size: 7pt; padding: 0 14mm 0 18mm; }
+
+/* Back page (layouts/back-cta.html) */
+.book-back { height: 209mm; }
+.back-cta {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14mm;
+  border-top: 6mm solid #1d7a3d;
+}
+.back-cta h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18pt; margin: 0 0 3mm;
+}
+.back-lead { font-size: 9pt; color: #555; line-height: 1.5; margin: 0 0 6mm; }
+.back-options { margin: 0 0 8mm 4.5mm; padding: 0; }
+.back-options li { font-size: 8.5pt; line-height: 1.5; margin-bottom: 3mm; }
+.back-links { border-top: 0.5pt solid #ddd; padding-top: 3mm; }
+.back-links div {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.8pt; color: #666; line-height: 1.8;
+}
+
+
+/* ── Generated front section (_book-front.html) ───────────────────────── */
+.book-front {
+  page-break-before: always;
+  padding: 8mm 10mm 6mm;
+}
+
+.book-front h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14pt;
+  margin: 0 0 2mm;
+}
+
+.bf-lead { font-size: 7.5pt; color: #555; line-height: 1.5; margin: 0 0 3mm; max-width: 118mm; }
+
+.bf-stats { margin-bottom: 3mm; }
+.bf-stat {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.3pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.3pt;
+  background: #f1f3f5; color: #444;
+  border-radius: 2px;
+  padding: 1.2pt 5pt;
+  margin: 0 1.5mm 1mm 0;
+}
+.bf-stat-tier-1 { background: #c0392b; color: #fff; }
+.bf-stat-tier-2 { background: #d68910; color: #fff; }
+.bf-stat-tier-3 { background: #2471a3; color: #fff; }
+
+table.bf-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 6.4pt;
+  line-height: 1.35;
+}
+.bf-matrix th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 5.8pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4pt;
+  text-align: left; color: #666;
+  border-bottom: 1pt solid #bbb;
+  padding: 1mm 1.5mm;
+}
+.bf-matrix td {
+  border-bottom: 0.5pt solid #e9ecef;
+  padding: 0.8mm 1.5mm;
+  vertical-align: top;
+}
+.bf-matrix tr { page-break-inside: avoid; }
+.bf-matrix td.bf-t, .bf-matrix th.bf-t { width: 8mm; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.bf-matrix td.bf-e, .bf-matrix th.bf-e { width: 11mm; text-align: center; font-family: 'JetBrains Mono', monospace; }
+.bf-matrix td.bf-or, .bf-matrix th.bf-or { width: 9mm; text-align: center; font-family: 'JetBrains Mono', monospace; }
+.bf-matrix td.bf-title a { color: #1a1a1a; text-decoration: none; }
+.bf-row-tier-1 td.bf-t { color: #c0392b; }
+.bf-row-tier-2 td.bf-t { color: #d68910; }
+.bf-row-tier-3 td.bf-t { color: #2471a3; }
+.bf-e-S { color: #155724; } .bf-e-M { color: #856404; } .bf-e-L { color: #721c24; font-weight: 700; }
+
+/* Robot / Human split */
+.bf-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 5mm;
+}
+.bf-col { min-width: 0; }
+.bf-col h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5pt;
+  padding: 1mm 0; margin: 0 0 0.5mm;
+  border-bottom: 2pt solid;
+}
+.bf-robot h2 { color: #1a56db; border-bottom-color: #1a56db; }
+.bf-human h2 { color: #b3480a; border-bottom-color: #b3480a; }
+.bf-colnote { font-size: 6.5pt; color: #8a8f98; margin: 0.5mm 0 1.5mm; }
+.bf-col ul { list-style: none; margin: 0; padding: 0; }
+.bf-col ul li {
+  font-size: 6.3pt; line-height: 1.4;
+  border-bottom: 0.5pt solid #f1f3f5;
+  padding: 0.7mm 0;
+}
+.bf-col ul li a { color: #1a1a1a; text-decoration: none; }
+
+/* ── Subsystem axis ───────────────────────────────────────────────────────
+ * The subsystem badge carries the literal tier-badge class (base template
+ * convention), so without this override it would inherit the tier colour.
+ * Kept last in the file to win the specificity tie with the per-tier rules.
+ * PDF dividers for this axis are suppressed: in the tier-sorted full book
+ * subsystem values interleave, and interleaved values repeat their divider
+ * before every run. Site landing pages are unaffected. Mini-guides come
+ * from `pt build --select subsystem=<id>` instead.                        */
+article.card .tier-badge.axis-badge-subsystem {
+  background: #f1f3f5;
+  color: #495057;
+}
+section.axis-divider[id^="axis-divider-subsystem-"] { display: none; }

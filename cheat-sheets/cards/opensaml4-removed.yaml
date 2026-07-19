@@ -140,3 +140,5 @@ footer_links:
     url: "https://docs.spring.io/spring-security/reference/6.5/migration-7/configuration.html"
   - text: "Spring Boot 4.0 Migration Guide"
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+
+subsystem: security

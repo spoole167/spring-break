@@ -1,0 +1,21 @@
+{# Custom A5 cover — replaces the built-in _book-cover entirely.
+   Keeps the .book-cover class (scaffold page-break) and #book-cover anchor
+   (PagesReport recognises the cover row by it). Subtitle/series/author are
+   authored here because BookConfig only models `title`. #}
+<section class="book-cover" id="book-cover">
+  <div class="cover-a5">
+    <div class="cover-series">spring-boot 3.5 → 4.0</div>
+    {# edition.title wins when publishing (null-safe: plain builds have no
+       edition in scope, the attribute resolves null, default() kicks in) #}
+    <h1 class="cover-title">{{ edition.title | default(book.title) | default('Spring Break Cheat Sheets') }}</h1>
+    <div class="cover-subtitle">Breaking Changes You Need to Fix</div>
+    <div class="cover-tiers">
+      <span class="cover-tier cover-tier-1">Tier 1 · Won't Build</span>
+      <span class="cover-tier cover-tier-2">Tier 2 · Won't Start</span>
+      <span class="cover-tier cover-tier-3">Tier 3 · Behaves Differently</span>
+    </div>
+    <div class="cover-author">Steve Poole</div>
+    <div class="cover-footnote">Every card verified against Spring Boot 3.5.16 and 4.0.7.
+      Real error output, real fixes, from the spring-break test suite.</div>
+  </div>
+</section>

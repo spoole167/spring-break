@@ -1,0 +1,166 @@
+title: "Spring Break Cheat Sheets"
+
+# Custom front/back pages (paths relative to the book root). The custom
+# cover carries the subtitle/series/author line-up from guide.json —
+# BookConfig only models `title`, so the built-in text cover would be bare.
+cover:
+  template: layouts/cover-a5.html
+back:
+  template: layouts/back-cta.html
+
+# Book CSS chain (loads before theme CSS; edition selectors carry the
+# specificity to win where they should). editions.css keys per-guide cover
+# accents off the html classes stamped by the publication's edition ids
+# and stack-* classes.
+css:
+  - css/editions.css
+
+# Named editions (DESIGN-publications.md). Build with:
+#   pt publish cards               # every edition
+#   pt publish cards batch-guide   # one edition
+# Session-only overrides stay on the CLI (--renderer, --emit-html-dir).
+publication:
+  defaults:
+    theme: margin-notes
+    size: A5
+    themeDir: ../themes
+    output: dist/{id}.pdf
+  # Each mini-guide overrides the theme to suit its content character:
+  # console-first where the stack fails loudly (compile errors), margin-notes
+  # where the story is behavioural (watch-out heavy), diagnosis-treatment
+  # where symptom/fix pairs are crisp. core-guide deliberately overrides
+  # nothing beyond selection — it proves defaults inheritance. Per-guide
+  # cover accents key off the stack-* classes in css/editions.css.
+  editions:
+    - id: full-guide
+      title: "Spring Break Cheat Sheets"
+    - id: batch-guide
+      class: [mini-guide, stack-batch]
+      title: "Spring Batch: 3.5 → 4.0"
+      select: { subsystem: batch }
+      theme: console-first
+    - id: hibernate-guide
+      class: [mini-guide, stack-hibernate]
+      title: "Hibernate & JPA: 3.5 → 4.0"
+      select: { subsystem: hibernate }
+    - id: security-guide
+      class: [mini-guide, stack-security]
+      title: "Security & SSO: 3.5 → 4.0"
+      select: { subsystem: security }
+      theme: diagnosis-treatment
+    - id: data-messaging-guide
+      class: [mini-guide, stack-data-messaging]
+      title: "Data & Messaging: 3.5 → 4.0"
+      select: { subsystem: data-messaging }
+    - id: testing-guide
+      class: [mini-guide, stack-testing]
+      title: "Testing: 3.5 → 4.0"
+      select: { subsystem: testing }
+      theme: console-first
+    - id: observability-guide
+      class: [mini-guide, stack-observability]
+      title: "Observability & Ops: 3.5 → 4.0"
+      select: { subsystem: observability }
+      theme: diagnosis-treatment
+    - id: jackson-guide
+      class: [mini-guide, stack-jackson]
+      title: "Jackson & JSON: 3.5 → 4.0"
+      select: { subsystem: jackson }
+    - id: web-guide
+      class: [mini-guide, stack-web]
+      title: "Web & HTTP: 3.5 → 4.0"
+      select: { subsystem: web }
+      theme: console-first
+    - id: core-guide
+      class: [mini-guide, stack-core]
+      title: "Core Platform & Build: 3.5 → 4.0"
+      select: { subsystem: core }
+    # Cross-cutting cut: every L-impact change regardless of stack, plus
+    # @MockBean (M, but the single most common breakage) hand-included via
+    # cards: — exercises the where-predicate and the union semantics.
+    - id: heavy-hitters
+      class: [mini-guide, cross-cut]
+      title: "The Big Jobs: L-Impact Changes"
+      select:
+        where: "card.frontmatter.effort == 'L'"
+        cards: [mockbean-removed]
+      pages:
+        report: true
+
+axes:
+  - name: tier
+    title: Tier
+    values:
+      - id: 1
+        label: "Tier 1 - Won't Build"
+        color: "#c0392b"
+      - id: 2
+        label: "Tier 2 - Won't Start"
+        color: "#d68910"
+      - id: 3
+        label: "Tier 3 - Behaves Differently"
+        color: "#2471a3"
+  # Technology grouping. Drives per-stack mini-guides via
+  #   pt build --select subsystem=<id> ...
+  # and subsystem landing pages on the site. The A5 print themes hide this
+  # axis's PDF dividers (they'd repeat on every tier interleave in the
+  # tier-sorted full book); the tier axis keeps divider duty.
+  - name: subsystem
+    title: Subsystem
+    values:
+      - id: core
+        label: "Core Platform & Build"
+        color: "#495057"
+      - id: web
+        label: "Web & HTTP"
+        color: "#0b7285"
+      - id: jackson
+        label: "Jackson & JSON"
+        color: "#5f3dc4"
+      - id: testing
+        label: "Testing"
+        color: "#087f5b"
+      - id: batch
+        label: "Spring Batch"
+        color: "#a61e4d"
+      - id: hibernate
+        label: "Hibernate & JPA"
+        color: "#b35c00"
+      - id: security
+        label: "Security & SSO"
+        color: "#862e9c"
+      - id: data-messaging
+        label: "Data & Messaging"
+        color: "#1864ab"
+      - id: observability
+        label: "Observability & Ops"
+        color: "#2b8a3e"
+cardSchema:
+  frontmatter: [id, tier, tier_label, title, series, effort, openrewrite, subsystem, no_module, no_module_reason]
+  sections:
+    - field: oneliner
+    - field: error_output
+      heading: "What You'll See"
+      fence: error-output
+    - field: what_changed
+      heading: "What Changed"
+    - field: why_changed
+      heading: "Why"
+    - field: diffs
+      heading: "The Fix"
+      fence: diff-card
+    - field: fixes
+      heading: "How To Fix"
+    - field: scope_check
+      heading: "Scope Check"
+    - field: watch_out
+      heading: "Watch Out"
+    - field: verify
+      heading: "Verify"
+    - field: further_info
+      heading: "Further Info"
+    - field: footer_links
+      heading: "Links"
+      class: footer-links
+
+sort: [tier, id]

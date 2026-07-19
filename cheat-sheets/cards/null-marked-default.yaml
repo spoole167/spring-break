@@ -112,3 +112,5 @@ footer_links:
     url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
   - text: "JSpecify @NullMarked"
     url: "https://jspecify.dev/docs/api/org/jspecify/annotations/NullMarked"
+
+subsystem: core
