@@ -17,7 +17,7 @@ no_module_reason: >
   using the Migration Guide's starter mapping table.
 verify: >
   App starts and ObjectMapper, Validator, and other auto-configured beans
-  are present — confirm with a test that autowires each one
+  are present: confirm with a test that autowires each one
 
 further_info: >
   In Boot 3.x every starter dragged in the entire auto-configuration bundle,

@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  Session store connects correctly with the renamed property prefixes —
+  Session store connects correctly with the renamed property prefixes:
   confirm sessions persist to Redis or MongoDB with the new configuration
 
 further_info: >

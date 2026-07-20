@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
 verify: >
-  mvn compile — no cannot find symbol for AccessDecisionManager or related classes
+  mvn compile: no cannot find symbol for AccessDecisionManager or related classes
 
 further_info: >
   Driven by Spring Security 7.0; the spring.io announcement in the footer

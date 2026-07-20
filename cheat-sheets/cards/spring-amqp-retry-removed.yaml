@@ -7,7 +7,7 @@ effort: S
 openrewrite: false
 verify: >
   RabbitTemplate and RabbitListener retry settings are configured via the
-  new customizer interfaces without compile errors
+  new customiser interfaces without compile errors
 
 further_info: >
   One of several retry-related breaks in Boot 4.0. See also:
@@ -16,7 +16,7 @@ further_info: >
 oneliner: >
   Boot 4.0 removed <code>RabbitRetryTemplateCustomizer</code>. Every bean
   implementing it fails to compile; publisher and consumer retry now have
-  separate customizer interfaces.
+  separate customiser interfaces.
 
 error_output: |
   @Bean
@@ -74,7 +74,7 @@ diffs:
       }
 
 fixes:
-  - label: "Replace with the split customizer interfaces."
+  - label: "Replace with the split customiser interfaces."
     text: >
       Replace each <code>RabbitRetryTemplateCustomizer</code> bean with the
       publisher or consumer variant, whichever side it configured. The new
@@ -87,7 +87,7 @@ scope_check: >
 
 watch_out:
   - >
-    The new customizer interfaces accept a settings object rather than a
+    The new customiser interfaces accept a settings object rather than a
     <code>RetryTemplate</code>. Retry policy logic expressed as
     <code>RetryTemplate</code> configuration must be re-expressed using
     the properties on the settings object.

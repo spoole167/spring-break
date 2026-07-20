@@ -5,6 +5,16 @@ title: "MongoDB UUID and BigDecimal Representations No Longer Defaulted"
 series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
+no_module: true
+no_module_reason: >
+  Confirmed against the Spring Boot 4.0 migration guide and spring-projects/
+  spring-boot#33532: Spring Data MongoDB no longer defaults UUID/BigDecimal
+  representations, and spring.mongodb.representation.uuid /
+  spring.data.mongodb.representation.big-decimal must be set explicitly.
+  No spring-break module tests it: demonstrating the failure needs a
+  running MongoDB instance holding documents written under the old
+  defaults, then reading them back under the new ones. Not achievable in
+  an isolated Maven test.
 verify: >
   UUID and BigDecimal fields round-trip correctly and existing documents
   with the old representation are still readable after explicit configuration

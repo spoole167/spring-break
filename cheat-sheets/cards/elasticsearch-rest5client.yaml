@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn compile — no cannot find symbol errors for RestClient auto-config injection
+  mvn compile: no cannot find symbol errors for RestClient auto-config injection
 
 further_info: >
   The high-level RestHighLevelClient was already removed in Spring Boot
@@ -49,7 +49,7 @@ fixes:
   - label: "Rename RestClient to Rest5Client."
     text: >
       Replace <code>RestClient</code> with <code>Rest5Client</code> in all
-      injection points, customizer beans, and direct usages. The API is
+      injection points, customiser beans, and direct usages. The API is
       broadly compatible, but check the Elasticsearch client changelog for
       subtle differences.
 

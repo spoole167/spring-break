@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn clean compile — no "cannot find symbol" errors for
+  mvn clean compile: no "cannot find symbol" errors for
   JobExecutionListenerSupport, StepExecutionListenerSupport, or
   ChunkListenerSupport; listeners implement the interfaces directly
 

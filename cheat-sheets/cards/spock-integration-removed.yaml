@@ -12,7 +12,7 @@ no_module_reason: >
   Groovy build infrastructure; a mixed-language module would obscure the
   break. The break is well-defined: Spock does not yet support Groovy 5,
   Spring Boot 4.0's baseline, so any @SpringBootTest Spock specification
-  simply does not run.
+  does not run.
 verify: >
   Spock specifications that use @SpringBootTest or @SpringRunner pass after
   migrating to JUnit 5 or waiting for Spock's Groovy 5 support

@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
 verify: >
-  mvn compile — no incompatible types or cannot find symbol errors on HttpHeaders usage
+  mvn compile: no incompatible types or cannot find symbol errors on HttpHeaders usage
 
 further_info: >
   Driven by Spring Framework 7.0. HttpHeaders had been a MultiValueMap

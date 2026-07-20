@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: true
 verify: >
-  mvn clean test — test sources compile; no "cannot find symbol" errors
+  mvn clean test: test sources compile; no "cannot find symbol" errors
   for @MockBean or @SpyBean
 
 further_info: >

@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: true
 verify: >
-  mvn clean test — test sources compile with the new imports and all
+  mvn clean test: test sources compile with the new imports and all
   @DataJpaTest/@WebMvcTest slices load correctly
 
 further_info: >

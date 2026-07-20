@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en" class="target-pdf-a4 size-a5 edition-batch-guide mini-guide stack-batch">
+<head>
+  <meta charset="UTF-8">
+  <title>Spring Break Cheat Sheets</title>
+  <meta name="generator" content="pagewright">
+  <meta name="pagewright-target" content="pdf-a4">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <style>
+    /* Minimal scaffold — book CSS chain follows and may override these. */
+    body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+           line-height: 1.5; margin: 2rem; color: #222; }
+    article.card { max-width: 48rem; margin: 0 auto 3rem; }
+    h1.card-title { margin-top: 0; }
+    section.block { margin-block: 1.5rem; }
+    pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; }
+    .card-break { page-break-after: always; height: 0; }
+
+    /* Cover / back-page scaffold. A declared cover or back page always gets
+       its own sheet; the image fills the content box (the page margins come
+       from the build's PageSpec — themes can tighten with @page rules where
+       the renderer supports them). */
+    .book-cover { page-break-after: always; }
+    .book-back { page-break-before: always; }
+    .book-cover-image, .book-back-image { display: block; width: 100%; }
+
+    /* Plain-section PDF divider — theme-neutral by default (sections have no
+       colour concept the way axis values do); themes/book CSS may add their
+       own .section-divider rules below to override this. */
+    .section-divider { margin: 3rem 0; padding: 1.5rem 0; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; }
+    .section-divider h1 { margin: 0 0 0.5rem; }
+    .section-divider .tier-count { color: #666; margin-bottom: 1rem; }
+    .section-divider .tier-toc { padding-left: 1.25rem; }
+
+    /* Book CSS chain (inlined) */
+    /* === editions.css === */
+/* =============================================================================
+ * editions.css — per-edition styling keyed off publication identity classes.
+ *
+ * `pt publish` stamps <html> with `edition-{id}` plus each declared class
+ * (see publication: in pagewright.yaml). This file is in the book css:
+ * chain, so it loads for every edition under every theme; the selectors
+ * only fire where the classes match. Plain `pt build` runs carry no
+ * edition classes and are untouched.
+ *
+ * Accent colours match the subsystem axis declaration, so a guide's cover
+ * wears its subsystem's colour.
+ * ===========================================================================*/
+
+/* Every mini-guide: mark the cover as part of the series. */
+html.mini-guide .cover-subtitle::after {
+  content: " · Mini Guide";
+  color: #8a8f98;
+}
+
+html.mini-guide .cover-footnote::before {
+  content: "One cut from the full Spring Break Cheat Sheets. ";
+}
+
+/* ── Mini-guide image cover (cover-a5.html, .cover-mini branch) ──────────
+ * The boots artwork: an old spring-heeled boot beside a modern runner —
+ * the 3.5 → 4.0 migration in one picture. Ink-on-transparent, so it sits
+ * on the white page with no plate. The stack accent colour still comes
+ * from the border-top rules below. */
+.cover-mini {
+  justify-content: flex-start;
+  padding-top: 14mm;
+  text-align: center;
+  align-items: center;
+}
+
+.cover-mini .cover-series { margin-bottom: 6mm; }
+
+.cover-boots {
+  display: block;
+  width: 96mm;              /* 689×544 source ≈ 96×76mm on page, crisp at print */
+  margin: 0 auto 8mm;
+}
+
+.cover-mini .cover-title {
+  font-size: 20pt;
+  margin-bottom: 3mm;
+}
+
+.cover-strapline {
+  font-size: 10.5pt;
+  color: #555;
+  margin-bottom: 10mm;
+}
+
+.cover-mini .cover-footnote {
+  margin: 0 auto;
+  max-width: 104mm;
+}
+
+/* Per-stack cover and back-page accents (subsystem axis colours). */
+html.stack-batch          .cover-a5 { border-top-color: #a61e4d; }
+html.stack-hibernate      .cover-a5 { border-top-color: #b35c00; }
+html.stack-security       .cover-a5 { border-top-color: #862e9c; }
+html.stack-data-messaging .cover-a5 { border-top-color: #1864ab; }
+html.stack-testing        .cover-a5 { border-top-color: #087f5b; }
+html.stack-observability  .cover-a5 { border-top-color: #2b8a3e; }
+html.stack-jackson        .cover-a5 { border-top-color: #5f3dc4; }
+html.stack-web            .cover-a5 { border-top-color: #0b7285; }
+html.stack-core           .cover-a5 { border-top-color: #495057; }
+
+/* The cover's tier legend is redundant noise on a 6-page mini guide when
+   the guide is single-tier heavy; keep it, but tone it down. */
+html.mini-guide .cover-tiers { opacity: 0.85; }
+/* === theme:console-first theme.css === */
+/* =============================================================================
+ * Theme: console-first
+ *
+ * A5 print layout for the Spring Boot 4.0 migration cheat-sheet cards.
+ * The page opens with the error output as a light "console" panel (no dark
+ * ink-heavy blocks — this is a print theme), then title band, a
+ * what/why/scope column strip, the fix band, watch-out cards, link footer.
+ *
+ * Pairs with this theme's templates/_card-body.html, which hoists the
+ * what-youll-see block above the title and dispatches the remaining blocks
+ * into the cf-* regions styled here. Quiet cards with no error output
+ * simply open with the title band.
+ *
+ * Build:  pt build -s A5 --theme console-first --theme-dir themes cards out.pdf
+ * Tier palette matches the book yaml's axis colours:
+ *   tier-1 #c0392b · tier-2 #d68910 · tier-3 #2471a3
+ * ===========================================================================*/
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ── Page & body ──────────────────────────────────────────────────────────
+ * Zero page margin so the hero band and footer strip run full-bleed;
+ * every region carries its own 7mm side padding instead. Cards are
+ * designed to fit one A5 page — check with --report-pages /
+ * --max-pages-per-card 1.                                                  */
+@page { size: 148mm 210mm; margin: 0; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", sans-serif;
+  margin: 0;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+article.card {
+  max-width: none;
+  margin: 0;
+  padding-bottom: 4mm;
+}
+
+/* Tier accents. Explicit per-tier rules rather than a --tier custom
+   property: openhtmltopdf (the pure-Java fallback renderer) has no
+   custom-property support and silently drops any declaration using
+   var(), which turned the tier badge into white-on-white. Grouped here
+   so retinting a tier means touching one place. */
+.tier-badge                     { background: #6a737d; }  /* axis-less */
+article.card.tier-1 .tier-badge { background: #c0392b; }
+article.card.tier-2 .tier-badge { background: #d68910; }
+article.card.tier-3 .tier-badge { background: #2471a3; }
+
+article.card.tier-1 .cf-hero, article.card.tier-1 > .cf-titleband:first-child { border-color: #c0392b; }
+article.card.tier-2 .cf-hero, article.card.tier-2 > .cf-titleband:first-child { border-color: #d68910; }
+article.card.tier-3 .cf-hero, article.card.tier-3 > .cf-titleband:first-child { border-color: #2471a3; }
+
+article.card.tier-1 .cf-threecol section.block h2 { color: #c0392b; }
+article.card.tier-2 .cf-threecol section.block h2 { color: #d68910; }
+article.card.tier-3 .cf-threecol section.block h2 { color: #2471a3; }
+
+article.card.tier-1 section.block pre { border-left-color: #c0392b; }
+article.card.tier-2 section.block pre { border-left-color: #d68910; }
+article.card.tier-3 section.block pre { border-left-color: #2471a3; }
+
+/* ── 1 · Console hero ─────────────────────────────────────────────────── */
+.cf-hero {
+  background: #f6f8fa;
+  border-bottom: 2.5pt solid #c0392b;   /* per-tier override above */
+  padding: 6mm 7mm 4mm;
+}
+
+.cf-hero-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2mm;
+}
+
+.cf-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6pt;
+  font-weight: 700;
+  color: #8a8f98;
+  text-transform: uppercase;
+  letter-spacing: 0.5pt;
+}
+
+/* The error-output pre sits directly in the hero: strip the box styling
+   the scaffold gives every <pre> and let the band be the container. */
+.cf-hero pre,
+.cf-hero pre.error-output {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.8pt;
+  line-height: 1.5;
+  color: #3a4048;
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+pre.error-output .err-error  { color: #c0392b; }
+pre.error-output .err-prompt { color: #1d7a3d; font-weight: 700; }
+
+/* ── 2 · Title band ───────────────────────────────────────────────────── */
+.cf-titleband {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 4mm;
+  padding: 3.5mm 7mm 2.5mm;
+  border-bottom: 0.5pt solid #e5e5e5;
+}
+
+/* No hero (quiet cards): the title band opens the page and picks up the
+   tier rule the hero would have carried. */
+article.card > .cf-titleband:first-child {
+  border-top: 2.5pt solid #c0392b;      /* per-tier override above */
+  padding-top: 5mm;
+}
+
+h1.card-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11pt;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 1mm;
+}
+
+.oneliner, .oneliner p {
+  font-size: 7.4pt;
+  color: #555;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.cf-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.2mm;
+  flex-shrink: 0;
+  margin-top: 0.5mm;
+}
+
+.tier-badge, .effort-badge, .openrewrite-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3pt;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.tier-badge {
+  color: #fff;
+  font-size: 6.5pt;
+  padding: 1.5pt 6pt;
+}
+
+.effort-badge   { font-size: 6.2pt; padding: 1.2pt 5pt; }
+.effort-badge.S { background: #d4edda; color: #155724; }
+.effort-badge.M { background: #fff3cd; color: #856404; }
+.effort-badge.L { background: #f8d7da; color: #721c24; }
+
+.openrewrite-badge {
+  background: #e8f0fe;
+  color: #1a56db;
+  font-size: 6.2pt;
+  font-weight: 600;
+  padding: 1.2pt 5pt;
+}
+
+/* applies-if (inherited from the base template) rides under the band. */
+.applies-if {
+  padding: 1.5mm 7mm;
+  font-size: 7pt;
+  color: #555;
+  background: #fafbfe;
+  border-bottom: 0.5pt solid #e5e5e5;
+}
+.applies-if-label { font-weight: 700; color: #1a56db; }
+
+/* ── 3 · What / Why / Scope strip ─────────────────────────────────────── */
+.cf-threecol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 3.5mm;
+  padding: 2.5mm 7mm;
+  border-bottom: 0.5pt solid #e5e5e5;
+}
+
+.cf-threecol section.block { margin: 0; min-width: 0; }
+
+.cf-threecol section.block h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.3pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #c0392b;                        /* per-tier override above */
+  margin: 0 0 0.8mm;
+}
+
+.cf-threecol section.block p {
+  font-size: 6.8pt;
+  line-height: 1.4;
+  margin: 0 0 1mm;
+}
+
+/* ── 4 · Fix band ─────────────────────────────────────────────────────── */
+.cf-fixband { padding: 2.5mm 7mm 1mm; }
+
+.cf-fixband section.block { margin: 0 0 1.5mm; }
+
+.cf-fixband section.block h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7.2pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #1d7a3d;
+  margin: 0 0 1mm;
+}
+
+.cf-fixband p, .cf-fixband li {
+  font-size: 7.1pt;
+  line-height: 1.42;
+  margin: 0 0 0.8mm;
+}
+
+.cf-fixband ul, .cf-fixband ol { margin: 0 0 1mm 3.8mm; padding: 0; }
+
+/* Verify → the green "done when" box. */
+.cf-fixband section.verify {
+  background: #f0faf0;
+  border: 0.5pt solid #c3e6c3;
+  border-radius: 3px;
+  padding: 1.4mm 2.2mm;
+}
+.cf-fixband section.verify h2 { margin-bottom: 0.5mm; }
+.cf-fixband section.verify p  { font-size: 6.9pt; margin: 0; }
+
+/* ── Diff cards (structural + colour; nothing else ships this) ────────── */
+figure.diff-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 0.5pt solid #ddd;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 1mm 0 1.5mm;
+}
+
+figure.diff-card.diff-card-additions-only { grid-template-columns: 1fr; }
+
+figure.diff-card figcaption {
+  grid-column: 1 / -1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.2pt;
+  color: #8a8f98;
+  padding: 1.2mm 2.2mm;
+  background: #fafafa;
+  border-bottom: 0.5pt solid #eee;
+}
+
+.diff-side { min-width: 0; }
+.diff-side + .diff-side { border-left: 0.5pt solid #ddd; }
+
+.diff-side > header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.2pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5pt;
+  padding: 1.2mm 2.2mm;
+}
+
+.diff-side-removed > header { background: #fdecea; color: #c0392b; }
+.diff-side-added   > header { background: #e8f6ec; color: #1d7a3d; }
+
+.diff-side > pre {
+  background: #fffafa;
+  border: none;
+  margin: 0;
+  padding: 1.4mm 2.2mm 1.8mm;
+  font-size: 6pt;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+.diff-side-added > pre { background: #fafffb; }
+
+/* Prism runs over the diff columns; keep token colours print-quiet. */
+.diff-side code[class*="language-"] { background: transparent; font-size: inherit; }
+
+/* ── 5 · Watch-out card grid ──────────────────────────────────────────── */
+.cf-watch { padding: 0 7mm; }
+
+.cf-watch section.block { margin: 0 0 1.5mm; }
+
+.cf-watch section.block h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7.2pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #e8590c;
+  margin: 0 0 1mm;
+}
+
+.cf-watch ul {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2mm;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cf-watch ul li {
+  background: #fff8f2;
+  border: 0.5pt solid #f3d9c3;
+  border-left: 2.5pt solid #e8590c;
+  border-radius: 3px;
+  padding: 1.4mm 2mm;
+  font-size: 6.5pt;
+  line-height: 1.38;
+}
+
+/* ── 6 · Unplaced blocks (further-info, future sections) ──────────────── */
+.cf-rest { padding: 0 7mm; }
+
+.cf-rest section.block { margin: 0 0 1.5mm; }
+
+.cf-rest section.block h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.8pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #666;
+  margin: 0 0 0.8mm;
+}
+
+.cf-rest p, .cf-rest li { font-size: 6.9pt; line-height: 1.4; margin: 0 0 0.8mm; }
+
+/* ── 7 · Footer links strip ───────────────────────────────────────────── */
+footer.cf-foot {
+  background: #f4f4f4;
+  padding: 1.8mm 7mm;
+  margin-top: 2mm;
+}
+
+footer.cf-foot ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 4mm;
+  margin: 0;
+  padding: 0;
+}
+
+footer.cf-foot li { font-size: 6pt; color: #666; }
+footer.cf-foot a  { color: #666; text-decoration: none; }
+
+/* ── Shared code / inline ─────────────────────────────────────────────── */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.94em;
+  background: #f1f1f1;
+  padding: 0 2pt;
+  border-radius: 2px;
+}
+
+pre { page-break-inside: avoid; }
+pre code { background: transparent; padding: 0; }
+
+/* Generic pre outside the hero (error output quoted mid-card, etc.). */
+section.block pre {
+  background: #f6f8fa;
+  border: 0.5pt solid #d7dde3;
+  border-left: 2.5pt solid #c0392b;      /* per-tier override above */
+  border-radius: 3px;
+  padding: 1.5mm 2.2mm;
+  font-size: 6.4pt;
+  line-height: 1.48;
+  white-space: pre-wrap;
+  margin: 0.8mm 0 1.5mm;
+}
+
+/* ── Book furniture ───────────────────────────────────────────────────────
+ * The scaffold gives .book-cover page-break-after and .book-back
+ * page-break-before, but tier dividers get NO break rules from the
+ * scaffold — the theme must supply both sides or the divider shares a
+ * page with the following card.                                          */
+
+/* Cover (layouts/cover-a5.html) */
+.book-cover { height: 209mm; }
+.cover-a5 {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14mm;
+  border-top: 6mm solid #c0392b;
+}
+.cover-series {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8pt; color: #8a8f98;
+  text-transform: uppercase; letter-spacing: 1pt;
+  margin-bottom: 4mm;
+}
+h1.cover-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24pt; line-height: 1.15;
+  margin: 0 0 3mm;
+}
+.cover-subtitle { font-size: 11pt; color: #555; margin-bottom: 8mm; }
+.cover-tiers { display: flex; flex-direction: column; gap: 2mm; margin-bottom: 10mm; }
+.cover-tier {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7.5pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4pt;
+  color: #fff; padding: 1.8mm 3mm; border-radius: 2px;
+  align-self: flex-start;
+}
+.cover-tier-1 { background: #c0392b; }
+.cover-tier-2 { background: #d68910; }
+.cover-tier-3 { background: #2471a3; }
+.cover-author { font-size: 10pt; font-weight: 600; margin-bottom: 2mm; }
+.cover-footnote { font-size: 7.5pt; color: #8a8f98; line-height: 1.5; max-width: 100mm; }
+
+/* Tier dividers — full A5 sheet, inline background colour comes from the
+   axis value declared in the book yaml, so text just needs to be white. */
+.tier-divider {
+  page-break-before: always;
+  page-break-after: always;
+  height: 209mm;
+  color: #fff;
+  padding: 0;
+}
+.tier-divider-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14mm;
+}
+.tier-divider .tier-badge-lg {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1pt;
+  opacity: 0.85; margin-bottom: 3mm;
+}
+.tier-divider h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20pt; line-height: 1.15; margin: 0 0 2mm;
+}
+.tier-divider .tier-count { font-size: 9pt; opacity: 0.85; margin-bottom: 6mm; }
+.tier-divider .tier-toc {
+  font-size: 6.8pt; line-height: 1.55;
+  columns: 2; column-gap: 8mm;
+  padding-left: 4mm; margin: 0;
+}
+.tier-divider .tier-toc a { color: #fff; text-decoration: none; }
+
+/* Section dividers (axis-less fallback) — same geometry, neutral colours. */
+.section-divider {
+  page-break-before: always; page-break-after: always;
+  height: 209mm; padding: 0; border: none;
+}
+.section-divider h1 { font-family: 'JetBrains Mono', monospace; font-size: 18pt; padding: 80mm 14mm 0; }
+.section-divider .tier-count { font-size: 8pt; padding: 0 14mm; }
+.section-divider .tier-toc { font-size: 7pt; padding: 0 14mm 0 18mm; }
+
+/* Back page (layouts/back-cta.html) */
+.book-back { height: 209mm; }
+.back-cta {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14mm;
+  border-top: 6mm solid #1d7a3d;
+}
+.back-cta h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18pt; margin: 0 0 3mm;
+}
+.back-lead { font-size: 9pt; color: #555; line-height: 1.5; margin: 0 0 6mm; }
+.back-options { margin: 0 0 8mm 4.5mm; padding: 0; }
+.back-options li { font-size: 8.5pt; line-height: 1.5; margin-bottom: 3mm; }
+.back-links { border-top: 0.5pt solid #ddd; padding-top: 3mm; }
+.back-links div {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.8pt; color: #666; line-height: 1.8;
+}
+
+
+/* ── Generated front section (_book-front.html) ───────────────────────── */
+.book-front {
+  page-break-before: always;
+  padding: 8mm 10mm 6mm;
+}
+
+.book-front h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14pt;
+  margin: 0 0 2mm;
+}
+
+.bf-lead { font-size: 7.5pt; color: #555; line-height: 1.5; margin: 0 0 3mm; max-width: 118mm; }
+
+.bf-stats { margin-bottom: 3mm; }
+.bf-stat {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.3pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.3pt;
+  background: #f1f3f5; color: #444;
+  border-radius: 2px;
+  padding: 1.2pt 5pt;
+  margin: 0 1.5mm 1mm 0;
+}
+.bf-stat-tier-1 { background: #c0392b; color: #fff; }
+.bf-stat-tier-2 { background: #d68910; color: #fff; }
+.bf-stat-tier-3 { background: #2471a3; color: #fff; }
+
+table.bf-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 6.4pt;
+  line-height: 1.35;
+}
+.bf-matrix th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 5.8pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4pt;
+  text-align: left; color: #666;
+  border-bottom: 1pt solid #bbb;
+  padding: 1mm 1.5mm;
+}
+.bf-matrix td {
+  border-bottom: 0.5pt solid #e9ecef;
+  padding: 0.8mm 1.5mm;
+  vertical-align: top;
+}
+.bf-matrix tr { page-break-inside: avoid; }
+.bf-matrix td.bf-t, .bf-matrix th.bf-t { width: 8mm; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.bf-matrix td.bf-e, .bf-matrix th.bf-e { width: 11mm; text-align: center; font-family: 'JetBrains Mono', monospace; }
+.bf-matrix td.bf-or, .bf-matrix th.bf-or { width: 9mm; text-align: center; font-family: 'JetBrains Mono', monospace; }
+.bf-matrix td.bf-title a { color: #1a1a1a; text-decoration: none; }
+.bf-row-tier-1 td.bf-t { color: #c0392b; }
+.bf-row-tier-2 td.bf-t { color: #d68910; }
+.bf-row-tier-3 td.bf-t { color: #2471a3; }
+.bf-e-S { color: #155724; } .bf-e-M { color: #856404; } .bf-e-L { color: #721c24; font-weight: 700; }
+
+/* Robot / Human split */
+.bf-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 5mm;
+}
+.bf-col { min-width: 0; }
+.bf-col h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5pt;
+  padding: 1mm 0; margin: 0 0 0.5mm;
+  border-bottom: 2pt solid;
+}
+.bf-robot h2 { color: #1a56db; border-bottom-color: #1a56db; }
+.bf-human h2 { color: #b3480a; border-bottom-color: #b3480a; }
+.bf-colnote { font-size: 6.5pt; color: #8a8f98; margin: 0.5mm 0 1.5mm; }
+.bf-col ul { list-style: none; margin: 0; padding: 0; }
+.bf-col ul li {
+  font-size: 6.3pt; line-height: 1.4;
+  border-bottom: 0.5pt solid #f1f3f5;
+  padding: 0.7mm 0;
+}
+.bf-col ul li a { color: #1a1a1a; text-decoration: none; }
+
+/* ── Subsystem axis ───────────────────────────────────────────────────────
+ * The subsystem badge carries the literal tier-badge class (base template
+ * convention), so without this override it would inherit the tier colour.
+ * Kept last in the file to win the specificity tie with the per-tier rules.
+ * PDF dividers for this axis are suppressed: in the tier-sorted full book
+ * subsystem values interleave, and interleaved values repeat their divider
+ * before every run. Site landing pages are unaffected. Mini-guides come
+ * from `pt build --select subsystem=<id>` instead.                        */
+article.card .tier-badge.axis-badge-subsystem {
+  background: #f1f3f5;
+  color: #495057;
+}
+section.axis-divider[id^="axis-divider-subsystem-"] { display: none; }
+  </style>
+</head>
+<body>
+    <div class="pt-anchor-bait" aria-hidden="true"
+       style="position:absolute;left:-9999px;top:-9999px;width:0;height:0;overflow:hidden">
+    <a href="#book-cover">cover</a>
+    <a href="#book-back">back</a>        <a href="#axis-divider-tier-1">Tier 1 - Won&#39;t Build</a><a href="#axis-divider-tier-2">Tier 2 - Won&#39;t Start</a><a href="#axis-divider-tier-3">Tier 3 - Behaves Differently</a>        <a href="#axis-divider-subsystem-core">Core Platform &amp; Build</a><a href="#axis-divider-subsystem-web">Web &amp; HTTP</a><a href="#axis-divider-subsystem-jackson">Jackson &amp; JSON</a><a href="#axis-divider-subsystem-testing">Testing</a><a href="#axis-divider-subsystem-batch">Spring Batch</a><a href="#axis-divider-subsystem-hibernate">Hibernate &amp; JPA</a><a href="#axis-divider-subsystem-security">Security &amp; SSO</a><a href="#axis-divider-subsystem-data-messaging">Data &amp; Messaging</a><a href="#axis-divider-subsystem-observability">Observability &amp; Ops</a>          </div>
+
+      <section class="book-cover" id="book-cover">
+  <div class="cover-a5 cover-mini">
+    <div class="cover-series">spring-boot 3.5 → 4.0 · mini guide</div>
+    <img class="cover-boots" src="images/boots.png" alt="An old spring-heeled boot beside a modern running shoe">
+    <h1 class="cover-title">Spring Batch: 3.5 → 4.0</h1>
+    <div class="cover-strapline">Seven changes between your jobs and 4.0</div>    <div class="cover-footnote">Every card verified against Spring Boot 3.5.16 and 4.0.7.
+      Real error output, real fixes, from the spring-break test suite. Steve Poole.</div>
+  </div>
+</section>
+  
+    
+<section class="book-front" id="book-front">
+  <h1>The Planning Matrix</h1>
+  <p class="bf-lead">Every change in this book, in book order. Impact is the
+    effort per occurrence once found (S small, M moderate, L large), not how
+    many you have. Auto means the OpenRewrite Boot 4.0 recipe handles it.</p>
+
+  <div class="bf-stats">
+    <span class="bf-stat">7 changes</span>
+            <span class="bf-stat bf-stat-tier-1">5 × Tier 1 - Won&#39;t Build</span>
+        <span class="bf-stat bf-stat-tier-2">2 × Tier 2 - Won&#39;t Start</span>
+          </div>
+
+  <table class="bf-matrix">
+    <thead>
+      <tr><th class="bf-t">Tier</th><th>Change</th><th class="bf-e">Impact</th><th class="bf-or">Auto</th></tr>
+    </thead>
+    <tbody>
+          <tr class="bf-row-tier-1">
+        <td class="bf-t">1</td>
+        <td class="bf-title"><a href="#card-batch-chunkhandler-renamed">Spring Batch ChunkHandler Renamed; setJobLauncher Removed</a></td>
+        <td class="bf-e bf-e-S">S</td>
+        <td class="bf-or">·</td>
+      </tr>
+          <tr class="bf-row-tier-1">
+        <td class="bf-t">1</td>
+        <td class="bf-title"><a href="#card-batch-job-builder-string-constructor">Spring Batch JobBuilder(String) Constructor Removed</a></td>
+        <td class="bf-e bf-e-S">S</td>
+        <td class="bf-or">·</td>
+      </tr>
+          <tr class="bf-row-tier-1">
+        <td class="bf-t">1</td>
+        <td class="bf-title"><a href="#card-batch-job-serialisation">Spring Batch 6 Listener Support Classes Removed</a></td>
+        <td class="bf-e bf-e-S">S</td>
+        <td class="bf-or">·</td>
+      </tr>
+          <tr class="bf-row-tier-1">
+        <td class="bf-t">1</td>
+        <td class="bf-title"><a href="#card-batch-listener-classes">Batch Listener Base Classes Removed</a></td>
+        <td class="bf-e bf-e-M">M</td>
+        <td class="bf-or">Y</td>
+      </tr>
+          <tr class="bf-row-tier-1">
+        <td class="bf-t">1</td>
+        <td class="bf-title"><a href="#card-batch-package-moves">Spring Batch Core Package Relocations</a></td>
+        <td class="bf-e bf-e-M">M</td>
+        <td class="bf-or">·</td>
+      </tr>
+          <tr class="bf-row-tier-2">
+        <td class="bf-t">2</td>
+        <td class="bf-title"><a href="#card-batch-inmemory-default">Spring Batch Now Uses In-Memory Job Repository by Default</a></td>
+        <td class="bf-e bf-e-S">S</td>
+        <td class="bf-or">·</td>
+      </tr>
+          <tr class="bf-row-tier-2">
+        <td class="bf-t">2</td>
+        <td class="bf-title"><a href="#card-batch-schema-change">Spring Batch 6 Schema Sequence Rename</a></td>
+        <td class="bf-e bf-e-S">S</td>
+        <td class="bf-or">Y</td>
+      </tr>
+        </tbody>
+  </table>
+</section>
+
+<section class="book-front bf-split" id="book-front-split">
+  <h1>The Robot List vs The Human List</h1>
+  <p class="bf-lead">The left column is what the OpenRewrite Boot 4.0 recipe
+    fixes while you get coffee. The right column needs a person who
+    understands your code. This split is the honest size of the migration:
+    the renames are free, the behaviour changes are the work.</p>
+
+  <div class="bf-cols">
+    <div class="bf-col bf-robot">
+      <h2>The Robot List</h2>
+      <p class="bf-colnote">Run the recipe, review the diff, done.</p>
+      <ul>
+              <li><a href="#card-batch-listener-classes">Batch Listener Base Classes Removed</a></li>
+              <li><a href="#card-batch-schema-change">Spring Batch 6 Schema Sequence Rename</a></li>
+            </ul>
+    </div>
+    <div class="bf-col bf-human">
+      <h2>The Human List</h2>
+      <p class="bf-colnote">Read the card. Check your code. Decide.</p>
+      <ul>
+              <li><a href="#card-batch-chunkhandler-renamed">Spring Batch ChunkHandler Renamed; setJobLauncher Removed</a></li>
+              <li><a href="#card-batch-job-builder-string-constructor">Spring Batch JobBuilder(String) Constructor Removed</a></li>
+              <li><a href="#card-batch-job-serialisation">Spring Batch 6 Listener Support Classes Removed</a></li>
+              <li><a href="#card-batch-package-moves">Spring Batch Core Package Relocations</a></li>
+              <li><a href="#card-batch-inmemory-default">Spring Batch Now Uses In-Memory Job Repository by Default</a></li>
+            </ul>
+    </div>
+  </div>
+</section>
+
+                      <section class="axis-divider tier-divider tier-1" id="axis-divider-tier-1" style="background: #c0392b">  <div class="tier-divider-inner">
+    <div class="tier-badge-lg">Tier 1</div>
+    <h1>Tier 1 - Won&#39;t Build</h1>
+    <div class="tier-count">5 cards</div>
+
+        <ol class="tier-toc">
+            <li><a href="#card-batch-chunkhandler-renamed">Spring Batch ChunkHandler Renamed; setJobLauncher Removed</a></li>
+            <li><a href="#card-batch-job-builder-string-constructor">Spring Batch JobBuilder(String) Constructor Removed</a></li>
+            <li><a href="#card-batch-job-serialisation">Spring Batch 6 Listener Support Classes Removed</a></li>
+            <li><a href="#card-batch-listener-classes">Batch Listener Base Classes Removed</a></li>
+            <li><a href="#card-batch-package-moves">Spring Batch Core Package Relocations</a></li>
+          </ol>
+      </div>
+</section>
+                      <section class="axis-divider tier-divider subsystem-batch" id="axis-divider-subsystem-batch" style="background: #a61e4d">  <div class="tier-divider-inner">
+    <div class="tier-badge-lg">Subsystem batch</div>
+    <h1>Spring Batch</h1>
+    <div class="tier-count">7 cards</div>
+
+        <ol class="tier-toc">
+            <li><a href="#card-batch-chunkhandler-renamed">Spring Batch ChunkHandler Renamed; setJobLauncher Removed</a></li>
+            <li><a href="#card-batch-job-builder-string-constructor">Spring Batch JobBuilder(String) Constructor Removed</a></li>
+            <li><a href="#card-batch-job-serialisation">Spring Batch 6 Listener Support Classes Removed</a></li>
+            <li><a href="#card-batch-listener-classes">Batch Listener Base Classes Removed</a></li>
+            <li><a href="#card-batch-package-moves">Spring Batch Core Package Relocations</a></li>
+            <li><a href="#card-batch-inmemory-default">Spring Batch Now Uses In-Memory Job Repository by Default</a></li>
+            <li><a href="#card-batch-schema-change">Spring Batch 6 Schema Sequence Rename</a></li>
+          </ol>
+      </div>
+</section>
+          
+        
+    <article class="card tier-1 subsystem-batch" id="card-batch-chunkhandler-renamed">
+  <div class="cf-hero">
+  <div class="cf-hero-bar">
+    <span class="cf-chip">What you'll see</span>
+    <span class="cf-chip cf-chip-right">spring-boot 3.5 → 4.0</span>  </div>
+  <pre class="error-output"><code><span class="err-prompt">$ mvn compile</span>
+<span class="err-error">[ERROR] /src/main/java/com/example/BatchRenamingUsage.java:[4,65]</span>
+  error: cannot find symbol
+    symbol: class ChunkHandler
+    location: package org.springframework.batch.integration.chunk
+<span class="err-error">[ERROR] /src/main/java/com/example/BatchRenamingUsage.java:[18,19]</span>
+  error: cannot find symbol
+    symbol:   method setJobLauncher(JobLauncher)
+</code></pre></div>
+
+<div class="cf-titleband">
+  <div class="cf-titletext">
+    <h1 class="card-title">Spring Batch ChunkHandler Renamed; setJobLauncher Removed</h1>
+        <div class="oneliner"><p>ChunkHandler renamed to ChunkRequestHandler. JobStep.setJobLauncher replaced by setJobOperator. Both fail to compile on Boot 4.0.</p></div>                                                                                      </div>
+  <div class="cf-badges">
+        <span class="tier-badge axis-badge axis-badge-tier">Tier 1 - Won&#39;t Build</span>
+        <span class="tier-badge axis-badge axis-badge-subsystem">Spring Batch</span>
+        <span class="effort-badge S">Impact: S</span>      </div>
+</div>
+
+  
+      
+  <div class="cf-threecol">
+              <section class="block what-changed">
+      <h2>What Changed</h2>
+        <p><code>org.springframework.batch.integration.chunk.ChunkHandler</code> has been renamed to <code class="cls-type">ChunkRequestHandler</code>. <code>JobStep.setJobLauncher(JobLauncher)</code> has been replaced by <code>JobStep.setJobOperator(JobOperator)</code>.</p>  </section>
+        <section class="block why-changed">
+      <h2>Why</h2>
+        <p>The rename of <code class="cls-type">ChunkHandler</code> clarifies its role in the request/response model of remote chunking. <code>setJobLauncher</code> was removed as part of the broader move away from <code class="cls-type">JobLauncher</code> toward <code class="cls-type">JobOperator</code> as the public API for job execution control.</p>  </section>
+                <section class="block scope-check">
+      <h2>Scope Check</h2>
+        <p>Search for <code class="cls-type">ChunkHandler</code> (not <code class="cls-type">ChunkRequestHandler</code>) and <code>setJobLauncher</code> across all Java/Kotlin sources. Affects remote chunking setups and custom job step configuration.</p>  </section>
+                    </div>
+
+<div class="cf-fixband">
+                      <section class="block diffs">
+      <h2>The Fix</h2>
+        <figure class="diff-card" data-lang="java">
+ <figcaption>
+  ChunkHandler rename
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">import org.springframework.batch.integration.chunk.ChunkHandler;
+// ...
+ChunkHandler handler = ...;</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java">import org.springframework.batch.integration.chunk.ChunkRequestHandler;
+// ...
+ChunkRequestHandler handler = ...;</code></pre>
+ </div>
+</figure><figure class="diff-card" data-lang="java">
+ <figcaption>
+  JobStep launcher → operator
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">jobStep.setJobLauncher(jobLauncher);</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java">jobStep.setJobOperator(jobOperator);</code></pre>
+ </div>
+</figure>  </section>
+        <section class="block fixes">
+      <h2>How To Fix</h2>
+        <p><strong>Rename ChunkHandler to ChunkRequestHandler.</strong></p><p>Update the import and all references. Only the name changed; the interface contract is the same.</p><p><strong>Replace setJobLauncher with setJobOperator.</strong></p><p>Inject a <code class="cls-type">JobOperator</code> bean instead of <code class="cls-type">JobLauncher</code> and pass it to <code class="cls-method">setJobOperator()</code>. <code class="cls-type">JobOperator</code> is available as a Spring-managed bean when Spring Batch autoconfiguration is active.</p>  </section>
+                <section class="block verify">
+      <h2>Verify</h2>
+        <p>mvn compile — no cannot find symbol for ChunkHandler or setJobLauncher</p>  </section>
+            </div>
+
+<div class="cf-watch">
+  <section class="block watch-out">
+      <h2>Watch Out</h2>
+        <ul>
+ <li><code class="cls-type">JobLauncher</code> itself still exists. Only its use in <code class="cls-type">JobStep</code> was removed; other usages are unaffected.</li>
+</ul>  </section>
+</div>
+
+<div class="cf-rest">
+                                          <section class="block further-info">
+      <h2>Further Info</h2>
+        <p>ChunkHandler belongs to the remote-chunking integration module. Both changes are mechanical renames.</p>  </section>
+        </div>
+
+  <footer class="cf-foot"><ul>
+ <li>
+  <p><a href="https://github.com/spoole167/spring-break/tree/main/batch-chunkhandler-renamed">spring-break module: batch-chunkhandler-renamed</a></p></li>
+ <li>
+  <p><a href="https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide">Spring Batch 6.0 Migration Guide</a></p></li>
+</ul></footer>
+</article>
+    <div class="card-break"></div>                              
+        
+    <article class="card tier-1 subsystem-batch" id="card-batch-job-builder-string-constructor">
+  <div class="cf-hero">
+  <div class="cf-hero-bar">
+    <span class="cf-chip">What you'll see</span>
+    <span class="cf-chip cf-chip-right">spring-boot 3.5 → 4.0</span>  </div>
+  <pre class="error-output"><code><span class="err-prompt">$ mvn compile</span>
+<span class="err-error">[ERROR] /src/main/java/com/example/JobBuilderUsage.java:[9,33]</span>
+  error: no suitable constructor found for JobBuilder(java.lang.String)
+</code></pre></div>
+
+<div class="cf-titleband">
+  <div class="cf-titletext">
+    <h1 class="card-title">Spring Batch JobBuilder(String) Constructor Removed</h1>
+        <div class="oneliner"><p>JobBuilder(String) is removed. JobRepository is now mandatory at construction: new JobBuilder("name", jobRepository).</p></div>                                                                                      </div>
+  <div class="cf-badges">
+        <span class="tier-badge axis-badge axis-badge-tier">Tier 1 - Won&#39;t Build</span>
+        <span class="tier-badge axis-badge axis-badge-subsystem">Spring Batch</span>
+        <span class="effort-badge S">Impact: S</span>      </div>
+</div>
+
+  
+      
+  <div class="cf-threecol">
+              <section class="block what-changed">
+      <h2>What Changed</h2>
+        <p><code>new JobBuilder(String name)</code> and the subsequent <code>.repository(JobRepository)</code> method have been removed. <code class="cls-type">JobRepository</code> is now mandatory at construction time: <code>new JobBuilder(String name, JobRepository repository)</code>. The same applies to <code class="cls-type">StepBuilder</code> and other builder classes.</p>  </section>
+        <section class="block why-changed">
+      <h2>Why</h2>
+        <p>Spring Batch 6.0 made <code class="cls-type">JobRepository</code> non-optional throughout the framework to ensure jobs are always backed by a persistent or in-memory store. Deferring the repository assignment was a source of subtle bugs where jobs ran without persistence.</p>  </section>
+                <section class="block scope-check">
+      <h2>Scope Check</h2>
+        <p>Search for <code>new JobBuilder(</code>, <code>new StepBuilder(</code>, and <code>.repository(</code> across all <code class="cls-annotation">@Configuration</code> classes that define Batch jobs and steps.</p>  </section>
+                    </div>
+
+<div class="cf-fixband">
+                      <section class="block diffs">
+      <h2>The Fix</h2>
+        <figure class="diff-card" data-lang="java">
+ <figcaption>
+  Before — repository set after construction
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">new JobBuilder("myJob")
+    .repository(jobRepository)
+    .start(step)
+    .build();</code></pre>
+ </div>
+</figure><figure class="diff-card diff-card-additions-only" data-lang="java">
+ <figcaption>
+  After — repository required at construction
+ </figcaption>
+ <div class="diff-side diff-side-added">
+  <header>
+   Added
+  </header>
+  <pre><code class="language-java">new JobBuilder("myJob", jobRepository)
+    .start(step)
+    .build();</code></pre>
+ </div>
+</figure><figure class="diff-card" data-lang="java">
+ <figcaption>
+  @Bean method pattern
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">@Bean
+public Job myJob(Step step) {
+    return new JobBuilder("myJob").start(step).build();
+}</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java">@Bean
+public Job myJob(JobRepository jobRepository, Step step) {
+    return new JobBuilder("myJob", jobRepository).start(step).build();
+}</code></pre>
+ </div>
+</figure>  </section>
+        <section class="block fixes">
+      <h2>How To Fix</h2>
+        <p><strong>Inject JobRepository and pass it to the constructor.</strong></p><p>Add <code class="cls-type">JobRepository</code> as a parameter to your <code class="cls-annotation">@Bean</code> method (Spring will inject it) and pass it as the second argument to <code>new JobBuilder(...)</code>. The same change is needed for <code class="cls-type">StepBuilder</code> and any other builder that previously accepted only a name.</p>  </section>
+                <section class="block verify">
+      <h2>Verify</h2>
+        <p>mvn compile — no cannot find symbol for JobBuilder(String) constructor</p>  </section>
+            </div>
+
+<div class="cf-watch">
+  <section class="block watch-out">
+      <h2>Watch Out</h2>
+        <ul>
+ <li>The <code>.repository()</code> method is also gone, so adding the repository via the fluent chain won't compile either. Pass it in the constructor; there is no fallback.</li>
+</ul>  </section>
+</div>
+
+<div class="cf-rest">
+                                          <section class="block further-info">
+      <h2>Further Info</h2>
+        <p>Spring Batch 6.0 makes the JobRepository compulsory framework-wide; it can no longer be deferred or omitted anywhere.</p>  </section>
+        </div>
+
+  <footer class="cf-foot"><ul>
+ <li>
+  <p><a href="https://github.com/spoole167/spring-break/tree/main/batch-job-builder-string-constructor">spring-break module: batch-job-builder-string-constructor</a></p></li>
+ <li>
+  <p><a href="https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide">Spring Batch 6.0 Migration Guide</a></p></li>
+</ul></footer>
+</article>
+    <div class="card-break"></div>                              
+        
+    <article class="card tier-1 subsystem-batch" id="card-batch-job-serialisation">
+  <div class="cf-hero">
+  <div class="cf-hero-bar">
+    <span class="cf-chip">What you'll see</span>
+    <span class="cf-chip cf-chip-right">spring-boot 3.5 → 4.0</span>  </div>
+  <pre class="error-output"><code>// Boot 3.5 (Batch 5.x): classes present, deprecated since 5.0; compiles fine.
+
+// Boot 4.0 (Batch 6.0): classes removed; compilation fails.
+<span class="err-prompt">$ mvn clean compile</span>
+<span class="err-error">[ERROR] COMPILATION ERROR :</span>
+<span class="err-error">[ERROR] MyJobListener.java:[4,47] cannot find symbol</span>
+    symbol: class JobExecutionListenerSupport
+[INFO] BUILD FAILURE
+</code></pre></div>
+
+<div class="cf-titleband">
+  <div class="cf-titletext">
+    <h1 class="card-title">Spring Batch 6 Listener Support Classes Removed</h1>
+        <div class="oneliner"><p><code class="cls-type">JobExecutionListenerSupport</code>, <code class="cls-type">StepExecutionListenerSupport</code>, and <code class="cls-type">ChunkListenerSupport</code> are removed in Spring Batch 6.0. Code extending them fails to compile on Boot 4.0 with "cannot find symbol".</p></div>                                                                                      </div>
+  <div class="cf-badges">
+        <span class="tier-badge axis-badge axis-badge-tier">Tier 1 - Won&#39;t Build</span>
+        <span class="tier-badge axis-badge axis-badge-subsystem">Spring Batch</span>
+        <span class="effort-badge S">Impact: S</span>      </div>
+</div>
+
+  
+      
+  <div class="cf-threecol">
+              <section class="block what-changed">
+      <h2>What Changed</h2>
+        <p>Spring Batch 6.0 (shipped with Spring Boot 4.0) removed three convenience base classes that had been deprecated since Batch 5.0: <code class="cls-type">JobExecutionListenerSupport</code>, <code class="cls-type">StepExecutionListenerSupport</code>, and <code class="cls-type">ChunkListenerSupport</code>. These classes provided empty default implementations of listener methods.</p>  </section>
+        <section class="block why-changed">
+      <h2>Why</h2>
+        <p>Java 8 interface default methods eliminate the need for adapter-style base classes. Batch 5.0 deprecated them with that rationale; Batch 6.0 follows through with removal. Implementing the listener interface directly is both more explicit and compatible with composition rather than inheritance.</p>  </section>
+                <section class="block scope-check">
+      <h2>Scope Check</h2>
+        <p>Search for <code>extends JobExecutionListenerSupport</code>, <code>extends StepExecutionListenerSupport</code>, and <code>extends ChunkListenerSupport</code> in your source. Also check Spring XML configuration files and any reflection-based lookups for these class names.</p>  </section>
+                    </div>
+
+<div class="cf-fixband">
+                      <section class="block diffs">
+      <h2>The Fix</h2>
+        <figure class="diff-card" data-lang="java">
+ <figcaption>
+  Replace base class with direct interface implementation
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">public class MyJobListener extends JobExecutionListenerSupport {
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        // only override what you need
+    }
+}</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java">public class MyJobListener implements JobExecutionListener {
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        // implement the interface directly
+    }
+}</code></pre>
+ </div>
+</figure>  </section>
+        <section class="block fixes">
+      <h2>How To Fix</h2>
+        <p><strong>Implement the listener interface directly.</strong></p><p>Replace <code>extends JobExecutionListenerSupport</code> with <code>implements JobExecutionListener</code>. Do the same for <code class="cls-type">StepExecutionListenerSupport</code> → <code class="cls-type">StepExecutionListener</code> and <code class="cls-type">ChunkListenerSupport</code> → <code class="cls-type">ChunkListener</code>. Implement only the methods you use: the rest have default no-op implementations on the interface.</p>  </section>
+                <section class="block verify">
+      <h2>Verify</h2>
+        <p>mvn clean compile — no "cannot find symbol" errors for JobExecutionListenerSupport, StepExecutionListenerSupport, or ChunkListenerSupport; listeners implement the interfaces directly</p>  </section>
+            </div>
+
+<div class="cf-watch">
+  <section class="block watch-out">
+      <h2>Watch Out</h2>
+        <ul>
+ <li>The compiler only catches direct imports and <code>extends</code> clauses. Listeners referenced by class name in Spring XML config or loaded via reflection bypass the compiler and fail only when that code path runs. Search configuration files as well as source.</li>
+</ul>  </section>
+</div>
+
+<div class="cf-rest">
+                                          <section class="block further-info">
+      <h2>Further Info</h2>
+        <p>Complements batch-listener-classes: both modules demonstrate the same underlying Batch 6.0 removal.</p>  </section>
+        </div>
+
+  <footer class="cf-foot"><ul>
+ <li>
+  <p><a href="https://github.com/spoole167/spring-break/tree/main/batch-job-serialisation">spring-break module: batch-job-serialisation</a></p></li>
+ <li>
+  <p><a href="https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide">Spring Batch 6.0 Migration Guide</a></p></li>
+</ul></footer>
+</article>
+    <div class="card-break"></div>                              
+        
+    <article class="card tier-1 subsystem-batch" id="card-batch-listener-classes">
+  <div class="cf-hero">
+  <div class="cf-hero-bar">
+    <span class="cf-chip">What you'll see</span>
+    <span class="cf-chip cf-chip-right">spring-boot 3.5 → 4.0</span>  </div>
+  <pre class="error-output"><code><span class="err-prompt">$ mvn compile</span>
+<span class="err-error">[ERROR] /src/main/java/com/example/batch/JobCompletionListener.java:[4,52]</span>
+  error: cannot find symbol
+    symbol:   class JobExecutionListenerSupport
+    location: package org.springframework.batch.core.listener
+<span class="err-error">[ERROR] /src/main/java/com/example/batch/StepLoggingListener.java:[4,52]</span>
+  error: cannot find symbol
+    symbol:   class StepExecutionListenerSupport
+</code></pre></div>
+
+<div class="cf-titleband">
+  <div class="cf-titletext">
+    <h1 class="card-title">Batch Listener Base Classes Removed</h1>
+        <div class="oneliner"><p>Spring Batch 6.0 removed the abstract listener base classes like JobExecutionListenerSupport and StepExecutionListenerSupport.</p></div>                                                                                      </div>
+  <div class="cf-badges">
+        <span class="tier-badge axis-badge axis-badge-tier">Tier 1 - Won&#39;t Build</span>
+        <span class="tier-badge axis-badge axis-badge-subsystem">Spring Batch</span>
+        <span class="effort-badge M">Impact: M</span>    <span class="openrewrite-badge">⚙ OpenRewrite</span>  </div>
+</div>
+
+  
+      
+  <div class="cf-threecol">
+              <section class="block what-changed">
+      <h2>What Changed</h2>
+        <p>Spring Batch 6.0 deleted the <code>*ListenerSupport</code> abstract classes: <code class="cls-type">JobExecutionListenerSupport</code>, <code class="cls-type">StepExecutionListenerSupport</code>, <code class="cls-type">ChunkListenerSupport</code>, <code class="cls-type">ItemReadListenerSupport</code>, and others. Listeners must now implement the interfaces directly, which have had default methods since Batch 5.0.</p>  </section>
+        <section class="block why-changed">
+      <h2>Why</h2>
+        <p>Java 8 default methods made the support classes unnecessary: the interfaces provide no-op defaults for every callback, so there's nothing left to inherit.</p>  </section>
+                <section class="block scope-check">
+      <h2>Scope Check</h2>
+        <p>Search for <code class="cls-type">ListenerSupport</code> and <code>extends.*ListenerSupport</code> across your batch job classes. Common hits include <code class="cls-type">JobExecutionListenerSupport</code>, <code class="cls-type">StepExecutionListenerSupport</code>, and <code class="cls-type">ChunkListenerSupport</code>.</p>  </section>
+                    </div>
+
+<div class="cf-fixband">
+                      <section class="block diffs">
+      <h2>The Fix</h2>
+        <figure class="diff-card" data-lang="java">
+ <figcaption>
+  Job listener
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">import org.springframework.batch.core.listener.JobExecutionListenerSupport;
+
+public class JobCompletionListener extends JobExecutionListenerSupport {
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        log.info("Job completed: {}", jobExecution.getStatus());
+    }
+}</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java">import org.springframework.batch.core.JobExecutionListener;
+
+public class JobCompletionListener implements JobExecutionListener {
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        log.info("Job completed: {}", jobExecution.getStatus());
+    }
+}</code></pre>
+ </div>
+</figure><figure class="diff-card" data-lang="java">
+ <figcaption>
+  Step listener
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+
+public class StepLogger extends StepExecutionListenerSupport {</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java">import org.springframework.batch.core.StepExecutionListener;
+
+public class StepLogger implements StepExecutionListener {</code></pre>
+ </div>
+</figure>  </section>
+        <section class="block fixes">
+      <h2>How To Fix</h2>
+        <p><strong>Change extends to implements.</strong></p><p>Replace <code>extends JobExecutionListenerSupport</code> with <code>implements JobExecutionListener</code>. Same for all other <code>*ListenerSupport</code> classes. The interfaces have default methods, so you only need to override the callbacks you use.</p><p><strong>Use @BeforeJob / @AfterJob annotations.</strong></p><p>Spring Batch also supports annotation-based listeners. Annotate methods with <code class="cls-annotation">@BeforeJob</code>, <code class="cls-annotation">@AfterJob</code>, <code class="cls-annotation">@BeforeStep</code>, <code class="cls-annotation">@AfterStep</code> etc. on any POJO; no interface needed.</p>  </section>
+                <section class="block verify">
+      <h2>Verify</h2>
+        <p>mvn compile and Batch job completes with listener callbacks firing</p>  </section>
+            </div>
+
+<div class="cf-watch">
+  <section class="block watch-out">
+      <h2>Watch Out</h2>
+        <ul>
+ <li>If your listener extends a support class and calls <code>super.afterJob()</code> or <code>super.beforeStep()</code>, remove those super calls. The interface default methods are no-ops, but calling <code class="cls-keyword">super</code> on an interface method looks wrong and may confuse static analysis tools.</li>
+ <li>The <code class="cls-type">ItemWriter</code> and <code class="cls-type">ItemProcessor</code> interfaces also changed in Batch 6.0. If you're fixing listeners, audit your entire batch configuration while you're at it.</li>
+</ul>  </section>
+</div>
+
+<div class="cf-rest">
+                                          <section class="block further-info">
+      <h2>Further Info</h2>
+        <p>The *ListenerSupport classes were deprecated in Spring Batch 5.0 when the interfaces gained default methods. See also: batch-schema-rename.</p>  </section>
+        </div>
+
+  <footer class="cf-foot"><ul>
+ <li>
+  <p><a href="https://github.com/spoole167/spring-break/tree/main/batch-listener-classes">spring-break module: batch-job-serialisation</a></p></li>
+ <li>
+  <p><a href="https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide">Spring Batch 6 migration guide</a></p></li>
+</ul></footer>
+</article>
+    <div class="card-break"></div>                              
+        
+    <article class="card tier-1 subsystem-batch" id="card-batch-package-moves">
+  <div class="cf-hero">
+  <div class="cf-hero-bar">
+    <span class="cf-chip">What you'll see</span>
+    <span class="cf-chip cf-chip-right">spring-boot 3.5 → 4.0</span>  </div>
+  <pre class="error-output"><code><span class="err-prompt">$ mvn compile</span>
+<span class="err-error">[ERROR] /src/main/java/com/example/BatchCoreUsage.java:[3,44]</span>
+  error: package org.springframework.batch.core does not contain class Job
+<span class="err-error">[ERROR] /src/main/java/com/example/BatchCoreUsage.java:[4,44]</span>
+  error: package org.springframework.batch.core does not contain class JobExecution
+</code></pre></div>
+
+<div class="cf-titleband">
+  <div class="cf-titletext">
+    <h1 class="card-title">Spring Batch Core Package Relocations</h1>
+        <div class="oneliner"><p>Core Spring Batch domain classes (Job, JobExecution, etc.) moved from org.springframework.batch.core to org.springframework.batch.core.job.</p></div>                                                                                      </div>
+  <div class="cf-badges">
+        <span class="tier-badge axis-badge axis-badge-tier">Tier 1 - Won&#39;t Build</span>
+        <span class="tier-badge axis-badge axis-badge-subsystem">Spring Batch</span>
+        <span class="effort-badge M">Impact: M</span>      </div>
+</div>
+
+  
+      
+  <div class="cf-threecol">
+              <section class="block what-changed">
+      <h2>What Changed</h2>
+        <p>Core domain classes have moved from <code class="cls-property">org.springframework.batch.core</code> to subpackages, primarily <code class="cls-property">org.springframework.batch.core.job</code>. Affected classes include <code class="cls-type">Job</code>, <code class="cls-type">JobExecution</code>, <code class="cls-type">JobInstance</code>, and <code class="cls-type">JobParameters</code> among others.</p>  </section>
+        <section class="block why-changed">
+      <h2>Why</h2>
+        <p>Spring Batch 6.0 redesigned the domain model to give each concern its own subpackage and make the module boundaries clear.</p>  </section>
+                <section class="block scope-check">
+      <h2>Scope Check</h2>
+        <p>Search for <code>import org.springframework.batch.core.</code> across all Java/Kotlin sources. Any import that resolves directly to a class in the root <code>core</code> package is likely affected.</p>  </section>
+                    </div>
+
+<div class="cf-fixband">
+                      <section class="block diffs">
+      <h2>The Fix</h2>
+        <figure class="diff-card" data-lang="java">
+ <figcaption>
+  Core domain imports
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
+import org.springframework.batch.core.JobParameters;</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java">import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.JobParameters;</code></pre>
+ </div>
+</figure>  </section>
+        <section class="block fixes">
+      <h2>How To Fix</h2>
+        <p><strong>Update imports to include the job subpackage.</strong></p><p>Add <code>.job</code> to the package path for the affected classes. This is a mechanical find-and-replace: <code>org.springframework.batch.core.Job</code> becomes <code>org.springframework.batch.core.job.Job</code>, and so on. Check the Spring Batch 6.0 Migration Guide for the complete list of moved classes.</p>  </section>
+                <section class="block verify">
+      <h2>Verify</h2>
+        <p>mvn compile — no package does not exist errors for org.springframework.batch.core classes</p>  </section>
+            </div>
+
+<div class="cf-watch">
+  <section class="block watch-out">
+      <h2>Watch Out</h2>
+        <ul>
+ <li>Not all classes in <code class="cls-property">org.springframework.batch.core</code> moved. Some remain at the root level. Verify each import against the 6.0 Javadoc rather than bulk-replacing all root-level imports.</li>
+</ul>  </section>
+</div>
+
+<div class="cf-rest">
+                                          <section class="block further-info">
+      <h2>Further Info</h2>
+        <p>The classes are unchanged; only their packages moved. Expect a large batch of import fixes if your code uses Batch domain types directly.</p>  </section>
+        </div>
+
+  <footer class="cf-foot"><ul>
+ <li>
+  <p><a href="https://github.com/spoole167/spring-break/tree/main/batch-package-moves">spring-break module: batch-package-moves</a></p></li>
+ <li>
+  <p><a href="https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide">Spring Batch 6.0 Migration Guide</a></p></li>
+</ul></footer>
+</article>
+    <div class="card-break"></div>                      <section class="axis-divider tier-divider tier-2" id="axis-divider-tier-2" style="background: #d68910">  <div class="tier-divider-inner">
+    <div class="tier-badge-lg">Tier 2</div>
+    <h1>Tier 2 - Won&#39;t Start</h1>
+    <div class="tier-count">2 cards</div>
+
+        <ol class="tier-toc">
+            <li><a href="#card-batch-inmemory-default">Spring Batch Now Uses In-Memory Job Repository by Default</a></li>
+            <li><a href="#card-batch-schema-change">Spring Batch 6 Schema Sequence Rename</a></li>
+          </ol>
+      </div>
+</section>
+                    
+        
+    <article class="card tier-2 subsystem-batch" id="card-batch-inmemory-default">
+  <div class="cf-hero">
+  <div class="cf-hero-bar">
+    <span class="cf-chip">What you'll see</span>
+    <span class="cf-chip cf-chip-right">spring-boot 3.5 → 4.0</span>  </div>
+  <pre class="error-output"><code>// Boot 3.5: BATCH_JOB_EXECUTION table created, job persisted.
+
+// Boot 4.0 with only spring-boot-starter-batch:
+// No schema created. Query against batch tables fails:
+org.springframework.jdbc.BadSqlGrammarException:
+  PreparedStatementCallback; bad SQL grammar
+  [SELECT JOB_INSTANCE_ID, JOB_NAME from BATCH_JOB_INSTANCE ...];
+  Table "BATCH_JOB_INSTANCE" not found
+
+// Or job restart logic ignores execution history.
+</code></pre></div>
+
+<div class="cf-titleband">
+  <div class="cf-titletext">
+    <h1 class="card-title">Spring Batch Now Uses In-Memory Job Repository by Default</h1>
+        <div class="oneliner"><p>Spring Batch defaults to an in-memory job repository in Boot 4.0, so <code class="cls-constant">BATCH_JOB_EXECUTION</code> and related tables are no longer created. Add <code class="cls-property">spring-boot-starter-batch-jdbc</code> to restore database persistence.</p></div>                                                                                      </div>
+  <div class="cf-badges">
+        <span class="tier-badge axis-badge axis-badge-tier">Tier 2 - Won&#39;t Start</span>
+        <span class="tier-badge axis-badge axis-badge-subsystem">Spring Batch</span>
+        <span class="effort-badge S">Impact: S</span>      </div>
+</div>
+
+  
+      
+  <div class="cf-threecol">
+              <section class="block what-changed">
+      <h2>What Changed</h2>
+        <p>Spring Boot 4.0 introduced <code class="cls-property">spring-boot-starter-batch-jdbc</code> as the explicit opt-in for database-backed job execution persistence. <code class="cls-property">spring-boot-starter-batch</code> now configures an in-memory <code class="cls-type">JobRepository</code> backed by a <code class="cls-type">ConcurrentHashMap</code>. The Batch schema DDL is no longer applied automatically unless the JDBC starter is on the classpath.</p>  </section>
+        <section class="block why-changed">
+      <h2>Why</h2>
+        <p>Many Batch use cases (short-lived jobs, unit tests, development) do not need database persistence, yet the old default forced every Batch application to carry a datasource and manage schema migrations. The in-memory default is the right starting point; persistence is an explicit opt-in.</p>  </section>
+                <section class="block scope-check">
+      <h2>Scope Check</h2>
+        <p>Check for code that queries Batch tables directly via JDBC, uses <code class="cls-type">JobExplorer</code> to inspect execution history, or relies on Batch restart semantics (same job parameters, incomplete executions). All of these require the JDBC starter.</p>  </section>
+                    </div>
+
+<div class="cf-fixband">
+                      <section class="block diffs">
+      <h2>The Fix</h2>
+        <figure class="diff-card" data-lang="java">
+ <figcaption>
+  pom.xml — add the JDBC starter to restore database persistence
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-batch&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-batch&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-batch-jdbc&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+ </div>
+</figure>  </section>
+        <section class="block fixes">
+      <h2>How To Fix</h2>
+        <p><strong>Add spring-boot-starter-batch-jdbc for database-backed persistence.</strong></p><p>If your application relies on job execution history, restartability, or the Batch admin tables, add <code class="cls-property">spring-boot-starter-batch-jdbc</code> alongside <code class="cls-property">spring-boot-starter-batch</code>. This restores the Boot 3.5 behaviour.</p><p><strong>Embrace the in-memory default if persistence isn't needed.</strong></p><p>For stateless or ephemeral jobs (one-shot CLI jobs, test fixtures, data imports) the in-memory repository is correct and removes the need for a datasource. Just remove any schema initialisation configuration.</p>  </section>
+                <section class="block verify">
+      <h2>Verify</h2>
+        <p>Batch jobs persist execution history to the database when spring-boot-starter-batch-jdbc is declared</p>  </section>
+            </div>
+
+<div class="cf-watch">
+  <section class="block watch-out">
+      <h2>Watch Out</h2>
+        <ul>
+ <li>This interacts with the <code class="cls-property">batch-schema-change</code> break: Boot 4.0 also renamed the schema sequence from <code class="cls-constant">BATCH_STEP_EXECUTION_SEQ</code> to <code class="cls-constant">BATCH_STEP_EXECUTION_SEQUENCE</code>. If you add <code class="cls-property">spring-boot-starter-batch-jdbc</code>, make sure your schema migration handles both changes.</li>
+</ul>  </section>
+</div>
+
+<div class="cf-rest">
+                                          <section class="block further-info">
+      <h2>Further Info</h2>
+        <p>In Boot 3.5, spring-boot-starter-batch with a JDBC datasource created the Batch schema and persisted job executions automatically. Code that relies on the Batch tables existing (auditing, restart logic, admin UI) breaks at runtime.</p>  </section>
+        </div>
+
+  <footer class="cf-foot"><ul>
+ <li>
+  <p><a href="https://github.com/spoole167/spring-break/tree/main/batch-in-memory-default">spring-break module: batch-in-memory-default</a></p></li>
+ <li>
+  <p><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></p></li>
+</ul></footer>
+</article>
+    <div class="card-break"></div>                              
+        
+    <article class="card tier-2 subsystem-batch" id="card-batch-schema-change">
+  <div class="cf-hero">
+  <div class="cf-hero-bar">
+    <span class="cf-chip">What you'll see</span>
+    <span class="cf-chip cf-chip-right">spring-boot 3.5 → 4.0</span>  </div>
+  <pre class="error-output"><code>org.springframework.dao.InvalidDataAccessResourceUsageException:
+  could not fetch next sequence value
+...
+Caused by: java.sql.SQLSyntaxErrorException:
+  sequence "BATCH_JOB_INSTANCE_SEQ" does not exist
+ at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(...)
+ ...
+org.springframework.batch.core.launch.JobLaunchException:
+  Could not launch job 'importCustomersJob'.
+  Failed to create new JobInstance for job [importCustomersJob]
+</code></pre></div>
+
+<div class="cf-titleband">
+  <div class="cf-titletext">
+    <h1 class="card-title">Spring Batch 6 Schema Sequence Rename</h1>
+        <div class="oneliner"><p>Spring Batch 6 renamed its database sequences (e.g., BATCH_JOB_SEQ became BATCH_JOB_INSTANCE_SEQ). Existing databases using the old names fail when Batch tries to generate IDs.</p></div>                                                                                      </div>
+  <div class="cf-badges">
+        <span class="tier-badge axis-badge axis-badge-tier">Tier 2 - Won&#39;t Start</span>
+        <span class="tier-badge axis-badge axis-badge-subsystem">Spring Batch</span>
+        <span class="effort-badge S">Impact: S</span>    <span class="openrewrite-badge">⚙ OpenRewrite</span>  </div>
+</div>
+
+  
+      
+  <div class="cf-threecol">
+              <section class="block what-changed">
+      <h2>What Changed</h2>
+        <p>Spring Batch 6 renamed the database sequences used for generating IDs: <code class="cls-constant">BATCH_JOB_SEQ</code> became <code class="cls-constant">BATCH_JOB_INSTANCE_SEQ</code>, <code class="cls-constant">BATCH_JOB_EXECUTION_SEQ</code> stayed the same, and <code class="cls-constant">BATCH_STEP_EXECUTION_SEQ</code> stayed the same. The metadata table structures also changed. Applications with existing Batch schema from Spring Batch 5 will fail when the framework tries to use the new sequence names.</p>  </section>
+        <section class="block why-changed">
+      <h2>Why</h2>
+        <p>The rename aligns sequence names with the tables they serve, making the schema self-documenting. The old generic names like <code class="cls-constant">BATCH_JOB_SEQ</code> were ambiguous about which table's IDs they generated.</p>  </section>
+                <section class="block scope-check">
+      <h2>Scope Check</h2>
+        <p>Check if your application uses <code class="cls-property">spring-boot-starter-batch</code> and has a persistent job repository (not in-memory). If you see <code class="cls-constant">BATCH_JOB_INSTANCE</code>, <code class="cls-constant">BATCH_JOB_EXECUTION</code>, or <code class="cls-constant">BATCH_STEP_EXECUTION</code> tables in your database, you need this migration. In-memory job repositories (MapJobRepositoryFactoryBean) are not affected.</p>  </section>
+                    </div>
+
+<div class="cf-fixband">
+                      <section class="block diffs">
+      <h2>The Fix</h2>
+        <figure class="diff-card" data-lang="java">
+ <figcaption>
+  SQL migration script — PostgreSQL
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">-- Old sequences from Spring Batch 5</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java">-- Rename sequences to match Spring Batch 6 expectations
+ALTER SEQUENCE BATCH_JOB_SEQ RENAME TO BATCH_JOB_INSTANCE_SEQ;</code></pre>
+ </div>
+</figure><figure class="diff-card" data-lang="java">
+ <figcaption>
+  SQL migration script — MySQL
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java">-- Old sequences from Spring Batch 5</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java">-- MySQL uses tables for sequence emulation
+RENAME TABLE BATCH_JOB_SEQ TO BATCH_JOB_INSTANCE_SEQ;</code></pre>
+ </div>
+</figure><figure class="diff-card" data-lang="java">
+ <figcaption>
+  application.properties — opt into old names temporarily
+ </figcaption>
+ <div class="diff-side diff-side-removed">
+  <header>
+   Before
+  </header>
+  <pre><code class="language-java"># no Batch schema configuration</code></pre>
+ </div>
+ <div class="diff-side diff-side-added">
+  <header>
+   After
+  </header>
+  <pre><code class="language-java"># Point Batch to legacy sequence names while you plan migration
+spring.batch.jdbc.isolation-level-for-create=ISOLATION_DEFAULT</code></pre>
+ </div>
+</figure>  </section>
+        <section class="block fixes">
+      <h2>How To Fix</h2>
+        <p><strong>Run a schema migration script.</strong></p><p>Create a Flyway or Liquibase migration that renames the sequences. For PostgreSQL: <code>ALTER SEQUENCE BATCH_JOB_SEQ RENAME TO BATCH_JOB_INSTANCE_SEQ;</code>. For MySQL, rename the emulation tables. Apply this before deploying the upgraded application.</p><p><strong>Let Spring Batch recreate the schema.</strong></p><p>If your Batch job data is disposable (e.g., dev/staging), set <code>spring.batch.jdbc.initialize-schema=always</code> to let Spring Batch drop and recreate the metadata tables with the new names. Do not use this in production.</p><p><strong>Use the migration SQL from Spring Batch.</strong></p><p>The Spring Batch 6 migration guide provides official SQL scripts for each database platform. Use those as the basis for your migration rather than writing them by hand.</p>  </section>
+                <section class="block verify">
+      <h2>Verify</h2>
+        <p>Spring Batch job launches with no BATCH_ table not found errors</p>  </section>
+            </div>
+
+<div class="cf-watch">
+  <section class="block watch-out">
+      <h2>Watch Out</h2>
+        <ul>
+ <li>Sequences are only part of the schema change. Column types and table structures also changed in Spring Batch 6. Check the official migration SQL scripts for the full set of changes.</li>
+ <li>If you run multiple application versions against the same database during a rolling deploy, the old version will break when the sequences are renamed. Plan a maintenance window or use blue-green deployment.</li>
+ <li>H2 in-memory databases used in tests auto-create the schema fresh each run, so tests may pass while production fails. Test against a real database with existing Batch tables.</li>
+</ul>  </section>
+</div>
+
+<div class="cf-rest">
+                                          <section class="block further-info">
+      <h2>Further Info</h2>
+        <p>The sequence rename was announced in the Batch 6.0 milestone notes. See also: batch-listener-classes.</p>  </section>
+        </div>
+
+  <footer class="cf-foot"><ul>
+ <li>
+  <p><a href="https://github.com/spoole167/spring-break/tree/main/batch-schema-change">spring-break module: batch-schema-change</a></p></li>
+ <li>
+  <p><a href="https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide">Spring Batch 6 migration guide</a></p></li>
+ <li>
+  <p><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide">Spring Boot 4.0 Migration Guide</a></p></li>
+</ul></footer>
+</article>
+      
+      <section class="book-back" id="book-back">
+  <div class="back-cta">
+    <h1>Not ready to migrate?</h1>
+    <p class="back-lead">Spring Boot 3.5 stops receiving fixes when open-source support ends.
+      You have three sane options. Pick one deliberately.</p>
+    <ol class="back-options">
+      <li><strong>Pin 3.5 and track CVEs.</strong> Free, but the clock is running and
+        every new CVE is your team's problem to triage.</li>
+      <li><strong>Migrate incrementally with OpenRewrite.</strong> The Boot 4.0 recipe
+        automates the renames in this book; the behavioural changes still need eyes.</li>
+      <li><strong>HeroDevs NES for Spring.</strong> Security patches for 3.5 beyond EOL,
+        buying your team time to migrate on your schedule, not the calendar's.</li>
+    </ol>
+    <div class="back-links">
+      <div>Spring Boot 4.0 Migration Guide · github.com/spring-projects/spring-boot/wiki</div>
+      <div>OpenRewrite Boot 4.0 recipe · docs.openrewrite.org/recipes/java/spring/boot4</div>
+      <div>HeroDevs NES for Spring · herodevs.com/support/spring-nes</div>
+      <div>The test suite behind this book · github.com/spoole167/spring-break</div>
+    </div>
+  </div>
+</section>
+  </body>
+</html>

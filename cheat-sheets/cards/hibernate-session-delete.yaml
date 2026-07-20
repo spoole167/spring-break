@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: true
 verify: >
-  mvn compile — no Session.delete() symbol errors
+  mvn compile: no Session.delete() symbol errors
 
 further_info: >
   Driven by Hibernate 7.0, upstream of Spring Boot 4.0. The methods were

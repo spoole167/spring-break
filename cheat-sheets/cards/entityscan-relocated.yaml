@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn compile — no package does not exist error for @EntityScan import
+  mvn compile: no package does not exist error for @EntityScan import
 
 further_info: >
   Several JPA autoconfiguration classes moved together; EntityScan is the

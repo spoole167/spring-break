@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn test-compile — no package does not exist for org.springframework.boot.test.web.client
+  mvn test-compile: no package does not exist for org.springframework.boot.test.web.client
 
 further_info: >
   Part of Spring Boot 4.0's testing overhaul: the class now ships in the

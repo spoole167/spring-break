@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: L
 openrewrite: false
 verify: >
-  mvn clean compile — no "cannot find symbol" errors for OpenSaml4*
+  mvn clean compile: no "cannot find symbol" errors for OpenSaml4*
   classes; SAML login flow completes with OpenSAML 5 libraries
 
 further_info: >

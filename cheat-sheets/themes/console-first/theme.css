@@ -2,14 +2,13 @@
  * Theme: console-first
  *
  * A5 print layout for the Spring Boot 4.0 migration cheat-sheet cards.
- * The page opens with the error output as a light "console" panel (no dark
- * ink-heavy blocks — this is a print theme), then title band, a
- * what/why/scope column strip, the fix band, watch-out cards, link footer.
+ * The page opens with the title band, then a what/why/scope column strip,
+ * the error output as a light "console" panel (cf-see) right before the
+ * fix, the fix band, watch-out cards, link footer.
  *
- * Pairs with this theme's templates/_card-body.html, which hoists the
- * what-youll-see block above the title and dispatches the remaining blocks
- * into the cf-* regions styled here. Quiet cards with no error output
- * simply open with the title band.
+ * Pairs with this theme's templates/_card-body.html, which always opens on
+ * the title band and dispatches the remaining blocks into the cf-* regions
+ * styled here. Quiet cards with no error output simply skip cf-see.
  *
  * Build:  pt build -s A5 --theme console-first --theme-dir themes cards out.pdf
  * Tier palette matches the book yaml's axis colours:
@@ -48,9 +47,9 @@ article.card.tier-1 .tier-badge { background: #c0392b; }
 article.card.tier-2 .tier-badge { background: #d68910; }
 article.card.tier-3 .tier-badge { background: #2471a3; }
 
-article.card.tier-1 .cf-hero, article.card.tier-1 > .cf-titleband:first-child { border-color: #c0392b; }
-article.card.tier-2 .cf-hero, article.card.tier-2 > .cf-titleband:first-child { border-color: #d68910; }
-article.card.tier-3 .cf-hero, article.card.tier-3 > .cf-titleband:first-child { border-color: #2471a3; }
+article.card.tier-1 .cf-titleband { border-top-color: #c0392b; }
+article.card.tier-2 .cf-titleband { border-top-color: #d68910; }
+article.card.tier-3 .cf-titleband { border-top-color: #2471a3; }
 
 article.card.tier-1 .cf-threecol section.block h2 { color: #c0392b; }
 article.card.tier-2 .cf-threecol section.block h2 { color: #d68910; }
@@ -60,63 +59,20 @@ article.card.tier-1 section.block pre { border-left-color: #c0392b; }
 article.card.tier-2 section.block pre { border-left-color: #d68910; }
 article.card.tier-3 section.block pre { border-left-color: #2471a3; }
 
-/* ── 1 · Console hero ─────────────────────────────────────────────────── */
-.cf-hero {
-  background: #f6f8fa;
-  border-bottom: 2.5pt solid #c0392b;   /* per-tier override above */
-  padding: 6mm 7mm 4mm;
-}
-
-.cf-hero-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2mm;
-}
-
-.cf-chip {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 6pt;
-  font-weight: 700;
-  color: #8a8f98;
-  text-transform: uppercase;
-  letter-spacing: 0.5pt;
-}
-
-/* The error-output pre sits directly in the hero: strip the box styling
-   the scaffold gives every <pre> and let the band be the container. */
-.cf-hero pre,
-.cf-hero pre.error-output {
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 6.8pt;
-  line-height: 1.5;
-  color: #3a4048;
-  white-space: pre-wrap;
-  overflow: hidden;
-}
-
 pre.error-output .err-error  { color: #c0392b; }
 pre.error-output .err-prompt { color: #1d7a3d; font-weight: 700; }
 
-/* ── 2 · Title band ───────────────────────────────────────────────────── */
+/* ── 1 · Title band ───────────────────────────────────────────────────── */
+/* Always opens the page now (see revision note in _card-body.html), so it
+   always carries the tier rule — no more first-child special-casing. */
 .cf-titleband {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 4mm;
-  padding: 3.5mm 7mm 2.5mm;
-  border-bottom: 0.5pt solid #e5e5e5;
-}
-
-/* No hero (quiet cards): the title band opens the page and picks up the
-   tier rule the hero would have carried. */
-article.card > .cf-titleband:first-child {
+  padding: 5mm 7mm 2.5mm;
   border-top: 2.5pt solid #c0392b;      /* per-tier override above */
-  padding-top: 5mm;
+  border-bottom: 0.5pt solid #e5e5e5;
 }
 
 h1.card-title {
@@ -181,7 +137,7 @@ h1.card-title {
 }
 .applies-if-label { font-weight: 700; color: #1a56db; }
 
-/* ── 3 · What / Why / Scope strip ─────────────────────────────────────── */
+/* ── 2 · What / Why / Scope strip ─────────────────────────────────────── */
 .cf-threecol {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
@@ -203,6 +159,32 @@ h1.card-title {
 }
 
 .cf-threecol section.block p {
+  font-size: 6.8pt;
+  line-height: 1.4;
+  margin: 0 0 1mm;
+}
+
+/* ── 3 · What you'll see ──────────────────────────────────────────────── */
+/* The console panel, now in reading order right before the fix (was
+   hoisted above the title — see revision note in _card-body.html). Uses
+   the generic boxed .error-output pre styling near the bottom of this
+   file rather than its own panel look, so it reads as part of the page
+   flow instead of a banner. Emits nothing for quiet cards. */
+.cf-see { padding: 2.5mm 7mm; border-bottom: 0.5pt solid #e5e5e5; }
+
+.cf-see section.block { margin: 0; }
+
+.cf-see section.block h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6.3pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #3a4048;
+  margin: 0 0 0.8mm;
+}
+
+.cf-see section.block p {
   font-size: 6.8pt;
   line-height: 1.4;
   margin: 0 0 1mm;

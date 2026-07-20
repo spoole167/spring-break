@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: true
 verify: >
-  App starts and @PostConstruct methods fire — confirm via log output or
+  App starts and @PostConstruct methods fire: confirm via log output or
   assert that initialisation state is set after context loads
 
 further_info: >
@@ -92,7 +92,7 @@ scope_check: >
 watch_out:
   - >
     <code>@PostConstruct</code> is skipped if the import is wrong: no
-    error at startup, the method simply never runs. If your cache,
+    error at startup, the method never runs. If your cache,
     connection pool, or scheduled task isn't initialising, check the
     import first.
   - >

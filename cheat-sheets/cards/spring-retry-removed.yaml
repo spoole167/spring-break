@@ -35,7 +35,7 @@ why_changed: >
   Spring Retry's release cadence diverged from Spring Boot's. Managing
   it in the BOM implied a level of compatibility testing that wasn't
   happening. Removing it from the BOM lets teams pin the version they
-  actually test against.
+  test against.
 
 diffs:
   - comment: "// pom.xml — add explicit version"
@@ -71,7 +71,7 @@ scope_check: >
   Search for <code>spring-retry</code> in POM and Gradle files. Any
   declaration without an explicit version will fail. Also check for
   <code>@Retryable</code> and <code>@EnableRetry</code> annotations:
-  these confirm the library is actually in use.
+  these confirm the library is in use.
 
 watch_out:
   - >

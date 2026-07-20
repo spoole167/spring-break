@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn compile — no cannot find symbol for @Where or @OrderBy from Hibernate
+  mvn compile: no cannot find symbol for @Where or @OrderBy from Hibernate
 
 further_info: >
   @SQLRestriction and @SQLOrder arrived in Hibernate 6.3; the old

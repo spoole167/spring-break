@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
 verify: >
-  mvn compile — no cannot find symbol for SimpDestinationMessageMatcher
+  mvn compile: no cannot find symbol for SimpDestinationMessageMatcher
 
 further_info: >
   Part of Spring Security 7.0's WebSocket security overhaul: the same

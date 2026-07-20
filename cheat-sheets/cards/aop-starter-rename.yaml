@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn validate — no version is missing error for the AOP starter
+  mvn validate: no version is missing error for the AOP starter
 
 further_info: >
   This is a T1B failure (artifact no longer in the BOM): the build fails

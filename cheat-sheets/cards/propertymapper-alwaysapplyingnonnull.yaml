@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn compile — no cannot find symbol for alwaysApplyingWhenNonNull
+  mvn compile: no cannot find symbol for alwaysApplyingWhenNonNull
 
 further_info: >
   PropertyMapper is an internal Spring Boot utility, used mostly in

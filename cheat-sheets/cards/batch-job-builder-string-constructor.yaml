@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn compile — no cannot find symbol for JobBuilder(String) constructor
+  mvn compile: no cannot find symbol for JobBuilder(String) constructor
 
 further_info: >
   Spring Batch 6.0 makes the JobRepository compulsory framework-wide;

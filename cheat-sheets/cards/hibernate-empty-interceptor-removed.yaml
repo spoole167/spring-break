@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn compile — no cannot find symbol for EmptyInterceptor
+  mvn compile: no cannot find symbol for EmptyInterceptor
 
 further_info: >
   EmptyInterceptor was a convenience class giving no-op implementations
@@ -67,7 +67,7 @@ fixes:
       Replace <code>extends EmptyInterceptor</code> with
       <code>implements Interceptor</code> and remove the
       <code>EmptyInterceptor</code> import. Override only the methods
-      you actually use.
+      you use.
 
 scope_check: >
   Search for <code>EmptyInterceptor</code> and

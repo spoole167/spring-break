@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: true
 verify: >
-  mvn compile — no CascadeType.SAVE_UPDATE errors
+  mvn compile: no CascadeType.SAVE_UPDATE errors
 
 further_info: >
   Arrives via spring-boot-starter-data-jpa, which pulls in Hibernate 7.0.

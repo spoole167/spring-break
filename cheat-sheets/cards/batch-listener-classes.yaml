@@ -99,8 +99,8 @@ watch_out:
     and may confuse static analysis tools.
   - >
     The <code>ItemWriter</code> and <code>ItemProcessor</code> interfaces
-    also changed in Batch 6.0. If you're fixing listeners, audit your
-    entire batch configuration while you're at it.
+    also changed in Batch 6.0. If you're fixing listeners, audit the
+    whole batch configuration in the same pass.
 
 footer_links:
   - text: "spring-break module: batch-job-serialisation"

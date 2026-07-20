@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: true
 verify: >
-  App starts and @Inject fields are non-null — confirm via a test that
+  App starts and @Inject fields are non-null: confirm via a test that
   autowires a bean registered with @Named
 
 further_info: >
@@ -107,7 +107,7 @@ watch_out:
     switch to Spring-specific annotations if portability matters.
   - >
     Constructor injection with <code>@Inject</code> on a single-constructor
-    class can simply remove the annotation entirely. Spring auto-detects
+    class can drop the annotation entirely. Spring auto-detects
     single-constructor injection since 4.3.
 
 footer_links:

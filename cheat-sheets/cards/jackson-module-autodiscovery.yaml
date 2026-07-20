@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  JSON serialization output is identical before and after the upgrade, or
+  JSON serialisation output is identical before and after the upgrade, or
   unexpected module behaviour is controlled with spring.jackson.find-and-add-modules
 
 further_info: >
@@ -54,7 +54,7 @@ fixes:
     text: >
       Run <code>mvn dependency:tree</code> and look for any artifacts ending
       in <code>-module</code> or containing <code>jackson</code>. For each
-      one, verify its effect on your serialization output. If unexpected
+      one, verify its effect on your serialisation output. If unexpected
       modules are activating, set
       <code>spring.jackson.find-and-add-modules=false</code> and register
       only the modules you need explicitly.
@@ -66,10 +66,10 @@ fixes:
       <code>modules(new JavaTimeModule(), ...)</code>.
 
 scope_check: >
-  Run your application's serialization tests after upgrading. Compare
-  JSON output field by field for any type that uses custom serialization
+  Run your application's serialisation tests after upgrading. Compare
+  JSON output field by field for any type that uses custom serialisation
   or has complex types (dates, BigDecimal, Optional, collections). Grep
-  for <code>ObjectMapper</code> customization code to understand what
+  for <code>ObjectMapper</code> customisation code to understand what
   was previously registered manually.
 
 watch_out:

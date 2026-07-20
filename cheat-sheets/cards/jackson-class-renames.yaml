@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: true
 verify: >
-  mvn compile — no JsonSerializer/SerializerProvider errors
+  mvn compile: no JsonSerializer/SerializerProvider errors
 
 further_info: >
   Driven by Jackson 3.0, upstream of Spring Boot 4.0, and finalised in

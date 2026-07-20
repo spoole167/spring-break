@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn compile — no cannot find symbol for StreamsBuilderFactoryBeanCustomizer
+  mvn compile: no cannot find symbol for StreamsBuilderFactoryBeanCustomizer
 
 further_info: >
   The removal is part of shrinking Boot's Kafka auto-configuration surface;

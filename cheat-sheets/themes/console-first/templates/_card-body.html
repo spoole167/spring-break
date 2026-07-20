@@ -2,13 +2,14 @@
 
    Restructures the card into the "console first" A5 layout:
 
-     1. cf-hero      — the what-youll-see block (error output), hoisted
-                       above the title. Recognition before explanation.
-                       Emits nothing for quiet cards with no error output;
-                       the title band then opens the page.
-     2. cf-titleband — title + oneliner on the left, badges on the right.
-     3. cf-threecol  — what-changed / why / scope-check as a column strip
+     1. cf-titleband — title + oneliner on the left, badges on the right.
+                       Always opens the page (see revision note below).
+     2. cf-threecol  — what-changed / why / scope-check as a column strip
                        (auto-fits: cards missing a section get wider cells).
+     3. cf-see       — the what-youll-see block (error output), now placed
+                       in reading order right before the fix, not hoisted
+                       above the title. Emits nothing for quiet cards with
+                       no error output.
      4. cf-fixband   — the-fix diffs, how-to-fix steps, verify box.
      5. cf-watch     — watch-out bullets styled as a 2-column card grid.
      6. cf-rest      — any block the layout doesn't place explicitly
@@ -16,7 +17,11 @@
                        silently vanishes.
      7. cf-foot      — footer-links strip.
 
-   Extends _card-body-base: header carries the hero + title band, meta is
+   Revision note: this theme originally hoisted what-youll-see above the
+   title ("recognition before explanation"). Moved back into the body,
+   directly before the-fix, so the title always leads the page.
+
+   Extends _card-body-base: header carries only the title band, meta is
    emptied (badges and oneliner move into the title band), appliesIf is
    inherited unchanged, cardBlocks is fully replaced with the region
    dispatch, footer carries the links strip. #}
@@ -28,18 +33,6 @@
    too so hand-written markdown cards using the same headings still land in
    the right regions. #}
 {% block header %}
-{% for block in card.blocks %}
-{% if block.classes contains "error-output" or block.classes contains "what-youll-see" %}
-<div class="cf-hero">
-  <div class="cf-hero-bar">
-    <span class="cf-chip">What you'll see</span>
-    {% if card.frontmatter.series %}<span class="cf-chip cf-chip-right">{{ card.frontmatter.series }}</span>{% endif %}
-  </div>
-  {{ block.html | raw }}
-</div>
-{% endif %}
-{% endfor %}
-
 <div class="cf-titleband">
   <div class="cf-titletext">
     <h1 class="card-title">{{ card.title | default(card.id) }}</h1>
@@ -63,6 +56,14 @@
 <div class="cf-threecol">
   {% for block in card.blocks %}
   {% if block.classes contains "what-changed" or block.classes contains "why-changed" or block.classes contains "why" or block.classes contains "scope-check" %}
+  {% include "_block-section" with {"block": block} %}
+  {% endif %}
+  {% endfor %}
+</div>
+
+<div class="cf-see">
+  {% for block in card.blocks %}
+  {% if block.classes contains "error-output" or block.classes contains "what-youll-see" %}
   {% include "_block-section" with {"block": block} %}
   {% endif %}
   {% endfor %}

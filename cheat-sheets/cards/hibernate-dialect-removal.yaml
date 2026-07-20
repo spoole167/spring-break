@@ -87,7 +87,7 @@ watch_out:
     Search Java code for <code>setProperty("hibernate.dialect"</code> too.
   - >
     The auto-detection requires an active JDBC connection at startup. If
-    your application uses lazy datasource initialization, you may still
+    your application uses lazy datasource initialisation, you may still
     need an explicit base dialect class.
 
 footer_links:

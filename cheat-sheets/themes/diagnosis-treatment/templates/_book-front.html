@@ -15,6 +15,55 @@
    Glyph discipline: plain text only (Y / dot), no ⚙/✓ — openhtmltopdf's
    embedded fonts drop them. #}
 
+{# Mini-guide intro page: what this format is, how to read a card, and the
+   whole series — generated from edition.series (every declared edition,
+   supplied by pt publish), so the list can never drift from the yaml.
+   Only mini-guide editions get this page; the full guide and plain
+   pt build runs skip it. #}
+{% if edition is not null and edition.classes contains "mini-guide" %}
+<section class="book-front mg-intro" id="book-front-intro">
+  <h1>About this mini guide</h1>
+  <p class="bf-lead">This is one cut from <strong>Spring Break Cheat Sheets</strong>,
+    the field guide to every breaking change between Spring Boot 3.5 and 4.0.
+    Each card covers one change, verified by running real code on 3.5.16 and
+    4.0.7. One change, one card, one page: the error you'll see, the fix,
+    and the traps.</p>
+
+  <h2>How to read a card</h2>
+  <ul class="mg-legend">
+    <li><span class="mg-key mg-key-tier">Tier</span> How it fails.
+      Tier 1 won't build, Tier 2 won't start, Tier 3 behaves differently.
+      Tier 3 is the dangerous one: nothing goes red, your data just changes shape.</li>
+    <li><span class="mg-key mg-key-impact">Impact</span> Effort per occurrence
+      once found. S is find-and-replace, M needs an hour of care, L needs a plan.</li>
+    <li><span class="mg-key mg-key-auto">OpenRewrite</span> The badge means the
+      Boot 4.0 recipe fixes this one for you. Run it before touching anything by hand.</li>
+    <li><span class="mg-key mg-key-see">What you'll see</span> The real output,
+      so you can match it against your own build.</li>
+    <li><span class="mg-key mg-key-fix">The fix</span> Before and after code,
+      plus the steps when a rename isn't enough.</li>
+    <li><span class="mg-key mg-key-watch">Watch out</span> The traps that make
+      this change look like a different bug.</li>
+    <li><span class="mg-key mg-key-verify">Verify</span> The command that proves
+      you're done.</li>
+  </ul>
+
+  <h2>The series</h2>
+  <ul class="mg-series">
+  {% for s in edition.series %}{% if s.classes contains "mini-guide" %}
+    <li{% if s.id == edition.id %} class="mg-current"{% endif %}>
+      <span class="mg-series-title">{{ s.title }}</span>
+      {% if s.strapline %}<span class="mg-series-strap">{{ s.strapline }}</span>{% endif %}
+      {% if s.id == edition.id %}<span class="mg-this">this guide</span>{% endif %}
+    </li>
+  {% endif %}{% endfor %}
+  </ul>
+  <p class="mg-full">The full guide collects every change in one book, with a
+    complete planning matrix and the OpenRewrite robot list.
+    github.com/spoole167/spring-break</p>
+</section>
+{% endif %}
+
 <section class="book-front" id="book-front">
   <h1>The Planning Matrix</h1>
   <p class="bf-lead">Every change in this book, in book order. Impact is the

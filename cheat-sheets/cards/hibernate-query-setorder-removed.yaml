@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn compile — no cannot find symbol for setOrder on SelectionQuery
+  mvn compile: no cannot find symbol for setOrder on SelectionQuery
 
 further_info: >
   setOrder() only existed during the Hibernate 6.x window. Code that

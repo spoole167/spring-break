@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
 verify: >
-  mvn compile — no cannot find symbol for ApacheDSContainer
+  mvn compile: no cannot find symbol for ApacheDSContainer
 
 further_info: >
   Both containers were available in 3.5; only UnboundID survives in 4.0.

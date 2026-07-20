@@ -74,7 +74,7 @@ watch_out:
   - >
     The app starts, connects with driver defaults, and runs normally
     against the wrong instance. Confirm the property is being read by
-    testing with a URI that would obviously fail, such as a
+    testing with a URI that cannot resolve, such as a
     non-existent host.
   - >
     Spring Session MongoDB property keys changed separately:

@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn clean compile — no "package org.springframework.boot.web.client
+  mvn clean compile: no "package org.springframework.boot.web.client
   does not exist" errors; HTTP calls succeed
 
 further_info: >
@@ -101,7 +101,7 @@ fixes:
       Replace <code>RestTemplate</code> usage with <code>RestClient</code>.
       Inject <code>RestClient.Builder</code> (auto-configured by Spring Boot 4)
       instead of <code>RestTemplateBuilder</code>. The API is fluent and
-      supports the same customizers.
+      supports the same customisers.
   - label: "Update the RestTemplateBuilder import."
     text: >
       If migration is too large to do now, keep <code>RestTemplate</code>:

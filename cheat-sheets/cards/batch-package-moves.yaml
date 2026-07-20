@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
 verify: >
-  mvn compile — no package does not exist errors for org.springframework.batch.core classes
+  mvn compile: no package does not exist errors for org.springframework.batch.core classes
 
 further_info: >
   The classes are unchanged; only their packages moved. Expect a large

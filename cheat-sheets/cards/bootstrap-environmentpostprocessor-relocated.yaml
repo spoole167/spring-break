@@ -1,0 +1,71 @@
+id: bootstrap-environmentpostprocessor-relocated
+tier: 1
+tier_label: "Won't Build"
+title: "EnvironmentPostProcessor Relocated to org.springframework.boot"
+series: "spring-boot 3.5 → 4.0"
+effort: S
+openrewrite: false
+verify: >
+  mvn compile: no package does not exist errors for EnvironmentPostProcessor
+
+further_info: >
+  Affects code that customises early environment configuration. Verified
+  in the same spring-break test module as the companion BootstrapRegistry
+  relocation: the two moves go in opposite directions and are otherwise
+  unrelated.
+
+oneliner: >
+  EnvironmentPostProcessor moved from org.springframework.boot.env to
+  org.springframework.boot. The spring.factories registration key must
+  also change.
+
+error_output: |
+  $ mvn compile
+  [ERROR] /src/main/java/com/example/EnvironmentPostProcessorUsage.java:[3,43]
+    error: package org.springframework.boot.env does not contain EnvironmentPostProcessor
+
+what_changed: >
+  <code>EnvironmentPostProcessor</code> moved from
+  <code>org.springframework.boot.env</code> to
+  <code>org.springframework.boot</code>.
+
+why_changed: >
+  EnvironmentPostProcessor is used across many contexts, so it moved to
+  the root package for discoverability.
+
+diffs:
+  - comment: "// EnvironmentPostProcessor import"
+    removed: "import org.springframework.boot.env.EnvironmentPostProcessor;"
+    added: "import org.springframework.boot.EnvironmentPostProcessor;"
+
+fixes:
+  - label: "Update imports."
+    text: >
+      Find all usages of <code>org.springframework.boot.env.EnvironmentPostProcessor</code>
+      and replace with <code>org.springframework.boot.EnvironmentPostProcessor</code>.
+      A pure package move: no method signatures or behaviour changed.
+  - label: "Search spring.factories / AutoConfiguration.imports."
+    text: >
+      If you register an <code>EnvironmentPostProcessor</code> in
+      <code>META-INF/spring.factories</code> or
+      <code>META-INF/spring/org.springframework.boot.env.EnvironmentPostProcessor.imports</code>,
+      update the key to
+      <code>org.springframework.boot.EnvironmentPostProcessor</code>.
+
+scope_check: >
+  Search for <code>org.springframework.boot.env.EnvironmentPostProcessor</code>
+  across all Java/Kotlin sources and <code>META-INF</code> registration files.
+
+watch_out:
+  - >
+    The <code>spring.factories</code> key for <code>EnvironmentPostProcessor</code>
+    must also be updated. With the old key your processor is skipped at
+    startup: no error, your environment customisation never runs.
+
+footer_links:
+  - text: "spring-break module: bootstrap-registry-relocated"
+    url: "https://github.com/spoole167/spring-break/tree/main/bootstrap-registry-relocated"
+  - text: "Spring Boot 4.0 Migration Guide"
+    url: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide"
+
+subsystem: core

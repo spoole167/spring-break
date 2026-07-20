@@ -11,7 +11,7 @@ openrewrite: false
   change first; the annotation rename is a secondary step once that
   migration is complete.
 verify: >
-  Custom serializers and mixins annotated with the new names register
+  Custom serialisers and mixins annotated with the new names register
   correctly with the auto-configured ObjectMapper
 
 further_info: >

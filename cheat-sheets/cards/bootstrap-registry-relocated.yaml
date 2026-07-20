@@ -1,42 +1,37 @@
 id: bootstrap-registry-relocated
 tier: 1
 tier_label: "Won't Build"
-title: "BootstrapRegistry and EnvironmentPostProcessor Relocated"
+title: "BootstrapRegistry Relocated to org.springframework.boot.bootstrap"
 series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: false
 verify: >
-  mvn compile — no package does not exist errors for BootstrapRegistry or EnvironmentPostProcessor
+  mvn compile: no package does not exist errors for BootstrapRegistry or
+  ConfigurableBootstrapContext
 
 further_info: >
-  Affects code that customises early application startup or environment
-  configuration.
+  Affects code that customises early application startup. Verified in the
+  same spring-break test module as the companion EnvironmentPostProcessor
+  relocation: the two moves go in opposite directions and are otherwise
+  unrelated.
 
 oneliner: >
-  BootstrapRegistry moved to org.springframework.boot.bootstrap and
-  EnvironmentPostProcessor moved to org.springframework.boot. Both old
-  import paths are gone.
+  BootstrapRegistry and ConfigurableBootstrapContext moved to
+  org.springframework.boot.bootstrap. The old import path is gone.
 
 error_output: |
   $ mvn compile
   [ERROR] /src/main/java/com/example/BootstrapRegistryUsage.java:[3,47]
     error: package org.springframework.boot does not contain BootstrapRegistry
-  [ERROR] /src/main/java/com/example/EnvironmentPostProcessorUsage.java:[3,43]
-    error: package org.springframework.boot.env does not contain EnvironmentPostProcessor
 
 what_changed: >
   <code>BootstrapRegistry</code> and <code>ConfigurableBootstrapContext</code>
   moved from <code>org.springframework.boot</code> to
   <code>org.springframework.boot.bootstrap</code>.
-  <code>EnvironmentPostProcessor</code> moved the other way, from
-  <code>org.springframework.boot.env</code> to
-  <code>org.springframework.boot</code>.
 
 why_changed: >
-  Spring Boot 4.0 groups its infrastructure by concern: bootstrap
-  lifecycle classes got their own subpackage, while
-  EnvironmentPostProcessor, used across many contexts, moved to the root
-  package for discoverability.
+  Spring Boot 4.0 groups its infrastructure by concern: bootstrap lifecycle
+  classes got their own subpackage.
 
 diffs:
   - comment: "// BootstrapRegistry import"
@@ -45,34 +40,19 @@ diffs:
   - comment: "// ConfigurableBootstrapContext import"
     removed: "import org.springframework.boot.ConfigurableBootstrapContext;"
     added: "import org.springframework.boot.bootstrap.ConfigurableBootstrapContext;"
-  - comment: "// EnvironmentPostProcessor import"
-    removed: "import org.springframework.boot.env.EnvironmentPostProcessor;"
-    added: "import org.springframework.boot.EnvironmentPostProcessor;"
 
 fixes:
   - label: "Update imports."
     text: >
-      Find all usages of the old package paths and replace with the new ones.
-      Both changes are pure package moves: no method signatures or behaviour changed.
-  - label: "Search spring.factories / AutoConfiguration.imports."
-    text: >
-      If you register an <code>EnvironmentPostProcessor</code> in
-      <code>META-INF/spring.factories</code> or
-      <code>META-INF/spring/org.springframework.boot.env.EnvironmentPostProcessor.imports</code>,
-      update the key to
-      <code>org.springframework.boot.EnvironmentPostProcessor</code>.
+      Find all usages of <code>org.springframework.boot.BootstrapRegistry</code>
+      and <code>org.springframework.boot.ConfigurableBootstrapContext</code>
+      and replace with the <code>.bootstrap</code> subpackage. Both are pure
+      package moves: no method signatures or behaviour changed.
 
 scope_check: >
-  Search for <code>org.springframework.boot.BootstrapRegistry</code>,
-  <code>org.springframework.boot.ConfigurableBootstrapContext</code>, and
-  <code>org.springframework.boot.env.EnvironmentPostProcessor</code> across
-  all Java/Kotlin sources and <code>META-INF</code> registration files.
-
-watch_out:
-  - >
-    The <code>spring.factories</code> key for <code>EnvironmentPostProcessor</code>
-    must also be updated. With the old key your processor is skipped at
-    startup: no error, your environment customisation just never runs.
+  Search for <code>org.springframework.boot.BootstrapRegistry</code> and
+  <code>org.springframework.boot.ConfigurableBootstrapContext</code> across
+  all Java/Kotlin sources.
 
 footer_links:
   - text: "spring-break module: bootstrap-registry-relocated"

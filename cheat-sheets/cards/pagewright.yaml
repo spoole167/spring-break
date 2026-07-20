@@ -35,43 +35,61 @@ publication:
     - id: full-guide
       title: "Spring Break Cheat Sheets"
     - id: batch-guide
+      vars:
+        strapline: "Eight changes between your jobs and 4.0"
       class: [mini-guide, stack-batch]
       title: "Spring Batch: 3.5 → 4.0"
       select: { subsystem: batch }
       theme: console-first
     - id: hibernate-guide
+      vars:
+        strapline: "Ten data-layer changes, mostly the quiet kind"
       class: [mini-guide, stack-hibernate]
       title: "Hibernate & JPA: 3.5 → 4.0"
       select: { subsystem: hibernate }
     - id: security-guide
+      vars:
+        strapline: "Seven auth changes you cannot ignore"
       class: [mini-guide, stack-security]
       title: "Security & SSO: 3.5 → 4.0"
       select: { subsystem: security }
       theme: diagnosis-treatment
     - id: data-messaging-guide
+      vars:
+        strapline: "Nine changes across your stores and streams"
       class: [mini-guide, stack-data-messaging]
       title: "Data & Messaging: 3.5 → 4.0"
       select: { subsystem: data-messaging }
     - id: testing-guide
+      vars:
+        strapline: "Seven test-suite breaks, one clean build away"
       class: [mini-guide, stack-testing]
       title: "Testing: 3.5 → 4.0"
       select: { subsystem: testing }
       theme: console-first
     - id: observability-guide
+      vars:
+        strapline: "Six changes your dashboards will notice first"
       class: [mini-guide, stack-observability]
       title: "Observability & Ops: 3.5 → 4.0"
       select: { subsystem: observability }
       theme: diagnosis-treatment
     - id: jackson-guide
+      vars:
+        strapline: "Nine JSON changes everyone hits"
       class: [mini-guide, stack-jackson]
       title: "Jackson & JSON: 3.5 → 4.0"
       select: { subsystem: jackson }
     - id: web-guide
+      vars:
+        strapline: "Eight changes at the HTTP layer"
       class: [mini-guide, stack-web]
       title: "Web & HTTP: 3.5 → 4.0"
       select: { subsystem: web }
       theme: console-first
     - id: core-guide
+      vars:
+        strapline: "Twenty platform changes underneath everything"
       class: [mini-guide, stack-core]
       title: "Core Platform & Build: 3.5 → 4.0"
       select: { subsystem: core }
@@ -79,6 +97,8 @@ publication:
     # @MockBean (M, but the single most common breakage) hand-included via
     # cards: — exercises the where-predicate and the union semantics.
     - id: heavy-hitters
+      vars:
+        strapline: "The six changes that eat your sprint"
       class: [mini-guide, cross-cut]
       title: "The Big Jobs: L-Impact Changes"
       select:

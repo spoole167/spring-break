@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: true
 verify: >
-  mvn compile — no spring-jcl dependency errors
+  mvn compile: no spring-jcl dependency errors
 
 further_info: >
   A rare migration win: a decade of logging-bridge boilerplate can come

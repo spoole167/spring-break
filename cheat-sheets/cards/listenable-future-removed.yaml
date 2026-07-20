@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: M
 openrewrite: false
 verify: >
-  mvn compile — no ListenableFuture symbol errors
+  mvn compile: no ListenableFuture symbol errors
 
 further_info: >
   Deprecated in Spring Framework 6.0, removed in 7.0 (tracked in

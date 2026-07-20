@@ -6,7 +6,7 @@ series: "spring-boot 3.5 → 4.0"
 effort: S
 openrewrite: true
 verify: >
-  mvn test — Testcontainers start and tests pass
+  mvn test: Testcontainers start and tests pass
 
 further_info: >
   Driven by Testcontainers 2.0, the version Spring Boot 4.0 now manages.
