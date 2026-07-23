@@ -1,0 +1,156 @@
+{# Generated front section: the Planning Matrix and the Robot/Human split.
+
+   Rendered by the _book-front hook in book.html, between the cover and
+   the first card. Everything here is derived from card frontmatter at
+   build time (cards arrive in walk order: sort [tier, id]), so these
+   pages can never drift out of date with the cards. No hand maintenance.
+
+   Two pages (each flows over if it must):
+     1. bf-matrix — every card: tier, title (internal link), impact,
+        OpenRewrite. What a tech lead photographs for the planning doc.
+     2. bf-split  — cards partitioned by the openrewrite flag: what the
+        recipe fixes while you get coffee vs what needs a person who
+        understands your code.
+
+   Glyph discipline: plain text only (Y / dot), no ⚙/✓ — openhtmltopdf's
+   embedded fonts drop them. #}
+
+{# Mini-guide intro page: what this format is, how to read a card, and the
+   whole series — generated from edition.series (every declared edition,
+   supplied by pt publish), so the list can never drift from the yaml.
+   Only mini-guide editions get this page; the full guide and plain
+   pt build runs skip it. #}
+{% if edition is not null and edition.classes contains "mini-guide" %}
+<section class="book-front mg-intro" id="book-front-intro">
+  <h1>About this mini guide</h1>
+  <p class="bf-lead">This is one cut from <strong>Spring Break Cheat Sheets</strong>,
+    the field guide to every breaking change between Spring Boot 3.5 and 4.0.
+    Each card covers one change, verified by running real code on 3.5.16 and
+    4.0.7. One change, one card, one page: the error you'll see, the fix,
+    and the traps.</p>
+
+  <h2>How to read a card</h2>
+  <ul class="mg-legend">
+    <li><span class="mg-key mg-key-tier">Tier</span> How it fails.
+      Tier 1 won't build, Tier 2 won't start, Tier 3 behaves differently.
+      Tier 3 is the dangerous one: nothing goes red, your data just changes shape.</li>
+    <li><span class="mg-key mg-key-impact">Impact</span> Effort per occurrence
+      once found. S is find-and-replace, M needs an hour of care, L needs a plan.</li>
+    <li><span class="mg-key mg-key-auto">OpenRewrite</span> The badge means the
+      Boot 4.0 recipe fixes this one for you. Run it before touching anything by hand.</li>
+    <li><span class="mg-key mg-key-see">What you'll see</span> The real output,
+      so you can match it against your own build.</li>
+    <li><span class="mg-key mg-key-fix">The fix</span> Before and after code,
+      plus the steps when a rename isn't enough.</li>
+    <li><span class="mg-key mg-key-watch">Watch out</span> The traps that make
+      this change look like a different bug.</li>
+    <li><span class="mg-key mg-key-verify">Verify</span> The command that proves
+      you're done.</li>
+  </ul>
+
+  <h2>The series</h2>
+  <ul class="mg-series">
+  {% for s in edition.series %}{% if s.classes contains "mini-guide" %}
+    <li{% if s.id == edition.id %} class="mg-current"{% endif %}>
+      <span class="mg-series-title">{{ s.title }}</span>
+      {% if s.strapline %}<span class="mg-series-strap">{{ s.strapline }}</span>{% endif %}
+      {% if s.id == edition.id %}<span class="mg-this">this guide</span>{% endif %}
+    </li>
+  {% endif %}{% endfor %}
+  </ul>
+  <p class="mg-full">The full guide collects every change in one book, with a
+    complete planning matrix and the OpenRewrite robot list.
+    github.com/spoole167/spring-break</p>
+</section>
+{% endif %}
+
+{# About HeroDevs: publisher colophon, own page. This file only renders
+   under the herodevs theme in the first place (it's herodevs's own
+   templates/ override of _book-front, not the shared default), so there's
+   no need to gate it on the active theme — the other three themes keep
+   using the bundled/console-first version unchanged. vars.leanpub_url is a
+   book-level free var (BookConfig.vars, set in pagewright.yaml's top-level
+   `vars:`), left unset until the full book actually has a LeanPub page —
+   the fallback line covers that gap without a dead link. #}
+<section class="book-front bf-herodevs" id="book-front-herodevs">
+  <div class="bf-herodevs-logo" aria-hidden="true"></div>
+  <h1>About HeroDevs</h1>
+  <p class="bf-lead">HeroDevs keeps critical open source software secure after
+    the community stops patching it. Never-Ending Support (NES) covers CVEs in
+    Spring Boot 3.5, Java, and dozens of other end-of-life frameworks, so your
+    team migrates on its own schedule instead of the vendor's deadline.</p>
+  <p class="bf-lead">This book exists because migrations fail from surprise
+    more often than difficulty. Every card is a fact, not a guess: verified
+    by running real code on Spring Boot 3.5.16 and 4.0.7.</p>
+  <p class="bf-herodevs-book">
+    {% if vars.leanpub_url %}
+    The complete book, every subsystem in one volume, is on LeanPub:
+    {{ vars.leanpub_url }}
+    {% else %}
+    The complete book, every subsystem in one volume, is coming to LeanPub.
+    Watch github.com/spoole167/spring-break for the link.
+    {% endif %}
+  </p>
+  <p class="bf-herodevs-url">herodevs.com</p>
+</section>
+
+<section class="book-front" id="book-front">
+  <h1>The Planning Matrix</h1>
+  <p class="bf-lead">Every change in this book, in book order. Impact is the
+    effort per occurrence once found (S small, M moderate, L large), not how
+    many you have. Auto means the OpenRewrite Boot 4.0 recipe handles it.</p>
+
+  <div class="bf-stats">
+    <span class="bf-stat">{{ cards | length }} changes</span>
+    {% for g in axisGroupings %}{% if g.axis.name == 'tier' %}
+    {% for v in g.values %}{% if v.count > 0 %}
+    <span class="bf-stat bf-stat-tier-{{ v.id }}">{{ v.count }} × {{ v.label }}</span>
+    {% endif %}{% endfor %}
+    {% endif %}{% endfor %}
+  </div>
+
+  <table class="bf-matrix">
+    <thead>
+      <tr><th class="bf-t">Tier</th><th>Change</th><th class="bf-e">Impact</th><th class="bf-or">Auto</th></tr>
+    </thead>
+    <tbody>
+    {% for card in cards %}
+      <tr{% if card.axes.tier is not null %} class="bf-row-tier-{{ card.axes.tier.id }}"{% endif %}>
+        <td class="bf-t">{% if card.axes.tier is not null %}{{ card.axes.tier.id }}{% endif %}</td>
+        <td class="bf-title"><a href="#card-{{ card.id }}">{{ card.title | default(card.id) }}</a></td>
+        <td class="bf-e bf-e-{{ card.frontmatter.effort }}">{{ card.frontmatter.effort | default('·') }}</td>
+        <td class="bf-or">{% if card.frontmatter.openrewrite %}Y{% else %}·{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="book-front bf-split" id="book-front-split">
+  <h1>The Robot List vs The Human List</h1>
+  <p class="bf-lead">The left column is what the OpenRewrite Boot 4.0 recipe
+    fixes while you get coffee. The right column needs a person who
+    understands your code. This split is the honest size of the migration:
+    the renames are free, the behaviour changes are the work.</p>
+
+  <div class="bf-cols">
+    <div class="bf-col bf-robot">
+      <h2>The Robot List</h2>
+      <p class="bf-colnote">Run the recipe, review the diff, done.</p>
+      <ul>
+      {% for card in cards %}{% if card.frontmatter.openrewrite %}
+        <li><a href="#card-{{ card.id }}">{{ card.title | default(card.id) }}</a></li>
+      {% endif %}{% endfor %}
+      </ul>
+    </div>
+    <div class="bf-col bf-human">
+      <h2>The Human List</h2>
+      <p class="bf-colnote">Read the card. Check your code. Decide.</p>
+      <ul>
+      {% for card in cards %}{% if not card.frontmatter.openrewrite %}
+        <li><a href="#card-{{ card.id }}">{{ card.title | default(card.id) }}</a></li>
+      {% endif %}{% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>

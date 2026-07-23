@@ -64,9 +64,15 @@
     {% include "_block-section" with {"block": b} %}
     {% endfor %}
 
-    {% for b in card.slots.require(['fixes', 'how-to-fix']) %}
-    {% include "_block-section" with {"block": b} %}
-    {% endfor %}
+    {# requireWithLayout: avoid-split keeps the fix instructions from being cut
+       mid-step if this card ever runs slightly long — a real page-break lever
+       (break-inside: avoid), not a size guarantee. See card.slots' javadoc. #}
+    {% set fixSlot = card.slots.requireWithLayout(['fixes', 'how-to-fix'], {"break": "avoid-split"}) %}
+    <div class="{{ fixSlot.breakClass }}" style="{{ fixSlot.style }}">
+      {% for b in fixSlot.blocks %}
+      {% include "_block-section" with {"block": b} %}
+      {% endfor %}
+    </div>
   </div>
 
   <aside class="mn-rail">

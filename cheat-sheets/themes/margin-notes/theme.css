@@ -23,8 +23,9 @@
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
-/* ── Page & body ──────────────────────────────────────────────────────── */
-@page { size: 148mm 210mm; margin: 0; }
+/* ── Page & body ──────────────────────────────────────────────────────────
+ * Page size/margin come from PageSpec.a5() via Playwright (sole authority
+ * for geometry); an @page rule here would be ignored, so none is declared. */
 
 body {
   font-family: 'Inter', system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -180,7 +181,10 @@ figure.diff-card figcaption {
   border-bottom: 0.5pt solid #eee;
 }
 
-.diff-side { min-width: 0; }
+/* Each before/after block moves as one unit: if header+code won't fit in
+   the space left on the page, the whole block starts fresh overleaf
+   rather than splitting the code mid-way. */
+.diff-side { min-width: 0; page-break-inside: avoid; }
 .diff-side + .diff-side { border-left: 0.5pt solid #ddd; }
 
 .diff-side > header {
@@ -271,18 +275,25 @@ footer.mn-foot li { font-size: 6pt; color: #666; }
 footer.mn-foot a  { color: #666; text-decoration: none; }
 
 /* ── Shared inline code ───────────────────────────────────────────────── */
+/* overflow-wrap: long dotted identifiers (org.springframework.batch....
+   ChunkHandler) have no natural break point — browsers only wrap at
+   spaces/hyphens by default, dots don't count. Without this, a single
+   inline <code> span in a narrow column (the margin rail) overflows its
+   grid track and bleeds into the next column instead of wrapping. */
 code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.94em;
   background: #f1f1f1;
   padding: 0 2pt;
   border-radius: 2px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 pre { page-break-inside: avoid; }
 pre code { background: transparent; padding: 0; }
 
 /* ── Book furniture (same geometry as console-first) ──────────────────── */
-.book-cover { height: 209mm; }
+.book-cover { height: var(--pw-content-height); }
 .cover-a5 {
   height: 100%;
   display: flex;
@@ -319,7 +330,7 @@ h1.cover-title {
 .tier-divider {
   page-break-before: always;
   page-break-after: always;
-  height: 209mm;
+  height: var(--pw-content-height);
   color: #fff;
   padding: 0;
 }
@@ -351,13 +362,13 @@ h1.cover-title {
 
 .section-divider {
   page-break-before: always; page-break-after: always;
-  height: 209mm; padding: 0; border: none;
+  height: var(--pw-content-height); padding: 0; border: none;
 }
 .section-divider h1 { font-family: 'JetBrains Mono', monospace; font-size: 18pt; padding: 80mm 14mm 0; }
 .section-divider .tier-count { font-size: 8pt; padding: 0 14mm; }
 .section-divider .tier-toc { font-size: 7pt; padding: 0 14mm 0 18mm; }
 
-.book-back { height: 209mm; }
+.book-back { height: var(--pw-content-height); }
 .back-cta {
   height: 100%;
   display: flex;

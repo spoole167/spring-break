@@ -18,11 +18,18 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
 /* ── Page & body ──────────────────────────────────────────────────────────
- * Zero page margin so the hero band and footer strip run full-bleed;
- * every region carries its own 7mm side padding instead. Cards are
- * designed to fit one A5 page — check with --report-pages /
- * --max-pages-per-card 1.                                                  */
-@page { size: 148mm 210mm; margin: 0; }
+ * PageSpec.a5() defaults to zero page margin so full-bleed designs are
+ * possible; every region here carries its own 7mm side padding instead of
+ * relying on page margin for that whitespace. A book's own pagewright.yaml
+ * (vars.page.margins) can still layer real top/bottom margins on top of
+ * that zero default — every full-page element below (.book-cover,
+ * .tier-divider, .section-divider, .book-back) sizes itself off
+ * var(--pw-content-height), the actual resolved printable height
+ * LayoutEngine stamps onto <html>, rather than a hardcoded mm value, so it
+ * stays correct however margins end up configured. Cards are designed to
+ * fit one A5 page — check with --report-pages / --max-pages-per-card 1.
+ * Page size/margin come from PageSpec via Playwright (sole authority for
+ * geometry); an @page rule here would be decorative dead weight.          */
 
 body {
   font-family: 'Inter', system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -223,21 +230,21 @@ h1.card-title {
 .cf-fixband section.verify h2 { margin-bottom: 0.5mm; }
 .cf-fixband section.verify p  { font-size: 6.9pt; margin: 0; }
 
-/* ── Diff cards (structural + colour; nothing else ships this) ────────── */
+/* ── Diff cards (structural + colour; nothing else ships this) ──────────
+ * Before/after stack full-width rather than sitting side by side: the fix
+ * band's ~134mm is still only ~65mm per side as a two-column grid, and at
+ * diff-code font sizes that truncates real import lines and method calls.
+ * Same call as diagnosis-treatment's narrow-column diff cards, just for a
+ * different reason (fix band width vs. column width). Each side gets the
+ * page's full text width; figure is a plain block, no grid. */
 figure.diff-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
   border: 0.5pt solid #ddd;
   border-radius: 3px;
   overflow: hidden;
   margin: 1mm 0 1.5mm;
 }
 
-figure.diff-card.diff-card-additions-only { grid-template-columns: 1fr; }
-
 figure.diff-card figcaption {
-  grid-column: 1 / -1;
   font-family: 'JetBrains Mono', monospace;
   font-size: 6.2pt;
   color: #8a8f98;
@@ -246,8 +253,10 @@ figure.diff-card figcaption {
   border-bottom: 0.5pt solid #eee;
 }
 
-.diff-side { min-width: 0; }
-.diff-side + .diff-side { border-left: 0.5pt solid #ddd; }
+/* Each before/after block moves as one unit: if header+code won't fit in
+   the space left on the page, the whole block starts fresh overleaf
+   rather than splitting the code mid-way. */
+.diff-side { min-width: 0; page-break-inside: avoid; }
 
 .diff-side > header {
   font-family: 'JetBrains Mono', monospace;
@@ -266,14 +275,14 @@ figure.diff-card figcaption {
   border: none;
   margin: 0;
   padding: 1.4mm 2.2mm 1.8mm;
-  font-size: 6pt;
-  line-height: 1.5;
+  font-size: 6.6pt;
+  line-height: 1.48;
   white-space: pre-wrap;
   overflow: hidden;
 }
 .diff-side-added > pre { background: #fafffb; }
 
-/* Prism runs over the diff columns; keep token colours print-quiet. */
+/* Prism runs over the diff sides; keep token colours print-quiet. */
 .diff-side code[class*="language-"] { background: transparent; font-size: inherit; }
 
 /* ── 5 · Watch-out card grid ──────────────────────────────────────────── */
@@ -346,12 +355,20 @@ footer.cf-foot li { font-size: 6pt; color: #666; }
 footer.cf-foot a  { color: #666; text-decoration: none; }
 
 /* ── Shared code / inline ─────────────────────────────────────────────── */
+/* overflow-wrap: long dotted identifiers (org.springframework.batch....
+   ChunkHandler) have no natural break point — browsers only wrap at
+   spaces/hyphens by default, dots don't count. Without this, a single
+   inline <code> span in a narrow column (the three-col strip, the margin
+   rail) overflows its grid track and bleeds into the next column instead
+   of wrapping. */
 code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.94em;
   background: #f1f1f1;
   padding: 0 2pt;
   border-radius: 2px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 pre { page-break-inside: avoid; }
@@ -377,7 +394,7 @@ section.block pre {
  * page with the following card.                                          */
 
 /* Cover (layouts/cover-a5.html) */
-.book-cover { height: 209mm; }
+.book-cover { height: var(--pw-content-height); }
 .cover-a5 {
   height: 100%;
   display: flex;
@@ -417,7 +434,7 @@ h1.cover-title {
 .tier-divider {
   page-break-before: always;
   page-break-after: always;
-  height: 209mm;
+  height: var(--pw-content-height);
   color: #fff;
   padding: 0;
 }
@@ -449,14 +466,14 @@ h1.cover-title {
 /* Section dividers (axis-less fallback) — same geometry, neutral colours. */
 .section-divider {
   page-break-before: always; page-break-after: always;
-  height: 209mm; padding: 0; border: none;
+  height: var(--pw-content-height); padding: 0; border: none;
 }
 .section-divider h1 { font-family: 'JetBrains Mono', monospace; font-size: 18pt; padding: 80mm 14mm 0; }
 .section-divider .tier-count { font-size: 8pt; padding: 0 14mm; }
 .section-divider .tier-toc { font-size: 7pt; padding: 0 14mm 0 18mm; }
 
 /* Back page (layouts/back-cta.html) */
-.book-back { height: 209mm; }
+.book-back { height: var(--pw-content-height); }
 .back-cta {
   height: 100%;
   display: flex;

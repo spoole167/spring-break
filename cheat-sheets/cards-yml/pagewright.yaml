@@ -7,25 +7,6 @@ cover:
   template: layouts/cover-a5.html
 back:
   template: layouts/back-cta.html
-# Running HeroDevs logo + URL, repeated on every physical PDF page via
-# Playwright's own Page.pdf() footer option (no CSS Paged Media support in
-# Chromium, so this is the only way to get a footer to survive page
-# breaks) — see footer-herodevs.html for why it must be self-contained
-# (inline styles, inline SVG, no theme CSS access).
-footer:
-  template: layouts/footer-herodevs.html
-
-# A5 defaults to zero page margin (PageSpec.a5()) for full-bleed card
-# designs with their own internal padding — see herodevs/theme.css's
-# header comment. Real top/bottom page margins added on top of that
-# internal padding: top for general breathing room, bottom to give the
-# running footer band physical room to render into (Playwright's footer
-# template draws INSIDE the page margin, not over content). Left/right
-# stay at 0 — the theme's own 7mm side padding already handles that, and
-# doubling it up would widen the gutters more than intended.
-vars:
-  page:
-    margins: { top: 6, right: 0, bottom: 9, left: 0 }
 
 # Book CSS chain (loads before theme CSS; edition selectors carry the
 # specificity to win where they should). editions.css keys per-guide cover
@@ -181,12 +162,32 @@ axes:
       - id: observability
         label: "Observability & Ops"
         color: "#2b8a3e"
-
-# Cards were authored as pure-YAML (cardSchema-driven) through mid-2026;
-# one-off converted back to hand-written markdown (Claude, 2026-07-23) once
-# the schema round-trip proved more awkward to edit than plain markdown
-# headings + Pandoc attribute syntax ({.pw-page-start} etc.) directly. No
-# cardSchema: here any more — every *.md file below is an ordinary
-# hand-written card, same pipeline, no YAML transpile step involved.
+cardSchema:
+  frontmatter: [id, tier, tier_label, title, series, effort, openrewrite, subsystem, no_module, no_module_reason]
+  sections:
+    - field: oneliner
+    - field: error_output
+      heading: "What You'll See"
+      fence: error-output
+    - field: what_changed
+      heading: "What Changed"
+    - field: why_changed
+      heading: "Why"
+    - field: diffs
+      heading: "The Fix"
+      fence: diff-card
+    - field: fixes
+      heading: "How To Fix"
+    - field: scope_check
+      heading: "Scope Check"
+    - field: watch_out
+      heading: "Watch Out"
+    - field: verify
+      heading: "Verify"
+    - field: further_info
+      heading: "Further Info"
+    - field: footer_links
+      heading: "Links"
+      class: footer-links
 
 sort: [tier, id]

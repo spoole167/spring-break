@@ -1,0 +1,813 @@
+/* =============================================================================
+ * Theme: herodevs
+ *
+ * On-brand HeroDevs restyle of console-first's A5 layout (same page
+ * structure, same templates/_card-body.html and _book-front.html — see
+ * the notes at the top of those files). Built from the same 2026 Brand
+ * Guidelines tokens as pagewright's bundled `herodevs` site/book theme
+ * (pagewright-layout/src/main/resources/themes/herodevs/theme.css):
+ *   - Manrope as the primary typeface (JetBrains Mono retained for code).
+ *   - White paper, brand black (#0D0D0D) text.
+ *   - Signature pink-to-blue gradient (#F926E1 → #2AB5FB) as the one
+ *     recurring brand mark: the cover bar, tier dividers, gradient
+ *     OpenRewrite badge, gradient series/stat text.
+ *
+ * Tier mapping — position on the brand gradient, not the book's own
+ * tier-1/2/3 axis colours (every theme in this book overrides those; see
+ * console-first's header comment for why: openhtmltopdf drops var()):
+ *   tier-1 → pink   (#F926E1 accent / #A50896 text-on-white)
+ *   tier-2 → violet (#916DEE accent / #5540A3 text-on-white)
+ *   tier-3 → blue   (#2AB5FB accent / #0678B0 text-on-white)
+ *
+ * Gradient text (cover series label, stat numbers) uses the
+ * background-clip:text + -webkit-text-fill-color:transparent pattern, with
+ * a solid `color` fallback set first — openhtmltopdf doesn't clip
+ * backgrounds to text, so without the fallback that text would render
+ * invisible in the sandbox renderer instead of just losing the gradient.
+ *
+ * One deliberate brand call: the per-subsystem cover accent colours
+ * (html.stack-batch, html.stack-hibernate, etc. in cards/css/editions.css)
+ * are suppressed here in favour of the single gradient bar on every
+ * mini-guide cover. Consistent brand recognition across the whole series
+ * mattered more than per-stack colour-coding once there's a real brand to
+ * carry — easy to revert (drop the `.cover-a5 { border-top: none }` rule
+ * below) if that trade is wrong.
+ *
+ * Build:  pt build -s A5 --theme herodevs --theme-dir themes cards out.pdf
+ *
+ * Known flakiness (not new — console-first/margin-notes/diagnosis-treatment
+ * carry the identical remote @import pattern already): under the sandbox's
+ * openhtmltopdf fallback renderer, the Manrope/JetBrains Mono web-font fetch
+ * sometimes doesn't complete before the PDF is embedded, and the whole
+ * document silently falls back to base-14 Helvetica/Courier — visible as a
+ * chunkier fallback typeface and "→" rendering as "#" (WinAnsi has no arrow
+ * glyph). Confirmed via `pdffonts`: identical `publish` commands, run back
+ * to back with no CSS changes between them, embedded real web fonts once
+ * and fell back to Helvetica every other time. This is a renderer/network
+ * timing issue, not a CSS bug — verify on Chromium/Playwright, which fetches
+ * fonts the same way a real browser does.
+ * ===========================================================================*/
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Page & body ──────────────────────────────────────────────────────────
+ * PageSpec.a5() itself defaults to zero page margin so full-bleed designs
+ * are possible; every region here carries its own 7mm side padding instead
+ * of relying on page margin for that whitespace. This book's own
+ * pagewright.yaml (vars.page.margins) currently layers real top/bottom
+ * margins on top of that zero default (room for the running footer and
+ * some breathing room) — every full-page element below (.book-cover,
+ * .tier-divider, .section-divider, .book-back) sizes itself off
+ * var(--pw-content-height), the actual resolved printable height LayoutEngine
+ * stamps onto <html>, rather than a hardcoded mm value, so it stays correct
+ * however that book-level margin is configured. Cards are designed to fit
+ * one A5 page — check with --report-pages / --max-pages-per-card 1. Page
+ * size/margin come from PageSpec via Playwright, which is sole authority
+ * for geometry — an @page rule here would be decorative dead weight,
+ * since Playwright ignores it. */
+
+body {
+  font-family: 'Manrope', system-ui, -apple-system, "Segoe UI", sans-serif;
+  margin: 0;
+  color: #0D0D0D;
+  background: #ffffff;
+}
+
+article.card {
+  max-width: none;
+  margin: 0;
+  padding-bottom: 4mm;
+}
+
+/* Tier accents. Explicit per-tier rules rather than a --tier custom
+   property: openhtmltopdf (the pure-Java fallback renderer) has no
+   custom-property support and silently drops any declaration using
+   var(), which turned the tier badge into white-on-white. Grouped here
+   so retinting a tier means touching one place. */
+.tier-badge                     { background: #6a737d; }  /* axis-less */
+article.card.tier-1 .tier-badge { background: #A50896; }
+article.card.tier-2 .tier-badge { background: #5540A3; }
+article.card.tier-3 .tier-badge { background: #0678B0; }
+
+article.card.tier-1 .cf-titleband { border-top-color: #F926E1; }
+article.card.tier-2 .cf-titleband { border-top-color: #916DEE; }
+article.card.tier-3 .cf-titleband { border-top-color: #2AB5FB; }
+
+article.card.tier-1 .cf-threecol section.block h2 { color: #A50896; }
+article.card.tier-2 .cf-threecol section.block h2 { color: #5540A3; }
+article.card.tier-3 .cf-threecol section.block h2 { color: #0678B0; }
+
+article.card.tier-1 section.block pre { border-left-color: #F926E1; }
+article.card.tier-2 section.block pre { border-left-color: #916DEE; }
+article.card.tier-3 section.block pre { border-left-color: #2AB5FB; }
+
+article.card.tier-1 .cf-watch section.block { border-left-color: #F926E1; background: #FDF0FC; }
+article.card.tier-2 .cf-watch section.block { border-left-color: #916DEE; background: #F5F1FE; }
+article.card.tier-3 .cf-watch section.block { border-left-color: #2AB5FB; background: #EAF8FF; }
+
+/* ── 1 · Title band ───────────────────────────────────────────────────── */
+/* Always opens the page (see revision note in _card-body.html), so it
+   always carries the tier rule — no more first-child special-casing. */
+.cf-titleband {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 4mm;
+  padding: 5mm 7mm 2.5mm;
+  border-top: 2.5pt solid #F926E1;      /* per-tier override above */
+  border-bottom: 0.5pt solid #EFEFEF;
+}
+
+h1.card-title {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  /* 12pt, not the more brand-typical 13.5pt: found by bisection that 13pt+
+     makes the longest card titles in this book (e.g. "Spring Batch
+     ChunkHandler Renamed to ChunkRequestHandler") wrap to a second line,
+     and openhtmltopdf then inserts a genuinely blank page directly after
+     the tier/subsystem divider pair that precedes the first card of each
+     tier — confirmed reproducible down to this single property, isolated
+     via bisection against console-first's h1 (11pt/700/no letter-spacing,
+     which never triggers it). 12.5pt was the highest value that stayed
+     safe in testing; 12pt keeps a small margin for titles not yet written.
+     Chromium was not tested for this quirk since the sandbox only has
+     openhtmltopdf — recheck if it turns out Chromium never hits it either. */
+  font-size: 12pt;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin: 0 0 1mm;
+}
+
+.oneliner, .oneliner p {
+  font-size: 7.6pt;
+  color: #525252;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.cf-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.2mm;
+  flex-shrink: 0;
+  margin-top: 0.5mm;
+}
+
+.tier-badge, .effort-badge, .openrewrite-badge {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.3pt;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.tier-badge {
+  color: #fff;
+  font-size: 6.5pt;
+  padding: 1.5pt 6pt;
+}
+
+.effort-badge   { font-size: 6.2pt; padding: 1.2pt 5pt; }
+.effort-badge.S { background: #E8F7FF; color: #045A84; }
+.effort-badge.M { background: #FDC8F8; color: #7A0670; }
+.effort-badge.L { background: #F926E1; color: #fff; }
+
+/* Gradient badge: solid fallback colour first (openhtmltopdf ignores the
+   gradient background but keeps this), Chromium shows the real gradient. */
+.openrewrite-badge {
+  background: #A50896;
+  background: linear-gradient(90deg, #F926E1, #2AB5FB);
+  color: #ffffff;
+  font-size: 6.2pt;
+  font-weight: 700;
+  padding: 1.2pt 5pt;
+}
+
+/* applies-if (inherited from the base template) rides under the band. */
+.applies-if {
+  padding: 1.5mm 7mm;
+  font-size: 7pt;
+  color: #525252;
+  background: #FAFAFA;
+  border-bottom: 0.5pt solid #EFEFEF;
+}
+.applies-if-label { font-weight: 700; color: #0678B0; }
+
+/* ── 2 · What / Why / Scope strip ─────────────────────────────────────── */
+.cf-threecol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 3.5mm;
+  padding: 2.5mm 7mm;
+  border-bottom: 0.5pt solid #EFEFEF;
+}
+
+.cf-threecol section.block { margin: 0; min-width: 0; }
+
+.cf-threecol section.block h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 6.3pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #A50896;                        /* per-tier override above */
+  margin: 0 0 0.8mm;
+}
+
+.cf-threecol section.block p {
+  font-size: 6.8pt;
+  line-height: 1.4;
+  margin: 0 0 1mm;
+}
+
+/* ── 3 · What you'll see ──────────────────────────────────────────────── */
+/* Dark terminal panel — the one place this theme keeps a strong "console"
+   identity rather than going all-white, matching pre.error-output below.
+   In reading order right before the fix (see revision note in
+   _card-body.html), not hoisted above the title. Emits nothing for quiet
+   cards with no error output. */
+.cf-see { padding: 2.5mm 7mm; border-bottom: 0.5pt solid #EFEFEF; }
+
+.cf-see section.block { margin: 0; }
+
+.cf-see section.block h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 6.3pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #525252;
+  margin: 0 0 0.8mm;
+}
+
+.cf-see section.block p {
+  font-size: 6.8pt;
+  line-height: 1.4;
+  margin: 0 0 1mm;
+}
+
+/* ── 4 · Fix band ─────────────────────────────────────────────────────── */
+.cf-fixband { padding: 2.5mm 7mm 1mm; }
+
+.cf-fixband section.block { margin: 0 0 1.5mm; }
+
+.cf-fixband section.block h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 7.2pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #0678B0;
+  margin: 0 0 1mm;
+}
+
+.cf-fixband p, .cf-fixband li {
+  font-size: 7.1pt;
+  line-height: 1.42;
+  margin: 0 0 0.8mm;
+}
+
+.cf-fixband ul, .cf-fixband ol { margin: 0 0 1mm 3.8mm; padding: 0; }
+
+/* Verify → soft blue "done when" box, matching the reference theme's
+   .check block treatment. */
+.cf-fixband section.verify {
+  background: #E8F7FF;
+  border: 0.5pt solid #C5EBFE;
+  border-radius: 4px;
+  padding: 1.4mm 2.2mm;
+}
+.cf-fixband section.verify h2 { color: #045A84; margin-bottom: 0.5mm; }
+.cf-fixband section.verify p  { font-size: 6.9pt; margin: 0; }
+
+/* ── Diff cards ───────────────────────────────────────────────────────────
+ * Before/after stack full-width rather than sitting side by side: the fix
+ * band's ~134mm is still only ~65mm per side as a two-column grid, and at
+ * diff-code font sizes that truncates real import lines and method calls.
+ * Each side gets the page's full text width; figure is a plain block, no
+ * grid. Brand colours: pink-600 for removed, blue-600 for added, matching
+ * the reference theme's diff-side header treatment. */
+figure.diff-card {
+  border: 0.5pt solid #EFEFEF;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 1mm 0 1.5mm;
+}
+
+figure.diff-card figcaption {
+  font-family: 'Manrope', sans-serif;
+  font-size: 6.2pt;
+  color: #525252;
+  padding: 1.2mm 2.2mm;
+  background: #FAFAFA;
+  border-bottom: 0.5pt solid #EFEFEF;
+}
+
+/* Each before/after block moves as one unit: if header+code won't fit in
+   the space left on the page, the whole block starts fresh overleaf
+   rather than splitting the code mid-way. */
+.diff-side { min-width: 0; page-break-inside: avoid; }
+
+.diff-side > header {
+  font-family: 'Manrope', sans-serif;
+  font-size: 6.2pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5pt;
+  padding: 1.2mm 2.2mm;
+  color: #ffffff;
+}
+
+.diff-side-removed > header { background: #A50896; }
+.diff-side-added   > header { background: #0678B0; }
+
+.diff-side > pre {
+  background: #FAFAFA;
+  border: none;
+  margin: 0;
+  padding: 1.4mm 2.2mm 1.8mm;
+  font-size: 6.6pt;
+  line-height: 1.48;
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+/* Prism runs over the diff sides; keep token colours print-quiet. */
+.diff-side code[class*="language-"] { background: transparent; font-size: inherit; }
+
+/* ── 5 · Watch-out card grid ────────────────────────────────────────────
+ * Tinted wash in the tier accent (per-tier rules near the top of this
+ * file), rather than one fixed colour — mirrors the reference theme's
+ * watch-out treatment (tier-accent wash) without color-mix(), which
+ * openhtmltopdf doesn't support. */
+.cf-watch { padding: 0 7mm; }
+
+.cf-watch section.block {
+  border-left: 3px solid #DCDCDC;      /* per-tier override above */
+  border-radius: 0 4px 4px 0;
+  margin: 0 0 1.5mm;
+  padding: 1.4mm 2mm;
+}
+
+.cf-watch section.block h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 7.2pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4pt;
+  color: #0D0D0D;
+  margin: 0 0 1mm;
+}
+
+.cf-watch ul {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2mm;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cf-watch ul li {
+  font-size: 6.5pt;
+  line-height: 1.38;
+  color: #1F1F1F;
+}
+
+/* ── 6 · Unplaced blocks (further-info, future sections) ──────────────── */
+.cf-rest { padding: 0 7mm; }
+
+.cf-rest section.block { margin: 0 0 1.5mm; }
+
+.cf-rest section.block h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 6.8pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #525252;
+  margin: 0 0 0.8mm;
+}
+
+.cf-rest p, .cf-rest li { font-size: 6.9pt; line-height: 1.4; color: #525252; margin: 0 0 0.8mm; }
+
+/* ── 7 · Footer links strip ───────────────────────────────────────────── */
+footer.cf-foot {
+  background: #FAFAFA;
+  padding: 1.8mm 7mm;
+  margin-top: 2mm;
+}
+
+footer.cf-foot ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 4mm;
+  margin: 0;
+  padding: 0;
+}
+
+footer.cf-foot li { font-size: 6pt; color: #525252; }
+footer.cf-foot a  { color: #525252; text-decoration: none; }
+
+/* ── Shared code / inline ─────────────────────────────────────────────── */
+/* overflow-wrap: long dotted identifiers (org.springframework.batch....
+   ChunkHandler) have no natural break point — browsers only wrap at
+   spaces/hyphens by default, dots don't count. Without this, a single
+   inline <code> span in a narrow column overflows its grid track and
+   bleeds into the next column instead of wrapping. */
+code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.94em;
+  background: #F7F7F7;
+  color: #0D0D0D;
+  border: 1px solid #EFEFEF;
+  padding: 0 2pt;
+  border-radius: 3px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+pre { page-break-inside: avoid; }
+pre code { background: transparent; border: none; padding: 0; }
+
+/* Generic pre outside cf-see (error output quoted mid-card, etc.). */
+section.block pre {
+  background: #F7F7F7;
+  border: 0.5pt solid #EFEFEF;
+  border-left: 2.5pt solid #F926E1;      /* per-tier override above */
+  border-radius: 4px;
+  padding: 1.5mm 2.2mm;
+  font-size: 6.4pt;
+  line-height: 1.48;
+  white-space: pre-wrap;
+  margin: 0.8mm 0 1.5mm;
+}
+
+/* Error output — dark terminal look, brand-bright accents on dark bg. */
+pre.error-output       { background: #0D0D0D; border-color: #0D0D0D; color: #C4C4C4; }
+pre.error-output .err-error  { color: #FB96F3; }   /* hd-pink, brighter for dark bg */
+pre.error-output .err-prompt { color: #8DD8FD; font-weight: 700; }  /* hd-blue, brighter for dark bg */
+
+/* ── Book furniture ───────────────────────────────────────────────────────
+ * The scaffold gives .book-cover page-break-after and .book-back
+ * page-break-before, but tier dividers get NO break rules from the
+ * scaffold — the theme must supply both sides or the divider shares a
+ * page with the following card.                                          */
+
+/* Cover (layouts/cover-a5.html) — no top accent bar; the brand mark is
+   carried by .cover-logo instead (see below). A gradient bar used to sit
+   here, but it visually collided with .cover-logo: .cover-logo's 14mm
+   top margin collapses out through this element (position: relative
+   alone doesn't establish a block-formatting context, so parent/child
+   margin-collapsing still applies), so the logo actually painted flush
+   with .book-cover's own top edge — directly under the absolutely
+   positioned bar, which then painted over it, leaving only a sliver of
+   the taller logo box visible beneath the bar. Removing the bar removes
+   the collision; per-stack/per-tier border-top is still suppressed below
+   since the brand mark, not a per-stack colour, is this theme's cover
+   accent. */
+.book-cover { height: var(--pw-content-height); position: relative; }
+.cover-a5 {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14mm;
+  border-top: none;      /* suppresses per-stack/per-tier accent below; gradient bar above carries it */
+}
+html.stack-batch          .cover-a5,
+html.stack-hibernate      .cover-a5,
+html.stack-security       .cover-a5,
+html.stack-data-messaging .cover-a5,
+html.stack-testing        .cover-a5,
+html.stack-observability  .cover-a5,
+html.stack-jackson        .cover-a5,
+html.stack-web            .cover-a5,
+html.stack-core           .cover-a5 { border-top-color: transparent; }
+
+/* cover-logo: hd-logo.svg, shown small and centred above the series
+   label. Empty/unstyled in the other three themes (see cover-a5.html).
+   It's a flow sibling of .cover-a5, not a child (cover-a5.html places it
+   directly under .book-cover), so it renders at the very top of the page.
+   14mm top margin is breathing room above the mark; bottom margin keeps
+   its old spacing above the series label. */
+.cover-logo {
+  width: 44mm;
+  height: 10.5mm;
+  margin: 14mm auto 6mm;
+  background-image: url(images/hd-logo.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.cover-series {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 1.5pt;
+  margin-bottom: 4mm;
+  text-align: center;
+  /* Gradient text: solid fallback colour first for renderers without
+     background-clip:text (openhtmltopdf), real gradient for Chromium. */
+  color: #A50896;
+  background: linear-gradient(90deg, #F926E1, #2AB5FB);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+h1.cover-title {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 22pt;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0 0 3mm;
+  color: #0D0D0D;
+}
+.cover-subtitle { font-family: 'Manrope', sans-serif; font-size: 11pt; color: #525252; margin-bottom: 8mm; }
+.cover-tiers { display: flex; flex-direction: column; gap: 2mm; margin-bottom: 10mm; }
+.cover-tier {
+  font-family: 'Manrope', sans-serif;
+  font-size: 7.5pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4pt;
+  color: #fff; padding: 1.8mm 3mm; border-radius: 3px;
+  align-self: flex-start;
+}
+.cover-tier-1 { background: #A50896; }
+.cover-tier-2 { background: #5540A3; }
+.cover-tier-3 { background: #0678B0; }
+.cover-author { font-family: 'Manrope', sans-serif; font-size: 10pt; font-weight: 600; margin-bottom: 2mm; }
+.cover-footnote { font-family: 'Manrope', sans-serif; font-size: 7.5pt; color: #A0A0A0; line-height: 1.5; max-width: 100mm; }
+
+/* Mini-guide cover specifics (cover-mini in cover-a5.html) — keeps the
+   boots artwork, restyled type/spacing around it. */
+.cover-mini .cover-series { margin-bottom: 6mm; }
+.cover-strapline { font-family: 'Manrope', sans-serif; font-size: 10.5pt; color: #525252; margin-bottom: 10mm; }
+
+/* Tier dividers — full A5 sheet, brand gradient per tier (matching the
+   reference theme's tier-divider treatment). */
+.tier-divider {
+  page-break-before: always;
+  page-break-after: always;
+  height: var(--pw-content-height);
+  color: #fff;
+  padding: 0;
+}
+/* templates/_tier-divider.html drops the base template's inline
+   style="background: ..." for the tier axis specifically, so these rules
+   win without needing !important. Solid fallback first: openhtmltopdf
+   doesn't parse linear-gradient() and would otherwise leave the divider
+   with no background at all (invisible white-on-white text) instead of
+   just losing the gradient. */
+.tier-divider.tier-1 { background: #A50896; background: linear-gradient(135deg, #F926E1, #A50896); }
+.tier-divider.tier-2 { background: #5540A3; background: linear-gradient(135deg, #B45EE9, #5540A3); }
+.tier-divider.tier-3 { background: #045A84; background: linear-gradient(135deg, #2AB5FB, #045A84); }
+.tier-divider-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14mm;
+}
+.tier-divider .tier-badge-lg {
+  font-family: 'Manrope', sans-serif;
+  font-size: 9pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1pt;
+  opacity: 0.9; margin-bottom: 3mm;
+}
+.tier-divider h1 {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 20pt; letter-spacing: -0.015em; line-height: 1.15; margin: 0 0 2mm;
+}
+.tier-divider .tier-count { font-family: 'Manrope', sans-serif; font-size: 9pt; opacity: 0.9; margin-bottom: 6mm; }
+.tier-divider .tier-toc {
+  font-family: 'Manrope', sans-serif;
+  font-size: 6.8pt; line-height: 1.55;
+  columns: 2; column-gap: 8mm;
+  padding-left: 4mm; margin: 0;
+}
+.tier-divider .tier-toc a { color: #fff; text-decoration: none; }
+
+/* Section dividers (axis-less fallback) — same geometry, ink instead of
+   a tier gradient (no tier to represent). */
+.section-divider {
+  page-break-before: always; page-break-after: always;
+  height: var(--pw-content-height); padding: 0; border: none;
+  background: #0D0D0D; color: #fff;
+}
+.section-divider h1 { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 18pt; padding: 80mm 14mm 0; }
+.section-divider .tier-count { font-family: 'Manrope', sans-serif; font-size: 8pt; padding: 0 14mm; }
+.section-divider .tier-toc { font-family: 'Manrope', sans-serif; font-size: 7pt; padding: 0 14mm 0 18mm; }
+
+/* Back page (layouts/back-cta.html) — gradient bar to match the cover. */
+.book-back { height: var(--pw-content-height); position: relative; }
+.book-back::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 6mm;
+  background: #A50896;
+  background: linear-gradient(90deg, #F926E1, #2AB5FB);
+}
+.back-cta {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14mm;
+  border-top: none;
+}
+.back-logo {
+  width: 26mm;
+  height: 6.2mm;
+  margin-bottom: 6mm;
+  background-image: url(images/hd-logo.svg);
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+}
+.back-cta h1 {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 17pt; letter-spacing: -0.015em; margin: 0 0 3mm;
+  color: #0D0D0D;
+}
+.back-lead { font-family: 'Manrope', sans-serif; font-size: 9pt; color: #525252; line-height: 1.5; margin: 0 0 6mm; }
+.back-options { margin: 0 0 8mm 4.5mm; padding: 0; }
+.back-options li { font-family: 'Manrope', sans-serif; font-size: 8.5pt; line-height: 1.5; margin-bottom: 3mm; color: #1F1F1F; }
+.back-options strong { color: #0D0D0D; }
+.back-links { border-top: 0.5pt solid #EFEFEF; padding-top: 3mm; }
+.back-links div {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 6.8pt; color: #525252; line-height: 1.8;
+}
+
+/* ── Generated front section (_book-front.html) ───────────────────────── */
+.book-front {
+  page-break-before: always;
+  padding: 8mm 10mm 6mm;
+}
+
+.book-front h1 {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 15pt;
+  letter-spacing: -0.015em;
+  margin: 0 0 2mm;
+  color: #0D0D0D;
+}
+
+.bf-lead { font-family: 'Manrope', sans-serif; font-size: 7.5pt; color: #525252; line-height: 1.5; margin: 0 0 3mm; max-width: 118mm; }
+
+.bf-stats { margin-bottom: 3mm; }
+.bf-stat {
+  display: inline-block;
+  font-family: 'Manrope', sans-serif;
+  font-size: 6.3pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.3pt;
+  background: #F7F7F7; color: #444;
+  border-radius: 3px;
+  padding: 1.2pt 5pt;
+  margin: 0 1.5mm 1mm 0;
+}
+.bf-stat-tier-1 { background: #A50896; color: #fff; }
+.bf-stat-tier-2 { background: #5540A3; color: #fff; }
+.bf-stat-tier-3 { background: #0678B0; color: #fff; }
+
+table.bf-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Manrope', sans-serif;
+  font-size: 6.4pt;
+  line-height: 1.35;
+}
+.bf-matrix th {
+  font-family: 'Manrope', sans-serif;
+  font-size: 5.8pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4pt;
+  text-align: left; color: #525252;
+  border-bottom: 1pt solid #DCDCDC;
+  padding: 1mm 1.5mm;
+}
+.bf-matrix td {
+  border-bottom: 0.5pt solid #EFEFEF;
+  padding: 0.8mm 1.5mm;
+  vertical-align: top;
+}
+.bf-matrix tr { page-break-inside: avoid; }
+.bf-matrix td.bf-t, .bf-matrix th.bf-t { width: 8mm; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.bf-matrix td.bf-e, .bf-matrix th.bf-e { width: 11mm; text-align: center; font-family: 'JetBrains Mono', monospace; }
+.bf-matrix td.bf-or, .bf-matrix th.bf-or { width: 9mm; text-align: center; font-family: 'JetBrains Mono', monospace; }
+.bf-matrix td.bf-title a { color: #0D0D0D; text-decoration: none; }
+.bf-row-tier-1 td.bf-t { color: #A50896; }
+.bf-row-tier-2 td.bf-t { color: #5540A3; }
+.bf-row-tier-3 td.bf-t { color: #0678B0; }
+.bf-e-S { color: #155724; } .bf-e-M { color: #856404; } .bf-e-L { color: #721c24; font-weight: 700; }
+
+/* Robot / Human split */
+.bf-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 5mm;
+}
+.bf-col { min-width: 0; }
+.bf-col h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 8pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5pt;
+  padding: 1mm 0; margin: 0 0 0.5mm;
+  border-bottom: 2pt solid;
+}
+.bf-robot h2 { color: #0678B0; border-bottom-color: #0678B0; }
+.bf-human h2 { color: #A50896; border-bottom-color: #A50896; }
+.bf-colnote { font-family: 'Manrope', sans-serif; font-size: 6.5pt; color: #A0A0A0; margin: 0.5mm 0 1.5mm; }
+.bf-col ul { list-style: none; margin: 0; padding: 0; }
+.bf-col ul li {
+  font-family: 'Manrope', sans-serif;
+  font-size: 6.3pt; line-height: 1.4;
+  border-bottom: 0.5pt solid #EFEFEF;
+  padding: 0.7mm 0;
+}
+.bf-col ul li a { color: #0D0D0D; text-decoration: none; }
+
+/* ── Mini-guide intro page (mg-* classes from cards/css/editions.css) ────
+ * Book CSS defines the structure; brand colours override here since theme
+ * CSS wins ties in the cascade (see project cascade convention). */
+.mg-intro h2 { font-family: 'Manrope', sans-serif; font-weight: 700; }
+.mg-key      { font-family: 'Manrope', sans-serif; }
+.mg-key-tier   { background: #A50896; }
+.mg-key-impact { background: #5540A3; }
+.mg-key-auto   { background: #0678B0; }
+.mg-key-see    { background: #0D0D0D; }
+.mg-key-fix    { background: #0678B0; }
+.mg-key-watch  { background: #5540A3; }
+.mg-key-verify { background: #0678B0; }
+.mg-series-title { font-family: 'Manrope', sans-serif; }
+.mg-series li.mg-current {
+  background: #FAFAFA;
+  border-left: 2.5pt solid #F926E1;
+}
+.mg-this { color: #A50896; }
+.mg-full { font-family: 'JetBrains Mono', monospace; }
+
+/* ── About HeroDevs (_book-front.html, .bf-herodevs section) ─────────────
+ * Publisher colophon, own page. bf-herodevs-logo follows the same
+ * background-image hook convention as .cover-logo/.back-logo. */
+.bf-herodevs-logo {
+  width: 34mm;
+  height: 8mm;
+  margin-bottom: 8mm;
+  background-image: url(images/hd-logo.svg);
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+}
+.bf-herodevs-book {
+  font-family: 'Manrope', sans-serif;
+  font-size: 7.5pt;
+  color: #1F1F1F;
+  line-height: 1.5;
+  margin: 5mm 0 4mm;
+  max-width: 118mm;
+  padding: 3mm 4mm;
+  background: #FAFAFA;
+  border-left: 2.5pt solid #F926E1;
+}
+.bf-herodevs-url {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 7.5pt;
+  color: #0678B0;
+  margin: 0;
+}
+
+/* ── Subsystem axis ───────────────────────────────────────────────────────
+ * The subsystem badge carries the literal tier-badge class (base template
+ * convention), so without this override it would inherit the tier colour.
+ * Kept last in the file to win the specificity tie with the per-tier rules.
+ * PDF dividers for this axis are suppressed: in the tier-sorted full book
+ * subsystem values interleave, and interleaved values repeat their divider
+ * before every run. Site landing pages are unaffected. Mini-guides come
+ * from `pt build --select subsystem=<id>` instead.                        */
+article.card .tier-badge.axis-badge-subsystem {
+  background: #F7F7F7;
+  color: #525252;
+}
+/* display:none plus an explicit reset of the break properties it inherits
+   from .tier-divider: openhtmltopdf (the sandbox fallback renderer) was
+   observed still honouring page-break-before/after on this element even
+   though display:none should remove it from the render tree entirely,
+   producing a genuinely blank page. Belt-and-suspenders — Chromium never
+   showed this, but the reset is harmless there too. */
+section.axis-divider[id^="axis-divider-subsystem-"] {
+  display: none !important;
+  page-break-before: auto !important;
+  page-break-after: auto !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
