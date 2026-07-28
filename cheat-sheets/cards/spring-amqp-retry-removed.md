@@ -85,15 +85,13 @@ Grep for <code>RabbitRetryTemplateCustomizer</code> across your source tree. Als
 
 - The new customiser interfaces accept a settings object rather than a <code>RetryTemplate</code>. Retry policy logic expressed as <code>RetryTemplate</code> configuration must be re-expressed using the properties on the settings object.
 
-## Verify {.verify}
-
-RabbitTemplate and RabbitListener retry settings are configured via the new customiser interfaces without compile errors
-
 ## Further Info {.further-info}
 
 One of several retry-related breaks in Boot 4.0. See also: spring-retry-removed, retry-semantics-change.
 
 ## Links {.footer-links}
+
+- [spring-break module: spring-amqp-retry-removed](https://github.com/spoole167/spring-break/tree/main/spring-amqp-retry-removed)
 
 - [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 

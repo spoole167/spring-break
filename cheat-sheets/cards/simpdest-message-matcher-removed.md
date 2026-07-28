@@ -49,7 +49,7 @@ MessageMatcherDelegatingAuthorizationManager.builder()
     .build();
 ```
 
-## How To Fix {.fixes}
+## How To Fix {.fixes .pw-page-start}
 
 **Migrate to MessageMatcherDelegatingAuthorizationManager.**
 
@@ -62,10 +62,6 @@ Search for <code>SimpDestinationMessageMatcher</code> and <code>AbstractSecurity
 ## Watch Out {.watch-out}
 
 - The new AuthorizationManager must be wired into the message broker configuration explicitly. There is no auto-migration path: the configuration structure changes substantially.
-
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for SimpDestinationMessageMatcher
 
 ## Further Info {.further-info}
 

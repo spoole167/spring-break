@@ -89,10 +89,6 @@ Search for <code>hibernate-jpamodelgen</code> in all POM and Gradle files. Also 
 - The new <code>hibernate-processor</code> validates your HQL queries at compile time by default. Invalid queries that previously failed only at runtime now fail the build. That is a feature, but it can surface hidden bugs.
 - If your IDE configures annotation processors separately (e.g., IntelliJ's settings), update that too. Otherwise the metamodel generates in Maven but not in the IDE.
 
-## Verify {.verify}
-
-mvn compile uses hibernate-processor and metamodel generates
-
 ## Further Info {.further-info}
 
 Driven by Hibernate 7.0. See also: cascade-save-update, session-delete-removed.

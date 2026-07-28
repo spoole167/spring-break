@@ -72,5 +72,7 @@ In Boot 3.5 (Jackson 2), Spring Boot registered a fixed set of well-known module
 
 ## Links {.footer-links}
 
+- [spring-break module: jackson-module-autodiscovery](https://github.com/spoole167/spring-break/tree/main/jackson-module-autodiscovery)
+
 - [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 

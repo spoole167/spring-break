@@ -53,10 +53,6 @@ Search for <code>alwaysApplyingWhenNonNull</code> across all Java/Kotlin sources
 
 - If you were relying on the absence of <code>alwaysApplyingWhenNonNull()</code> to intentionally map null values through, that behaviour has also changed: nulls are now skipped by default. Add <code>.always()</code> on the specific mappings that need to pass nulls.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for alwaysApplyingWhenNonNull
-
 ## Further Info {.further-info}
 
 PropertyMapper is an internal Spring Boot utility, used mostly in auto-configuration classes to map configuration properties onto builder objects.

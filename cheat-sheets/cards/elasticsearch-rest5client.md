@@ -73,10 +73,6 @@ Search for <code>org.elasticsearch.client.RestClient</code> and <code>RestClient
 
 - Do not confuse Elasticsearch's <code>RestClient</code> with Spring Framework's <code>org.springframework.web.client.RestClient</code>: they are different classes, and only the Elasticsearch one changed.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol errors for RestClient auto-config injection
-
 ## Further Info {.further-info}
 
 The high-level RestHighLevelClient was already removed in Spring Boot 3.x; this is the next step in the same direction.

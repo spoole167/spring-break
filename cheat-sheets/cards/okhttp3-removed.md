@@ -85,10 +85,6 @@ Search for <code>OkHttp3</code> and <code>com.squareup.okhttp3</code> across you
 - OkHttp interceptors for logging, retries, or authentication have no direct equivalent in the JDK client. Reimplement that logic with Spring's <code>ClientHttpRequestInterceptor</code>.
 - OkHttp's <code>MockWebServer</code> is popular in tests. If you only use OkHttp for testing, consider switching to <code>MockRestServiceServer</code> or WireMock instead.
 
-## Verify {.verify}
-
-mvn dependency:tree shows no okhttp3 and build compiles
-
 ## Further Info {.further-info}
 
 OkHttp itself still works as a plain library; what vanished is Spring's factory integration and the managed BOM version.

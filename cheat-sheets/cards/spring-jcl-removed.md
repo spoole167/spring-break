@@ -82,10 +82,6 @@ Search for <code>spring-jcl</code>, <code>jcl-over-slf4j</code>, and exclusions 
 - The classic "commons-logging exclusion + jcl-over-slf4j" pattern every Spring project used for a decade is now harmful: it excludes the Commons Logging 1.3.0 that Spring needs, then substitutes an older SLF4J bridge that may conflict. Remove both.
 - If you use a BOM or parent POM that applies global exclusions on commons-logging (common in large enterprises), that exclusion now breaks Spring. Update the corporate parent POM.
 
-## Verify {.verify}
-
-mvn compile: no spring-jcl dependency errors
-
 ## Further Info {.further-info}
 
 A rare migration win: a decade of logging-bridge boilerplate can come out of your POMs.

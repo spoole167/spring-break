@@ -6,6 +6,7 @@ title: Spring Boot Spock Integration Removed
 series: spring-boot 3.5 → 4.0
 effort: L
 openrewrite: false
+max_pages: 2
 subsystem: testing
 no_module: true
 no_module_reason: |

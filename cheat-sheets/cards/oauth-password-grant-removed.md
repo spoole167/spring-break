@@ -7,6 +7,7 @@ series: spring-boot 3.5 → 4.0
 effort: L
 openrewrite: false
 subsystem: security
+max_pages: 3
 ---
 
 Spring Security 7 removed the OAuth 2.0 Resource Owner Password Credentials grant. Apps that authenticate with it fail at startup or return 401s at runtime.

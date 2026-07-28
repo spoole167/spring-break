@@ -73,6 +73,8 @@ In Boot 3.5, <code>spring-session-hazelcast</code> on the classpath plus <code>s
 
 ## Links {.footer-links}
 
+- [spring-break module: spring-session-hazelcast-removed](https://github.com/spoole167/spring-break/tree/main/spring-session-hazelcast-removed)
+
 - [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 
 - [Hazelcast Spring Session Documentation](https://docs.hazelcast.com/hazelcast/latest/spring/spring-session)

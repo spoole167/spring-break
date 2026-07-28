@@ -87,10 +87,6 @@ Search for <code>ListenerSupport</code> and <code>extends.*ListenerSupport</code
 - If your listener extends a support class and calls <code>super.afterJob()</code> or <code>super.beforeStep()</code>, remove those super calls. The interface default methods are no-ops, but calling <code>super</code> on an interface method looks wrong and may confuse static analysis tools.
 - The <code>ItemWriter</code> and <code>ItemProcessor</code> interfaces also changed in Batch 6.0. If you're fixing listeners, audit the whole batch configuration in the same pass.
 
-## Verify {.verify}
-
-mvn compile and Batch job completes with listener callbacks firing
-
 ## Further Info {.further-info}
 
 The *ListenerSupport classes were deprecated in Spring Batch 5.0 when the interfaces gained default methods. See also: batch-schema-rename.

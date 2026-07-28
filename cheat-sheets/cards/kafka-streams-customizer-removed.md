@@ -70,10 +70,6 @@ Search for <code>StreamsBuilderFactoryBeanCustomizer</code> in all Java/Kotlin s
 
 - The method name on <code>StreamsBuilderFactoryBeanConfigurer</code> is <code>configure</code>, same as the old <code>customize</code>. Verify the exact method name in the Spring Kafka version you're using: it differs between minor versions.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for StreamsBuilderFactoryBeanCustomizer
-
 ## Further Info {.further-info}
 
 The removal is part of shrinking Boot's Kafka auto-configuration surface; the upstream Spring Kafka interface is the long-term home.

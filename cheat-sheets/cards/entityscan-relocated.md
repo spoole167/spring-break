@@ -51,10 +51,6 @@ Search for <code>org.springframework.boot.autoconfigure.domain.EntityScan</code>
 
 - Other classes from <code>org.springframework.boot.autoconfigure.domain</code> may have moved too. If you import anything else from that package, check the Spring Boot 4.0 Migration Guide for the new location.
 
-## Verify {.verify}
-
-mvn compile: no package does not exist error for @EntityScan import
-
 ## Further Info {.further-info}
 
 Several JPA autoconfiguration classes moved together; EntityScan is the most commonly used of the set.

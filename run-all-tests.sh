@@ -48,6 +48,10 @@ fi
 
 # ── Tier definitions ──────────────────────────────────────────────────
 #
+# NOTE: spring-factories-autoconfig-imports is deliberately NOT listed in any
+# tier: it is a documented negative result (passes on both 3.5 and 4.0).
+# See its README.
+#
 # Tier 1 — Won't Build: real imports / dependencies that vanish on 4.0.
 #     On 4.0 the script runs "mvn compile" and EXPECTS failure.
 TIER_1=(
@@ -102,6 +106,7 @@ TIER_1=(
   conditional-on-enabled-tracing-renamed
   webmvc-test-relocated
   jackson-component-rename
+  spring-amqp-retry-removed
 )
 
 # Tier 2 — Won't Run: compiles on both versions, but fails at runtime on 4.0.
@@ -118,6 +123,9 @@ TIER_2=(
   httpmessageconverters-deprecated
   cors-empty-config-not-rejected
   jackson-dates-timestamps
+  pulsar-reactive-removed
+  spring-session-hazelcast-removed
+  spring-session-mongodb-removed
 )
 
 # Tier 3 — Different Results: runs on both, assertions detect different behaviour.
@@ -129,6 +137,8 @@ TIER_3=(
   tracing-export-property-renamed
   mongodb-property-renames
   spring-session-property-renames
+  jackson-module-autodiscovery
+  logback-charset-change
 )
 
 # Portable tier lookup (works on bash 3.x / macOS)

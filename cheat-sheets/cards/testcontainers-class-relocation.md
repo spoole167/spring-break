@@ -83,10 +83,6 @@ Search for <code>org.testcontainers.containers</code> in Java/Kotlin test source
 - Spring Boot's <code>@ServiceConnection</code> annotation resolves container types by class. If you reference the old <code>org.testcontainers.containers.PostgreSQLContainer</code> import in a <code>@ServiceConnection</code> field, updating the import is sufficient; no annotation change needed.
 - If you use Testcontainers in a shared test library, update that module first. A mix of 1.x and 2.x imports on the classpath will cause <code>ClassNotFoundException</code> at runtime.
 
-## Verify {.verify}
-
-mvn test: Testcontainers start and tests pass
-
 ## Further Info {.further-info}
 
 Driven by Testcontainers 2.0, the version Spring Boot 4.0 now manages.

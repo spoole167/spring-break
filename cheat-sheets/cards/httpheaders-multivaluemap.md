@@ -84,10 +84,6 @@ Search for <code>MultiValueMap</code> usages near <code>HttpHeaders</code> acros
 - Code in Spring interceptors, filters, and custom converters that inspects headers using Map idioms is the most common source of these failures. Check <code>HandlerInterceptor</code>, <code>ClientHttpRequestInterceptor</code>, and <code>ResponseBodyAdvice</code> implementations.
 - <code>toMultiValueMap()</code> returns a copy, not a live view. Mutations to the returned map do not affect the original <code>HttpHeaders</code>.
 
-## Verify {.verify}
-
-mvn compile: no incompatible types or cannot find symbol errors on HttpHeaders usage
-
 ## Further Info {.further-info}
 
 Driven by Spring Framework 7.0. HttpHeaders had been a MultiValueMap subtype since early in Spring's history.

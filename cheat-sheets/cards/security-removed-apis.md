@@ -7,6 +7,7 @@ series: spring-boot 3.5 → 4.0
 effort: L
 openrewrite: true
 subsystem: security
+max_pages: 2
 ---
 
 Spring Security removed authorizeRequests(), antMatchers(), and the .and() chaining method. The HTTP security DSL needs a full rewrite.

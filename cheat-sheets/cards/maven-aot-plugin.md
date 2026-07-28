@@ -11,7 +11,7 @@ no_module: true
 no_module_reason: Requires spring-boot:process-aot goal; not a standard test execution
 ---
 
-The Spring Boot Maven plugin's AOT processing goals changed in 4.0. Mismatched plugin versions or stale AOT configuration breaks the build.
+The Spring Boot Maven plugin's AOT processing goals changed in 4.0. A plugin version that lags behind the Spring Boot version fails the build with NoSuchMethodError.
 
 ## What You'll See {.error-output}
 
@@ -52,43 +52,24 @@ AOT processing was refactored for GraalVM 25 compatibility and to support the ne
 </plugin>
 ```
 
-```diff-card
-# // pom.xml — remove explicit AOT execution if using parent POM
-@@removed
-<execution>
-    <id>process-aot</id>
-    <goals><goal>process-aot</goal></goals>
-</execution>
-@@added
-<!-- AOT goals are now configured automatically by the parent POM -->
-```
-
 ## How To Fix {.fixes}
 
 **Align the plugin version with Spring Boot.**
 
 If you inherit from <code>spring-boot-starter-parent</code>, the plugin version is managed automatically: remove any explicit <code>&lt;version&gt;</code> tag. If you use a BOM without the parent POM, set the plugin version to <code>4.0.0</code> explicitly.
 
-**Remove manual AOT execution blocks.**
-
-The parent POM now binds the AOT goals automatically. Keeping an explicit <code>&lt;execution&gt;</code> block can cause the goal to run twice or with stale configuration.
-
 ## Scope Check {.scope-check}
 
-Search for <code>spring-boot-maven-plugin</code> across all POM files. Check for explicit <code>&lt;version&gt;</code> tags and manual AOT <code>&lt;execution&gt;</code> blocks. Multi-module projects need every module's POM checked.
+Search for <code>spring-boot-maven-plugin</code> across all POM files and check for explicit <code>&lt;version&gt;</code> tags. Multi-module projects need every module's POM checked.
 
 ## Watch Out {.watch-out}
 
 - If you're not using native images, AOT processing is still enabled by default in 4.0 for startup optimisation. You may hit this error even if you never intentionally configured AOT.
 - Parent POM version and plugin version must match. If your <code>&lt;parent&gt;</code> points to 4.0.0 but a plugin override still says 3.x, the build will fail with cryptic reflection errors.
 
-## Verify {.verify}
-
-mvn spring-boot:aot-generate runs without plugin errors
-
 ## Further Info {.further-info}
 
-AOT processing runs by default in Boot 4.0 even for non-native builds. See also: graalvm-25.
+AOT processing runs by default in Boot 4.0 even for non-native builds. Stale manual AOT <code>&lt;execution&gt;</code> blocks are a separate break: see maven-aot-execution-blocks. See also: graalvm-25.
 
 ## Links {.footer-links}
 

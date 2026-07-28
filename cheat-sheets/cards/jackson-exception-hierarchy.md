@@ -95,10 +95,6 @@ Search for <code>catch (IOException</code>, <code>catch (JsonProcessingException
 - A broad <code>catch (Exception</code> still catches Jackson errors, but loses the ability to return a domain-appropriate error message. Narrow your catch clauses.
 - Spring's built-in <code>HttpMessageNotReadableException</code> still wraps Jackson errors for <code>@RequestBody</code> parsing. The risk is in manual <code>ObjectMapper</code> calls inside your own code.
 
-## Verify {.verify}
-
-mvn compile: no JsonMappingException symbol errors
-
 ## Further Info {.further-info}
 
 Driven by Jackson 3.0, upstream of Spring Boot 4.0. The change was announced in 2022 and finalised in Jackson 3.0-rc1. See also: jackson-group-id, jackson-class-renames.

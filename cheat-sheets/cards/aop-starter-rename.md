@@ -57,10 +57,6 @@ Search all <code>pom.xml</code> and <code>build.gradle</code> files for <code>sp
 
 - If you only use Spring's proxy-based AOP (<code>@Aspect</code> beans, <code>@Transactional</code>, etc.) you may not need this starter at all. Proxy-based AOP is included in <code>spring-boot-starter</code> transitively. The aspectj starter is only required if you use AspectJ weaving agents.
 
-## Verify {.verify}
-
-mvn validate: no version is missing error for the AOP starter
-
 ## Further Info {.further-info}
 
 This is a T1B failure (artifact no longer in the BOM): the build fails at dependency resolution, before any source compiles.

@@ -55,10 +55,6 @@ Search for <code>org.springframework.boot.env.EnvironmentPostProcessor</code> ac
 
 - The <code>spring.factories</code> key for <code>EnvironmentPostProcessor</code> must also be updated. With the old key your processor is skipped at startup: no error, your environment customisation never runs.
 
-## Verify {.verify}
-
-mvn compile: no package does not exist errors for EnvironmentPostProcessor
-
 ## Further Info {.further-info}
 
 Affects code that customises early environment configuration. Verified in the same spring-break test module as the companion BootstrapRegistry relocation: the two moves go in opposite directions and are otherwise unrelated.

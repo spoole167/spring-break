@@ -191,6 +191,13 @@
         <module>tracing-export-property-renamed</module>
         <module>mongodb-property-renames</module>
         <module>spring-session-property-renames</module>
+        <module>spring-factories-autoconfig-imports</module>
+        <module>spring-amqp-retry-removed</module>
+        <module>pulsar-reactive-removed</module>
+        <module>spring-session-hazelcast-removed</module>
+        <module>spring-session-mongodb-removed</module>
+        <module>jackson-module-autodiscovery</module>
+        <module>logback-charset-change</module>
     </modules>
 
 </project>

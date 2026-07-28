@@ -67,3 +67,16 @@ Remaining nice-to-haves (none blocking): rebuild dialect/oauth as true runtime d
 - **`batch-listener-classes`** uses package `com.example.batch` against the stated flat `com.example` convention.
 - **Tracked scratch files:** `.effective-pom-406.xml`, `modules_ls.txt`, `modules_pom.txt` at the repo root.
 - **Stale `target/` directories from April** exist across the repo on disk. They're gitignored but poison in-place builds (and the sandbox mount can't delete some of them). Run `mvn clean` locally or delete them before the next test round.
+
+## spring.factories auto-configuration claim does not reproduce (2026-07-27)
+
+The draft card `spring-factories-autoconfig-imports` (split out of
+test-slice-relocated) claimed Boot 4.0 stops honouring auto-configuration
+entries in META-INF/spring.factories. New module
+`spring-factories-autoconfig-imports` proves the entry is already ignored on
+Boot 3.5.16 (support removed in Boot 3.0). Not a 3.5→4.0 break.
+
+Action: delete the card `cheat-sheets/cards/spring-factories-autoconfig-imports.md`
+(and the cross-reference in test-slice-relocated's Further Info). Module kept
+as a documented negative result; excluded from run-all-tests.sh tiers because
+it passes on both versions by design.

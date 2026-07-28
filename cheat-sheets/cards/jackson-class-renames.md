@@ -94,10 +94,6 @@ Search for <code>extends JsonSerializer</code>, <code>extends JsonDeserializer</
 - The method signatures changed too. <code>serialize()</code> now takes a <code>SerializationContext</code> instead of <code>SerializerProvider</code>. Renaming the class but keeping the old parameter type gives an abstract method error instead of a clean override.
 - Annotations like <code>@JsonSerialize(using = ...)</code> still work but must reference the new class names. A custom serialiser registered via annotation will fail at runtime if it extends the wrong base class.
 
-## Verify {.verify}
-
-mvn compile: no JsonSerializer/SerializerProvider errors
-
 ## Further Info {.further-info}
 
 Driven by Jackson 3.0, upstream of Spring Boot 4.0, and finalised in Jackson 3.0-rc1. Affects spring-boot-starter-json consumers with custom serialisers. See also: jackson-group-id, jackson-exception-hierarchy.

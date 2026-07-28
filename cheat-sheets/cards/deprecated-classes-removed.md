@@ -76,10 +76,6 @@ Run <code>mvn compile</code> with <code>-Xlint:deprecation</code> on Boot 3.5 to
 
 - RestTemplate auto-configuration is also removed in Boot 4.0, a separate break from deprecated method removal. If you rely on an auto-configured <code>RestTemplate</code> bean rather than declaring one, see the <code>resttemplate-autoconfig</code> card.
 
-## Verify {.verify}
-
-Code using deprecated RestTemplateBuilder methods fails to compile on Boot 4.0
-
 ## Further Info {.further-info}
 
 Affected methods include additionalMessageConverters(), messageConverters(), and requestFactory(). See also: resttemplate-autoconfig.

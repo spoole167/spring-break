@@ -51,10 +51,6 @@ Search for <code>@PropertyMapping</code> and the old import path in your test so
 
 - If you have a shared test-utilities library that defines custom slices, the fix must be applied there rather than in the consuming projects. A single unfixed library breaks all consumers.
 
-## Verify {.verify}
-
-mvn test-compile: no package does not exist error for @PropertyMapping import
-
 ## Further Info {.further-info}
 
 @PropertyMapping is used when authoring custom test slice annotations. It binds annotation attributes to Spring Boot auto-configuration properties. Several other test-autoconfigure classes moved in the same cleanup.

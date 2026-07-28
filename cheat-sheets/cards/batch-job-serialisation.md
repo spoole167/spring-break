@@ -66,10 +66,6 @@ Search for <code>extends JobExecutionListenerSupport</code>, <code>extends StepE
 
 - The compiler only catches direct imports and <code>extends</code> clauses. Listeners referenced by class name in Spring XML config or loaded via reflection bypass the compiler and fail only when that code path runs. Search configuration files as well as source.
 
-## Verify {.verify}
-
-mvn clean compile: no "cannot find symbol" errors for JobExecutionListenerSupport, StepExecutionListenerSupport, or ChunkListenerSupport; listeners implement the interfaces directly
-
 ## Further Info {.further-info}
 
 Complements batch-listener-classes: both modules demonstrate the same underlying Batch 6.0 removal.

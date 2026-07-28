@@ -76,10 +76,6 @@ Search for <code>EmptyInterceptor</code> and <code>extends EmptyInterceptor</cod
 
 - Some method signatures on <code>Interceptor</code> changed in Hibernate 6.x (e.g., <code>Serializable id</code> became <code>Object id</code>). Verify your overridden signatures match exactly. A mismatch compiles as a new overload and Hibernate never calls it.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for EmptyInterceptor
-
 ## Further Info {.further-info}
 
 EmptyInterceptor was a convenience class giving no-op implementations of all Interceptor methods. Deprecated in Hibernate 6.0, removed in 7.0.

@@ -54,15 +54,6 @@ ALTER SEQUENCE BATCH_JOB_SEQ RENAME TO BATCH_JOB_INSTANCE_SEQ;
 RENAME TABLE BATCH_JOB_SEQ TO BATCH_JOB_INSTANCE_SEQ;
 ```
 
-```diff-card
-# // application.properties — opt into old names temporarily
-@@removed
-# no Batch schema configuration
-@@added
-# Point Batch to legacy sequence names while you plan migration
-spring.batch.jdbc.isolation-level-for-create=ISOLATION_DEFAULT
-```
-
 ## How To Fix {.fixes}
 
 **Run a schema migration script.**

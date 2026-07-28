@@ -73,5 +73,7 @@ In Boot 3.5, <code>spring-session-data-mongodb</code> on the classpath plus <cod
 
 ## Links {.footer-links}
 
+- [spring-break module: spring-session-mongodb-removed](https://github.com/spoole167/spring-break/tree/main/spring-session-mongodb-removed)
+
 - [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 

@@ -82,10 +82,6 @@ Search for <code>session.delete(</code>, <code>session.save(</code>, <code>sessi
 - <code>merge()</code> returns the managed instance; <code>saveOrUpdate()</code> did not. If your code used the original reference after the call, switch to the instance <code>merge()</code> returns.
 - <code>remove()</code> requires a managed entity. If you called <code>delete()</code> on detached entities, <code>merge()</code> or re-fetch them first. Otherwise you get an <code>IllegalArgumentException</code> at runtime.
 
-## Verify {.verify}
-
-mvn compile: no Session.delete() symbol errors
-
 ## Further Info {.further-info}
 
 Driven by Hibernate 7.0, upstream of Spring Boot 4.0. The methods were deprecated in Hibernate 6.0. See also: cascade-save-update, hibernate-dialect-removal.

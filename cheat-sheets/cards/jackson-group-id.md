@@ -7,6 +7,7 @@ series: spring-boot 3.5 → 4.0
 effort: L
 openrewrite: true
 subsystem: jackson
+max_pages: 2
 ---
 
 Jackson 3.0 moved from com.fasterxml.jackson to tools.jackson. Every Maven coordinate and every import path is now wrong.
@@ -75,10 +76,6 @@ Search your codebase for <code>com.fasterxml.jackson</code>. Every hit is a coor
 
 - The class renames (JsonSerializer → ValueSerializer, SerializerProvider → SerializationContext) arrive in the same Jackson 3.0 upgrade. Fixing only the group ID leaves broken class references. See jackson-class-renames for the full list.
 - Jackson exceptions (<code>JsonMappingException</code>, <code>JsonProcessingException</code>) are <code>Serializable</code>. If you've persisted these anywhere (dead letter queues, error logs), those serialised streams contain the old class names and won't deserialise correctly after migration.
-
-## Verify {.verify}
-
-mvn compile succeeds with no com.fasterxml errors
 
 ## Further Info {.further-info}
 

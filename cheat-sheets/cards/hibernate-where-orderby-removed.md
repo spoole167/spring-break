@@ -73,10 +73,6 @@ Search for <code>@Where</code> and <code>@OrderBy</code> from the <code>org.hibe
 
 - Only Hibernate's <code>@OrderBy</code> needs replacing. JPA's <code>@jakarta.persistence.OrderBy</code> takes attribute names, not SQL, and is unaffected.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for @Where or @OrderBy from Hibernate
-
 ## Further Info {.further-info}
 
 @SQLRestriction and @SQLOrder arrived in Hibernate 6.3; the old annotations were deprecated then and removed in 7.0.

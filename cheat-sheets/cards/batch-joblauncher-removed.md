@@ -52,10 +52,6 @@ Search for <code>setJobLauncher</code> across all Java/Kotlin sources. Affects c
 
 - <code>JobLauncher</code> itself still exists. Only its use in <code>JobStep</code> was removed; other usages are unaffected.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for setJobLauncher
-
 ## Further Info {.further-info}
 
 Verified in the same spring-break test module as the companion ChunkHandler rename: the two renames fail in the same compile run but are otherwise unrelated.

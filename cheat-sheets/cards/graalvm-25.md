@@ -91,10 +91,6 @@ Search for <code>native-maven-plugin</code> and <code>org.graalvm.buildtools.nat
 - GraalVM 25 is based on JDK 25, but the native image it produces still runs on any compatible OS. Don't confuse the build-time JDK requirement with the runtime requirement.
 - If you use custom reachability metadata in <code>META-INF/native-image/</code>, verify it still works. The metadata format added new fields in GraalVM 25 and some older entries may be silently ignored.
 
-## Verify {.verify}
-
-native-image --version shows 25+ and mvn -Pnative package succeeds
-
 ## Further Info {.further-info}
 
 Applies only to native image builds via the spring-boot-starter-parent native profile; standard JVM deployments are unaffected.

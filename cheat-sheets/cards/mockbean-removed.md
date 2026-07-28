@@ -7,6 +7,7 @@ series: spring-boot 3.5 → 4.0
 effort: M
 openrewrite: true
 subsystem: testing
+max_pages: 2
 ---
 
 Spring Boot 4.0 removed the @MockBean and @SpyBean annotations. Test sources that import them fail to compile. Replace with @MockitoBean and @MockitoSpyBean.
@@ -90,14 +91,6 @@ Search for <code>@MockBean</code> and <code>@SpyBean</code> across <code>src/tes
 - The <code>@MockitoBean</code> reset behaviour between tests may differ from <code>@MockBean</code>. If you relied on mocks being reset between test methods, verify that behaviour is preserved.
 - The new annotations are in the Spring Framework package, not Spring Boot. If you have test utility classes that reference the old annotation by fully qualified name (e.g., in custom annotations or reflection), those references need updating too.
 - IDE templates and test generators may still produce <code>@MockBean</code>. Update your IDE templates after migrating.
-
-## Verify {.verify}
-
-mvn clean test: test sources compile; no "cannot find symbol" errors for @MockBean or @SpyBean
-
-## Further Info {.further-info}
-
-The whole org.springframework.boot.test.mock.mockito package is gone, so any other import from it fails too.
 
 ## Links {.footer-links}
 

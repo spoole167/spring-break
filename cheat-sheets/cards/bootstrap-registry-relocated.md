@@ -55,10 +55,6 @@ Find all usages of <code>org.springframework.boot.BootstrapRegistry</code> and <
 
 Search for <code>org.springframework.boot.BootstrapRegistry</code> and <code>org.springframework.boot.ConfigurableBootstrapContext</code> across all Java/Kotlin sources.
 
-## Verify {.verify}
-
-mvn compile: no package does not exist errors for BootstrapRegistry or ConfigurableBootstrapContext
-
 ## Further Info {.further-info}
 
 Affects code that customises early application startup. Verified in the same spring-break test module as the companion EnvironmentPostProcessor relocation: the two moves go in opposite directions and are otherwise unrelated.

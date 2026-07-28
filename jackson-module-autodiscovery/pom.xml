@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>spring-boot-migration-tests</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <artifactId>jackson-module-autodiscovery</artifactId>
+    <name>Tier 3 — Jackson 3 Auto-Discovers Classpath Modules</name>
+    <description>A ServiceLoader-registered Jackson module is ignored by Boot 3.5 (Jackson 2) but auto-registered by Boot 4.0 (Jackson 3), silently changing JSON output.</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-json</artifactId>
+        </dependency>
+        <!-- Jackson 3 API, pinned so the Jackson-3 flavour of the module class
+             compiles on the 3.5 build too. On 4.0 the BOM manages jackson;
+             this explicit version wins via nearest-wins but stays in the same
+             3.x line. -->
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <!-- Jackson 2 API, pinned for the mirror-image reason: the Boot 4.0 BOM
+             no longer manages com.fasterxml artifacts, but the Jackson-2 flavour
+             of the module class must still compile there. -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.19.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

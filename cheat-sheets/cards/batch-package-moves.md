@@ -59,10 +59,6 @@ Search for <code>import org.springframework.batch.core.</code> across all Java/K
 
 - Not all classes in <code>org.springframework.batch.core</code> moved. Some remain at the root level. Verify each import against the 6.0 Javadoc rather than bulk-replacing all root-level imports.
 
-## Verify {.verify}
-
-mvn compile: no package does not exist errors for org.springframework.batch.core classes
-
 ## Further Info {.further-info}
 
 The classes are unchanged; only their packages moved. Expect a large batch of import fixes if your code uses Batch domain types directly.

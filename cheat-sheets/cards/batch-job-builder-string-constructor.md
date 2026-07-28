@@ -74,9 +74,6 @@ Search for <code>new JobBuilder(</code>, <code>new StepBuilder(</code>, and <cod
 
 - The <code>.repository()</code> method is also gone, so adding the repository via the fluent chain won't compile either. Pass it in the constructor; there is no fallback.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for JobBuilder(String) constructor
 
 ## Further Info {.further-info}
 

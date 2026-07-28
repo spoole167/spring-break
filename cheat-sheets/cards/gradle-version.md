@@ -72,10 +72,6 @@ Check <code>gradle/wrapper/gradle-wrapper.properties</code> for the current Grad
 - If you're on Gradle 7.x, you can't jump straight to 8.14. Gradle deprecation cycles mean you need to fix warnings at each major version boundary. Plan for a staged upgrade: 7.x to 8.0, then 8.0 to 8.14+.
 - The Gradle configuration cache is now stable and on by default in Gradle 9. If your build scripts use project-level state at execution time, you'll hit configuration cache errors after upgrading.
 
-## Verify {.verify}
-
-./gradlew --version shows 8.x+ and build succeeds
-
 ## Further Info {.further-info}
 
 Maven builds are unaffected.

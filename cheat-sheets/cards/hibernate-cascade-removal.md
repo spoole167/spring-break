@@ -89,10 +89,6 @@ Search for <code>CascadeType.SAVE_UPDATE</code> and <code>@Cascade</code> (the H
 - If you were using <code>Session.saveOrUpdate()</code> directly in DAO code, that method is also removed. Replace with <code>entityManager.merge()</code> or <code>entityManager.persist()</code>.
 - Some code generators and legacy mapping tools emit <code>SAVE_UPDATE</code> by default. Re-run generation after upgrading.
 
-## Verify {.verify}
-
-mvn compile: no CascadeType.SAVE_UPDATE errors
-
 ## Further Info {.further-info}
 
 Arrives via spring-boot-starter-data-jpa, which pulls in Hibernate 7.0. See also: session-delete-removed, hibernate-dialect-removal.

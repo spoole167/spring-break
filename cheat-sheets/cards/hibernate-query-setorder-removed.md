@@ -64,10 +64,6 @@ Search for <code>.setOrder(</code> on query objects across all repository and da
 
 - <code>org.hibernate.query.Order</code> (the parameter type) is also affected. If you imported it, that import can be removed once you stop using <code>setOrder</code>.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for setOrder on SelectionQuery
-
 ## Further Info {.further-info}
 
 setOrder() only existed during the Hibernate 6.x window. Code that adopted it must move to HQL ORDER BY or the SelectionSpecification API.

@@ -58,10 +58,6 @@ Search all test sources for <code>org.springframework.boot.test.web.client.TestR
 
 - Custom configuration classes that create a <code>TestRestTemplate</code> bean (for authentication headers, say) need the import updated too, alongside the test classes that inject it.
 
-## Verify {.verify}
-
-mvn test-compile: no package does not exist for org.springframework.boot.test.web.client
-
 ## Further Info {.further-info}
 
 Part of Spring Boot 4.0's testing overhaul: the class now ships in the spring-boot-test-rest-client module rather than spring-boot-test-autoconfigure. See also: springboottest-no-mockmvc.

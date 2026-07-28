@@ -7,6 +7,7 @@ series: spring-boot 3.5 → 4.0
 effort: L
 openrewrite: false
 subsystem: security
+max_pages: 3
 ---
 
 Spring Security 7 dropped OpenSAML 4 support and requires OpenSAML 5. Code referencing OpenSaml4AuthenticationProvider and related classes fails to compile on Boot 4.0.
@@ -119,9 +120,6 @@ Search for <code>opensaml</code> in your Maven/Gradle files, and for <code>OpenS
 - If you have custom <code>Saml2AuthenticationRequestContext</code> processing or assertion decryption, those APIs may have changed signatures in the OpenSAML 5 upgrade.
 - The Shibboleth Maven repository is still required for OpenSAML 5 artifacts. Make sure your build still has that repository configured.
 
-## Verify {.verify}
-
-mvn clean compile: no "cannot find symbol" errors for OpenSaml4* classes; SAML login flow completes with OpenSAML 5 libraries
 
 ## Further Info {.further-info}
 

@@ -116,10 +116,6 @@ Search for <code>RestTemplate</code>, <code>RestTemplateBuilder</code>, and <cod
 - Third-party libraries that inject <code>RestTemplateBuilder</code> (e.g., Spring Cloud OpenFeign, some tracing libraries) may also break. Check transitive dependencies.
 - The <code>RestClient</code> API is different from <code>RestTemplate</code>. Methods like <code>getForObject()</code> and <code>postForEntity()</code> become chained <code>.get().uri().retrieve().body()</code> calls. Budget time for the API rewrite as well as the bean swap.
 
-## Verify {.verify}
-
-mvn clean compile: no "package org.springframework.boot.web.client does not exist" errors; HTTP calls succeed
-
 ## Further Info {.further-info}
 
 Part of Spring Boot 4.0's wider modularisation of HTTP client support. See also: okhttp3-removed.

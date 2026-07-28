@@ -66,10 +66,6 @@ Search for <code>AccessDecisionManager</code>, <code>AccessDecisionVoter</code>,
 
 - <code>@EnableGlobalMethodSecurity</code> is also in the legacy module. If you use method security, you need either the legacy module or to migrate to <code>@EnableMethodSecurity</code> before removing it.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for AccessDecisionManager or related classes
-
 ## Further Info {.further-info}
 
 Driven by Spring Security 7.0; the spring.io announcement in the footer covers the full background.

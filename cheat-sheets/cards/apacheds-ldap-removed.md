@@ -76,10 +76,6 @@ Search for <code>ApacheDSContainer</code> and <code>apacheds-server-jndi</code> 
 
 - LDIF files written for ApacheDS should work with UnboundID, but verify any vendor-specific schema extensions you may have used.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for ApacheDSContainer
-
 ## Further Info {.further-info}
 
 Both containers were available in 3.5; only UnboundID survives in 4.0.

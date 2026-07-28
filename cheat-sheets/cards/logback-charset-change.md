@@ -83,5 +83,7 @@ Boot 3.5 used the platform's default encoding: often Cp1252 or GBK on Windows, s
 
 ## Links {.footer-links}
 
+- [spring-break module: logback-charset-change](https://github.com/spoole167/spring-break/tree/main/logback-charset-change)
+
 - [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 

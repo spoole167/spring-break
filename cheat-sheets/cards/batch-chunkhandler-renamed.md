@@ -53,9 +53,6 @@ Update the import and all references. Only the name changed; the interface contr
 
 Search for <code>ChunkHandler</code> (not <code>ChunkRequestHandler</code>) across all Java/Kotlin sources. Affects remote chunking setups.
 
-## Verify {.verify}
-
-mvn compile: no cannot find symbol for ChunkHandler
 
 ## Further Info {.further-info}
 

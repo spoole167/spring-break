@@ -88,10 +88,6 @@ Search for <code>ListenableFuture</code>, <code>ListenableFutureCallback</code>,
 - <code>AsyncResult</code> was also removed. If you used <code>new AsyncResult&lt;&gt;(value)</code> or <code>AsyncResult.forValue()</code>, both must change to <code>CompletableFuture.completedFuture()</code>.
 - If you used <code>ListenableFuture</code> in a messaging listener (e.g., Spring Kafka's <code>KafkaTemplate.send()</code>), the return type changed upstream too. Check your Kafka and AMQP send-and-confirm patterns.
 
-## Verify {.verify}
-
-mvn compile: no ListenableFuture symbol errors
-
 ## Further Info {.further-info}
 
 Deprecated in Spring Framework 6.0, removed in 7.0 (tracked in spring-framework#33808). Spring Kafka and Spring AMQP return types that previously used ListenableFuture changed too.

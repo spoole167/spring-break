@@ -60,20 +60,8 @@ public @interface CustomServiceTest {
 public @interface CustomServiceTest {
     // Annotation structure unchanged, but verify your
     // TypeExcludeFilter extends the correct base class
-    // and spring.factories / AutoConfiguration.imports are updated
+    // and the imported auto-configurations still resolve
 }
-```
-
-```diff-card
-# // META-INF/spring.factories — test slice registration
-@@removed
-org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc=\
-  com.example.test.CustomWebMvcAutoConfiguration
-@@added
-# Moved to META-INF/spring/AutoConfiguration.imports
-# or updated key in spring.factories
-org.springframework.boot.autoconfigure.AutoConfiguration.imports=\
-  com.example.test.CustomWebMvcAutoConfiguration
 ```
 
 ## How To Fix {.fixes}
@@ -82,31 +70,22 @@ org.springframework.boot.autoconfigure.AutoConfiguration.imports=\
 
 Every test importing a slice annotation from the old <code>org.springframework.boot.test.autoconfigure</code> packages needs the import updated to the annotation's new home in the per-technology test modules. The Spring Boot 4.0 OpenRewrite recipe handles this across the whole test codebase; your IDE can re-resolve individual imports.
 
-**Migrate spring.factories to AutoConfiguration.imports.**
-
-Move test auto-configuration entries from <code>META-INF/spring.factories</code> to <code>META-INF/spring/AutoConfiguration.imports</code>. This was deprecated in Boot 3.x and is now enforced.
-
 **Update custom test-slice annotations.**
 
 If you wrote custom test-slice annotations (like <code>@CustomServiceTest</code>), verify that the <code>TypeExcludeFilter</code>, bootstrapper, and auto-configuration imports still resolve. Update fully qualified class references to match the new package locations, then run the full suite to confirm each slice still loads a thin context.
 
 ## Scope Check {.scope-check}
 
-Search test sources for imports from <code>org.springframework.boot.test.autoconfigure</code>: every one of them fails to compile on 4.0. Also search for custom annotations that use <code>@TypeExcludeFilters</code>, <code>@OverrideAutoConfiguration</code>, or <code>@ImportAutoConfiguration</code>, and for <code>spring.factories</code> entries under test source sets.
+Search test sources for imports from <code>org.springframework.boot.test.autoconfigure</code>: every one of them fails to compile on 4.0. Also search for custom annotations that use <code>@TypeExcludeFilters</code>, <code>@OverrideAutoConfiguration</code>, or <code>@ImportAutoConfiguration</code>.
 
 ## Watch Out {.watch-out}
 
 - Once the imports compile again, check what context each slice loads. A misconfigured slice can silently load a full application context instead of a thin one, making tests pass but run much slower and test less precisely.
 - Libraries that provide custom test slices (Spring Cloud, Spring Modulith) need to be updated too. Check their Spring Boot 4.0 compatibility versions.
-- If your test suite uses <code>spring.factories</code> for test auto-configuration and you haven't migrated to <code>AutoConfiguration.imports</code>, those configurations are ignored.
-
-## Verify {.verify}
-
-mvn clean test: test sources compile with the new imports and all @DataJpaTest/@WebMvcTest slices load correctly
 
 ## Further Info {.further-info}
 
-Part of Spring Boot 4.0's modularisation: test auto-configuration moved out of the monolithic spring-boot-test-autoconfigure module into per-technology test modules (spring-boot-data-jpa-test, spring-boot-webmvc-test, and so on), and the annotation packages moved with it.
+Part of Spring Boot 4.0's modularisation: test auto-configuration moved out of the monolithic spring-boot-test-autoconfigure module into per-technology test modules (spring-boot-data-jpa-test, spring-boot-webmvc-test, and so on), and the annotation packages moved with it. Registrations still living in spring.factories are a separate break: see spring-factories-autoconfig-imports.
 
 ## Links {.footer-links}
 

@@ -74,6 +74,8 @@ The Spring Pulsar reactive library itself survives; only Boot's auto-configurati
 
 ## Links {.footer-links}
 
+- [spring-break module: pulsar-reactive-removed](https://github.com/spoole167/spring-break/tree/main/pulsar-reactive-removed)
+
 - [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 
 - [Spring Pulsar Documentation](https://docs.spring.io/spring-pulsar/reference/index.html)

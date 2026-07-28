@@ -60,17 +60,13 @@ Spring Boot 4.0 switched the default URL path matching engine from <code>AntPath
 ```
 
 ```diff-card
-# // Fall back to AntPathMatcher if needed
+# // Explicit matcher construction: AntPathRequestMatcher is gone
 @@removed
-// using default PathPatternParser
+.requestMatchers(new AntPathRequestMatcher("/public/**"))
+    .permitAll()
 @@added
-@Bean
-public WebSecurityCustomizer legacyMatching() {
-    return web -> web.httpFirewall(new StrictHttpFirewall());
-}
-// In security config:
-.requestMatchers(new AntPathRequestMatcher("/api/**/admin"))
-    .hasRole("ADMIN")
+.requestMatchers(PathPatternRequestMatcher.withDefaults()
+    .matcher("/public/**")).permitAll()
 ```
 
 ## How To Fix {.fixes}
@@ -79,9 +75,9 @@ public WebSecurityCustomizer legacyMatching() {
 
 Review every <code>requestMatchers()</code> pattern for uses of <code>**</code> in the middle (not at the end), trailing slashes, and URL-encoded segments. Test each pattern with PathPattern semantics. Use <code>{*varName}</code> for capturing multi-segment path variables.
 
-**Use AntPathRequestMatcher for legacy patterns.**
+**Rewrite every legacy pattern: there is no fallback.**
 
-For patterns that can't be rewritten, wrap them in <code>new AntPathRequestMatcher(pattern)</code> to use the old matching engine on a per-rule basis.
+Spring Security 7 removes <code>AntPathRequestMatcher</code> entirely, so you cannot keep the old engine for individual rules. Explicit matcher construction uses <code>PathPatternRequestMatcher.withDefaults().matcher(pattern)</code>, and the pattern itself must be valid PathPattern syntax.
 
 ## Scope Check {.scope-check}
 
