@@ -1,0 +1,1195 @@
+BOOK "Spring Break Cheat Sheets"  [86 cards]
+  COVER  (template: cover-a5)
+  DIVIDER tier=1  "Tier 1 - Won't Build"  [46 cards]
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD aop-starter-rename  "AOP Starter Renamed to spring-boot-starter-aspectj"  {tier=1, subsystem=core}  (aop-starter-rename.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace the starter in pom.xml / build.gradle.  .replace-the-starter-in-pomxml-buildgradle
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=security  "Security & SSO"  [7 cards]
+    CARD apacheds-ldap-removed  "ApacheDS Embedded LDAP Support Removed"  {tier=1, subsystem=security}  (apacheds-ldap-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace ApacheDSContainer with UnboundIdContainer.  .replace-apachedscontainer-with-unboundidcontainer
+        - Use Spring Boot's embedded LDAP auto-configuration.  .use-spring-boots-embedded-ldap-auto-configuration
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=batch  "Spring Batch"  [8 cards]
+    CARD batch-chunkhandler-renamed  "Spring Batch ChunkHandler Renamed to ChunkRequestHandler"  {tier=1, subsystem=batch}  (batch-chunkhandler-renamed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Rename ChunkHandler to ChunkRequestHandler.  .rename-chunkhandler-to-chunkrequesthandler
+      - Scope Check  .scope-check
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD batch-job-builder-string-constructor  "Spring Batch JobBuilder(String) Constructor Removed"  {tier=1, subsystem=batch}  (batch-job-builder-string-constructor.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+        - Before — repository set after construction  .before-repository-set-after-construction
+        - After — repository required at construction  .after-repository-required-at-construction
+        - Before @Bean method pattern  .before-bean-method-pattern
+        - After @Bean method pattern  .after-bean-method-pattern
+      - How To Fix  .fixes
+        - Inject JobRepository and pass it to the constructor.  .inject-jobrepository-and-pass-it-to-the-constructor
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD batch-job-serialisation  "Spring Batch 6 Listener Support Classes Removed"  {tier=1, subsystem=batch}  (batch-job-serialisation.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Implement the listener interface directly.  .implement-the-listener-interface-directly
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD batch-joblauncher-removed  "Spring Batch JobStep.setJobLauncher Removed"  {tier=1, subsystem=batch}  (batch-joblauncher-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace setJobLauncher with setJobOperator.  .replace-setjoblauncher-with-setjoboperator
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD batch-listener-classes  "Batch Listener Base Classes Removed"  {tier=1, subsystem=batch}  (batch-listener-classes.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Change extends to implements.  .change-extends-to-implements
+        - Use @BeforeJob / @AfterJob annotations.  .use-beforejob-afterjob-annotations
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD batch-package-moves  "Spring Batch Core Package Relocations"  {tier=1, subsystem=batch}  (batch-package-moves.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update imports to include the job subpackage.  .update-imports-to-include-the-job-subpackage
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD bootstrap-environmentpostprocessor-relocated  "EnvironmentPostProcessor Relocated to org.springframework.boot"  {tier=1, subsystem=core}  (bootstrap-environmentpostprocessor-relocated.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update imports.  .update-imports
+        - Search spring.factories / AutoConfiguration.imports.  .search-springfactories-autoconfigurationimports
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD bootstrap-registry-relocated  "BootstrapRegistry Relocated to org.springframework.boot.bootstrap"  {tier=1, subsystem=core}  (bootstrap-registry-relocated.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update imports.  .update-imports
+      - Scope Check  .scope-check
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD classic-uber-jar-loader-removed  "Classic Uber-Jar Loader Removed"  {tier=1, subsystem=core}  (classic-uber-jar-loader-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Remove the CLASSIC loader configuration.  .remove-the-classic-loader-configuration
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=data-messaging  "Data & Messaging"  [9 cards]
+    CARD elasticsearch-rest5client  "Elasticsearch RestClient Renamed to Rest5Client"  {tier=1, subsystem=data-messaging}  (elasticsearch-rest5client.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Rename RestClient to Rest5Client.  .rename-restclient-to-rest5client
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=hibernate  "Hibernate & JPA"  [10 cards]
+    CARD entityscan-relocated  "@EntityScan Relocated to persistence.autoconfigure"  {tier=1, subsystem=hibernate}  (entityscan-relocated.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update the import.  .update-the-import
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD graalvm-25  "GraalVM 25 for Native Image Builds"  {tier=1, subsystem=core}  (graalvm-25.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Install GraalVM 25.  .install-graalvm-25
+        - Update native build tools.  .update-native-build-tools
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD gradle-version  "Gradle 8.14+ / Gradle 9 Required"  {tier=1, subsystem=core}  (gradle-version.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update the Gradle wrapper.  .update-the-gradle-wrapper
+        - Check plugin compatibility.  .check-plugin-compatibility
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=hibernate  "Hibernate & JPA"  [10 cards]
+    CARD hibernate-empty-interceptor-removed  "Hibernate EmptyInterceptor Removed"  {tier=1, subsystem=hibernate}  (hibernate-empty-interceptor-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Implement Interceptor directly.  .implement-interceptor-directly
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD hibernate-processor-rename  "hibernate-jpamodelgen Renamed"  {tier=1, subsystem=hibernate}  (hibernate-processor-rename.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Rename the artifact.  .rename-the-artifact
+        - Check compiler plugin configuration.  .check-compiler-plugin-configuration
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD hibernate-query-setorder-removed  "Hibernate SelectionQuery.setOrder() Removed"  {tier=1, subsystem=hibernate}  (hibernate-query-setorder-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Move ordering into the HQL query string.  .move-ordering-into-the-hql-query-string
+        - Use CriteriaQuery with Order.  .use-criteriaquery-with-order
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD hibernate-session-delete  "Session.delete() Removed"  {tier=1, subsystem=hibernate}  (hibernate-session-delete.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace with JPA standard methods.  .replace-with-jpa-standard-methods
+        - Prefer EntityManager over Session.  .prefer-entitymanager-over-session
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD hibernate-where-orderby-removed  "Hibernate @Where and @OrderBy Removed"  {tier=1, subsystem=hibernate}  (hibernate-where-orderby-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace @Where with @SQLRestriction.  .replace-where-with-sqlrestriction
+        - Replace @OrderBy with @SQLOrder.  .replace-orderby-with-sqlorder
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=web  "Web & HTTP"  [8 cards]
+    CARD httpheaders-multivaluemap  "HttpHeaders No Longer Implements MultiValueMap"  {tier=1, subsystem=web}  (httpheaders-multivaluemap.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace Map methods with HttpHeaders methods.  .replace-map-methods-with-httpheaders-methods
+        - For method signatures that accept MultiValueMap.  .for-method-signatures-that-accept-multivaluemap
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=jackson  "Jackson & JSON"  [9 cards]
+    CARD jackson-class-renames  "Jackson Class Renames"  {tier=1, subsystem=jackson}  (jackson-class-renames.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - OpenRewrite (recommended).  .openrewrite-recommended
+        - Manual migration.  .manual-migration
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD jackson-component-rename  "@JsonComponent and @JsonMixin Renamed to @JacksonComponent and @JacksonMixin"  {tier=1, subsystem=jackson}  (jackson-component-rename.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Rename the annotations.  .rename-the-annotations
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD jackson-group-id  "Jackson 3.0 Group ID Change"  {tier=1, subsystem=jackson}  (jackson-group-id.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - OpenRewrite (recommended).  .openrewrite-recommended
+        - Manual: update Maven coordinates first.  .manual-update-maven-coordinates-first
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=data-messaging  "Data & Messaging"  [9 cards]
+    CARD kafka-streams-customizer-removed  "Kafka StreamsBuilderFactoryBeanCustomizer Removed"  {tier=1, subsystem=data-messaging}  (kafka-streams-customizer-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Switch to StreamsBuilderFactoryBeanConfigurer.  .switch-to-streamsbuilderfactorybeanconfigurer
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD listenable-future-removed  "ListenableFuture Removed"  {tier=1, subsystem=core}  (listenable-future-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace with CompletableFuture.  .replace-with-completablefuture
+        - Use OpenRewrite.  .use-openrewrite
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD maven-aot-execution-blocks  "Manual AOT Execution Blocks Now Redundant"  {tier=1, subsystem=core}  (maven-aot-execution-blocks.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Delete manual AOT execution blocks.  .delete-manual-aot-execution-blocks
+        - Not using the parent POM?  .not-using-the-parent-pom
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD maven-aot-plugin  "Maven Plugin Version Alignment for AOT"  {tier=1, subsystem=core}  (maven-aot-plugin.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Align the plugin version with Spring Boot.  .align-the-plugin-version-with-spring-boot
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=testing  "Testing"  [7 cards]
+    CARD mockbean-removed  "@MockBean / @SpyBean Removed"  {tier=1, subsystem=testing}  (mockbean-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Find-and-replace annotations.  .find-and-replace-annotations
+        - OpenRewrite recipe.  .openrewrite-recipe
+        - Check for @MockBean attributes.  .check-for-mockbean-attributes
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Links  .footer-links
+  DIVIDER subsystem=web  "Web & HTTP"  [8 cards]
+    CARD okhttp3-removed  "OkHttp3 Support Removed"  {tier=1, subsystem=web}  (okhttp3-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Switch to JdkClientHttpRequestFactory (simplest).  .switch-to-jdkclienthttprequestfactory-simplest
+        - Switch to Apache HttpClient 5.  .switch-to-apache-httpclient-5
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=security  "Security & SSO"  [7 cards]
+    CARD opensaml4-removed  "OpenSAML 4 Support Removed"  {tier=1, subsystem=security}  (opensaml4-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Upgrade OpenSAML dependencies to 5.x.  .upgrade-opensaml-dependencies-to-5x
+        - Rename Spring Security SAML classes.  .rename-spring-security-saml-classes
+        - Review custom SAML processing code.  .review-custom-saml-processing-code
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD propertymapper-alwaysapplyingnonnull  "PropertyMapper.alwaysApplyingWhenNonNull() Removed"  {tier=1, subsystem=core}  (propertymapper-alwaysapplyingnonnull.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Delete the alwaysApplyingWhenNonNull() call.  .delete-the-alwaysapplyingwhennonnull-call
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD propertymapping-relocated  "@PropertyMapping Relocated to test.context"  {tier=1, subsystem=core}  (propertymapping-relocated.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update the import.  .update-the-import
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=web  "Web & HTTP"  [8 cards]
+    CARD resttemplate-autoconfig  "RestTemplate Auto-Configuration Removed"  {tier=1, subsystem=web}  (resttemplate-autoconfig.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Migrate to RestClient (recommended).  .migrate-to-restclient-recommended
+        - Update the RestTemplateBuilder import.  .update-the-resttemplatebuilder-import
+        - Use WebClient for reactive code.  .use-webclient-for-reactive-code
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=security  "Security & SSO"  [7 cards]
+    CARD security-removed-apis  "Security DSL Rewrite"  {tier=1, subsystem=security}  (security-removed-apis.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Rewrite to lambda DSL.  .rewrite-to-lambda-dsl
+        - Replace matchers.  .replace-matchers
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD simpdest-message-matcher-removed  "SimpDestinationMessageMatcher Removed"  {tier=1, subsystem=security}  (simpdest-message-matcher-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes .pw-page-start
+        - Migrate to MessageMatcherDelegatingAuthorizationManager.  .migrate-to-messagematcherdelegatingauthorizationmanager
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=data-messaging  "Data & Messaging"  [9 cards]
+    CARD spring-amqp-retry-removed  "Spring AMQP RabbitRetryTemplateCustomizer Removed"  {tier=1, subsystem=data-messaging}  (spring-amqp-retry-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace with the split customiser interfaces.  .replace-with-the-split-customiser-interfaces
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD spring-jcl-removed  "spring-jcl Removed"  {tier=1, subsystem=core}  (spring-jcl-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Remove spring-jcl references.  .remove-spring-jcl-references
+        - Remove jcl-over-slf4j.  .remove-jcl-over-slf4j
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD spring-retry-removed  "spring-retry Removed from BOM"  {tier=1, subsystem=core}  (spring-retry-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Add an explicit version.  .add-an-explicit-version
+        - Import Spring Retry's own BOM.  .import-spring-retrys-own-bom
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=security  "Security & SSO"  [7 cards]
+    CARD spring-security-access-relocated  "Spring Security Access API Moved to spring-security-access"  {tier=1, subsystem=security}  (spring-security-access-relocated.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Add spring-security-access (short-term fix).  .add-spring-security-access-short-term-fix
+        - Migrate to AuthorizationManager (recommended).  .migrate-to-authorizationmanager-recommended
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=testing  "Testing"  [7 cards]
+    CARD test-slice-relocated  "Test-Slice Annotation Starters Relocated"  {tier=1, subsystem=testing}  (test-slice-relocated.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update the test-slice imports.  .update-the-test-slice-imports
+        - Update custom test-slice annotations.  .update-custom-test-slice-annotations
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD testcontainers-class-relocation  "Testcontainers 2.0 Package Relocation"  {tier=1, subsystem=testing}  (testcontainers-class-relocation.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update Java imports for specialised containers.  .update-java-imports-for-specialised-containers
+        - Remove explicit BOM version if using Spring Boot parent.  .remove-explicit-bom-version-if-using-spring-boot-parent
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD testrest-template-removed  "TestRestTemplate Package Relocated"  {tier=1, subsystem=testing}  (testrest-template-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update the import.  .update-the-import
+        - Consider RestTestClient.  .consider-resttestclient
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=web  "Web & HTTP"  [8 cards]
+    CARD tomcat-war-deployment  "Tomcat WAR Deployment Requires New Runtime Starter"  {tier=1, subsystem=web}  (tomcat-war-deployment.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace spring-boot-starter-tomcat (provided) with spring-boot-starter-tomcat-runtime.  .replace-spring-boot-starter-tomcat-provided-with-spring-boot-starter-tomcat-runtime
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD undertow-removed  "Undertow Embedded Server Removed"  {tier=1, subsystem=web}  (undertow-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Switch to Tomcat (default).  .switch-to-tomcat-default
+        - Switch to Jetty.  .switch-to-jetty
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD webjars-locator-core-removed  "webjars-locator-core Removed from BOM"  {tier=1, subsystem=web}  (webjars-locator-core-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace webjars-locator-core with webjars-locator-lite.  .replace-webjars-locator-core-with-webjars-locator-lite
+        - Update direct WebJarAssetLocator imports.  .update-direct-webjarassetlocator-imports
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER tier=2  "Tier 2 - Won't Start"  [23 cards]
+  DIVIDER subsystem=observability  "Observability & Ops"  [6 cards]
+    CARD actuator-nullable-removed  "Actuator Endpoint @Nullable: org.springframework.lang Replaced by JSpecify"  {tier=2, subsystem=observability}  (actuator-nullable-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace org.springframework.lang.Nullable with org.jspecify.annotations.Nullable.  .replace-orgspringframeworklangnullable-with-orgjspecifyannotationsnullable
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD aspectj-observed  "AspectJ Weaving Required for @Observed"  {tier=2, subsystem=observability}  (aspectj-observed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Add AspectJ weaver dependency.  .add-aspectj-weaver-dependency
+        - Register ObservedAspect bean explicitly.  .register-observedaspect-bean-explicitly
+        - Verify AOP is enabled.  .verify-aop-is-enabled
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=batch  "Spring Batch"  [8 cards]
+    CARD batch-inmemory-default  "Spring Batch Now Uses In-Memory Job Repository by Default"  {tier=2, subsystem=batch}  (batch-inmemory-default.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Add spring-boot-starter-batch-jdbc for database-backed persistence.  .add-spring-boot-starter-batch-jdbc-for-database-backed-persistence
+        - Embrace the in-memory default if persistence isn't needed.  .embrace-the-in-memory-default-if-persistence-isnt-needed
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD batch-schema-change  "Spring Batch 6 Schema Sequence Rename"  {tier=2, subsystem=batch}  (batch-schema-change.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Run a schema migration script.  .run-a-schema-migration-script
+        - Let Spring Batch recreate the schema.  .let-spring-batch-recreate-the-schema
+        - Use the migration SQL from Spring Batch.  .use-the-migration-sql-from-spring-batch
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=observability  "Observability & Ops"  [6 cards]
+    CARD controller-spans-disabled  "Controller & View Spans Disabled by Default"  {tier=2, subsystem=observability}  (controller-spans-disabled.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Re-enable controller spans.  .re-enable-controller-spans
+        - Update dashboards and alerts.  .update-dashboards-and-alerts
+        - Use @Observed for targeted spans.  .use-observed-for-targeted-spans
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD deprecated-classes-removed  "Deprecated RestTemplateBuilder APIs Removed"  {tier=2, subsystem=core}  (deprecated-classes-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Migrate to RestClient.  .migrate-to-restclient
+        - If RestTemplate must be kept, remove the deprecated builder calls.  .if-resttemplate-must-be-kept-remove-the-deprecated-builder-calls
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=hibernate  "Hibernate & JPA"  [10 cards]
+    CARD hibernate-cascade-removal  "CascadeType.SAVE_UPDATE Removed in Hibernate 7"  {tier=2, subsystem=hibernate}  (hibernate-cascade-removal.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Replace with JPA standard cascades.  .replace-with-jpa-standard-cascades
+        - Remove @Cascade if redundant.  .remove-cascade-if-redundant
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD hibernate-dialect-removal  "Version-Specific Hibernate Dialects Removed"  {tier=2, subsystem=hibernate}  (hibernate-dialect-removal.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Remove explicit dialect (recommended).  .remove-explicit-dialect-recommended
+        - Switch to base dialect class.  .switch-to-base-dialect-class
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD hibernate-query-type-required  "Hibernate Untyped Join Query Rejected at Runtime"  {tier=2, subsystem=hibernate}  (hibernate-query-type-required.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Add explicit SELECT clause and result type (recommended).  .add-explicit-select-clause-and-result-type-recommended
+        - Search for bare 'from' queries.  .search-for-bare-from-queries
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=jackson  "Jackson & JSON"  [9 cards]
+    CARD jackson-dates-timestamps  "write-dates-as-timestamps Property Breaks Startup"  {tier=2, subsystem=jackson}  (jackson-dates-timestamps.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Register an ObjectMapper customiser bean.  .register-an-objectmapper-customiser-bean
+        - Migrate clients to ISO-8601 (recommended).  .migrate-clients-to-iso-8601-recommended
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD jackson-exception-hierarchy  "JacksonException No Longer Extends IOException"  {tier=2, subsystem=jackson}  (jackson-exception-hierarchy.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Search for catch blocks.  .search-for-catch-blocks
+        - Update @ExceptionHandler advice.  .update-exceptionhandler-advice
+        - Clean up throws clauses.  .clean-up-throws-clauses
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD javax-annotation-removed  "javax.annotation Removed"  {tier=2, subsystem=core}  (javax-annotation-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Switch to jakarta.annotation.  .switch-to-jakartaannotation
+        - Remove explicit dependency version.  .remove-explicit-dependency-version
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD javax-inject-removed  "javax.inject Removed"  {tier=2, subsystem=core}  (javax-inject-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Switch to jakarta.inject.  .switch-to-jakartainject
+        - Switch to Spring annotations (recommended).  .switch-to-spring-annotations-recommended
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=testing  "Testing"  [7 cards]
+    CARD mockito-test-execution-listener  "MockitoTestExecutionListener Removed"  {tier=2, subsystem=testing}  (mockito-test-execution-listener.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Add @ExtendWith(MockitoExtension.class) to the test class.  .add-extendwithmockitoextensionclass-to-the-test-class
+        - Use @MockitoBean instead of @Mock (if the mock belongs in the context).  .use-mockitobean-instead-of-mock-if-the-mock-belongs-in-the-context
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD modular-starters  "Modular Auto-Configuration"  {tier=2, subsystem=core}  (modular-starters.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Audit and add missing starters.  .audit-and-add-missing-starters
+        - Watch @RestController endpoints.  .watch-restcontroller-endpoints
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=security  "Security & SSO"  [7 cards]
+    CARD oauth-password-grant-removed  "OAuth 2.0 Password Grant Completely Removed"  {tier=2, subsystem=security}  (oauth-password-grant-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Migrate to Authorization Code + PKCE.  .migrate-to-authorization-code-pkce
+        - Use Client Credentials for service-to-service.  .use-client-credentials-for-service-to-service
+        - Custom token exchange as a last resort.  .custom-token-exchange-as-a-last-resort
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify .pw-page-start
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=observability  "Observability & Ops"  [6 cards]
+    CARD otlp-http-primary  "OTLP/HTTP Now Primary Export Protocol"  {tier=2, subsystem=observability}  (otlp-http-primary.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Accept HTTP/protobuf (recommended).  .accept-httpprotobuf-recommended
+        - Explicitly set gRPC transport.  .explicitly-set-grpc-transport
+        - Update collector configuration.  .update-collector-configuration
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=security  "Security & SSO"  [7 cards]
+    CARD pkce-mandatory  "PKCE Mandatory for Confidential OAuth Clients"  {tier=2, subsystem=security}  (pkce-mandatory.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Enable PKCE on your authorization server.  .enable-pkce-on-your-authorization-server
+        - Verify no auth server rejects extra parameters.  .verify-no-auth-server-rejects-extra-parameters
+        - Disable PKCE temporarily (not recommended).  .disable-pkce-temporarily-not-recommended
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=data-messaging  "Data & Messaging"  [9 cards]
+    CARD pulsar-reactive-removed  "Spring Pulsar Reactive Auto-Configuration Removed"  {tier=2, subsystem=data-messaging}  (pulsar-reactive-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Switch to the imperative Pulsar integration or configure reactive beans manually.  .switch-to-the-imperative-pulsar-integration-or-configure-reactive-beans-manually
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=testing  "Testing"  [7 cards]
+    CARD spock-integration-removed  "Spring Boot Spock Integration Removed"  {tier=2, subsystem=testing}  (spock-integration-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Migrate Spock specifications to JUnit 5.  .migrate-spock-specifications-to-junit-5
+        - Wait for Spock's Groovy 5 support if migration is impractical.  .wait-for-spocks-groovy-5-support-if-migration-is-impractical
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=data-messaging  "Data & Messaging"  [9 cards]
+    CARD spring-session-hazelcast-removed  "Spring Session Hazelcast Auto-Configuration Removed"  {tier=2, subsystem=data-messaging}  (spring-session-hazelcast-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Migrate to the Hazelcast-maintained Spring Session integration.  .migrate-to-the-hazelcast-maintained-spring-session-integration
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD spring-session-mongodb-removed  "Spring Session MongoDB Auto-Configuration Removed"  {tier=2, subsystem=data-messaging}  (spring-session-mongodb-removed.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Migrate to the Spring Data MongoDB session integration.  .migrate-to-the-spring-data-mongodb-session-integration
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=testing  "Testing"  [7 cards]
+    CARD springboottest-mockmvc-autoconfig  "@SpringBootTest No Longer Auto-Configures MockMvc"  {tier=2, subsystem=testing}  (springboottest-mockmvc-autoconfig.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Add @AutoConfigureMockMvc to the test class.  .add-autoconfiguremockmvc-to-the-test-class
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER tier=3  "Tier 3 - Behaves Differently"  [16 cards]
+  DIVIDER subsystem=web  "Web & HTTP"  [8 cards]
+    CARD devtools-livereload-disabled  "DevTools Live Reload Disabled by Default"  {tier=3, subsystem=web}  (devtools-livereload-disabled.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Add spring.devtools.livereload.enabled=true to your dev profile.  .add-springdevtoolslivereloadenabledtrue-to-your-dev-profile
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=hibernate  "Hibernate & JPA"  [10 cards]
+    CARD hibernate-native-datetime  "Hibernate Native Query Date Return Types Changed"  {tier=3, subsystem=hibernate}  (hibernate-native-datetime.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update result type casts to java.time (recommended).  .update-result-type-casts-to-javatime-recommended
+        - Force old types with explicit addScalar().  .force-old-types-with-explicit-addscalar
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=jackson  "Jackson & JSON"  [9 cards]
+    CARD jackson-date-serialisation  "Jackson Date Serialisation Flip"  {tier=3, subsystem=jackson}  (jackson-date-serialisation.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Opt in to the new ISO-8601 default (recommended).  .opt-in-to-the-new-iso-8601-default-recommended
+        - Restore numeric timestamps.  .restore-numeric-timestamps
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD jackson-locale-format  "Jackson Locale Format Change (BCP 47)"  {tier=3, subsystem=jackson}  (jackson-locale-format.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Adopt BCP 47 throughout (recommended).  .adopt-bcp-47-throughout-recommended
+        - Write a custom Locale serialiser.  .write-a-custom-locale-serialiser
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD jackson-module-autodiscovery  "Jackson 3 Auto-Discovers All Modules on Classpath"  {tier=3, subsystem=jackson}  (jackson-module-autodiscovery.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Audit classpath modules and disable auto-discovery if needed.  .audit-classpath-modules-and-disable-auto-discovery-if-needed
+        - Explicitly register required modules.  .explicitly-register-required-modules
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD jackson-property-inclusion  "spring.jackson.default-property-inclusion Silently Ignored"  {tier=3, subsystem=jackson}  (jackson-property-inclusion.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Register an ObjectMapper customiser bean (recommended).  .register-an-objectmapper-customiser-bean-recommended
+        - Annotate DTOs individually.  .annotate-dtos-individually
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=observability  "Observability & Ops"  [6 cards]
+    CARD liveness-readiness-probes-default  "Liveness and Readiness Probes Enabled by Default"  {tier=3, subsystem=observability}  (liveness-readiness-probes-default.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Disable probes if your deployment does not use them.  .disable-probes-if-your-deployment-does-not-use-them
+        - Update security rules if probe endpoints were unintentionally exposed.  .update-security-rules-if-probe-endpoints-were-unintentionally-exposed
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD logback-charset-change  "Logback Default Charset Changed to UTF-8"  {tier=3, subsystem=core}  (logback-charset-change.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Update log consumers to expect UTF-8.  .update-log-consumers-to-expect-utf-8
+        - Restore platform encoding if needed.  .restore-platform-encoding-if-needed
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=data-messaging  "Data & Messaging"  [9 cards]
+    CARD mongodb-property-renames  "MongoDB Configuration Properties Renamed"  {tier=3, subsystem=data-messaging}  (mongodb-property-renames.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Rename all spring.data.mongodb.* properties to spring.mongodb.*  .rename-all-springdatamongodb-properties-to-springmongodb
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD mongodb-uuid-representation  "MongoDB UUID and BigDecimal Representations No Longer Defaulted"  {tier=3, subsystem=data-messaging}  (mongodb-uuid-representation.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Declare the representations that match your existing data.  .declare-the-representations-that-match-your-existing-data
+        - Migrate existing data if changing representations.  .migrate-existing-data-if-changing-representations
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD null-marked-default  "@NullMarked Default — IDE/Compiler Null Safety"  {tier=3, subsystem=core}  (null-marked-default.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Fix null handling in your code (recommended).  .fix-null-handling-in-your-code-recommended
+        - Suppress during migration.  .suppress-during-migration
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=observability  "Observability & Ops"  [6 cards]
+    CARD observability-dashboard-gaps  "Controller/View Spans Silently Disabled"  {tier=3, subsystem=observability}  (observability-dashboard-gaps.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Re-enable controller observation spans.  .re-enable-controller-observation-spans
+        - Update dashboards to use HTTP spans.  .update-dashboards-to-use-http-spans
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=web  "Web & HTTP"  [8 cards]
+    CARD path-matching-engine  "Path Matching Engine: AntPathMatcher → PathPattern"  {tier=3, subsystem=web}  (path-matching-engine.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Audit all path patterns in security config.  .audit-all-path-patterns-in-security-config
+        - Rewrite every legacy pattern: there is no fallback.  .rewrite-every-legacy-pattern-there-is-no-fallback
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=core  "Core Platform & Build"  [21 cards]
+    CARD retry-semantics-change  "maxAttempts Now Means Retries, Not Total Attempts"  {tier=3, subsystem=core}  (retry-semantics-change.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Subtract 1 from every maxAttempts value.  .subtract-1-from-every-maxattempts-value
+        - Audit retry budgets.  .audit-retry-budgets
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+    CARD retryable-transaction-order  "@Retryable + @Transactional AOP Ordering Change"  {tier=3, subsystem=core}  (retryable-transaction-order.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Separate retry and transaction into different beans (recommended).  .separate-retry-and-transaction-into-different-beans-recommended
+        - Set explicit advice ordering.  .set-explicit-advice-ordering
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  DIVIDER subsystem=data-messaging  "Data & Messaging"  [9 cards]
+    CARD spring-session-property-renames  "Spring Session Property Prefixes Renamed"  {tier=3, subsystem=data-messaging}  (spring-session-property-renames.md)
+      - (intro)  .intro
+      - What You'll See  .error-output
+      - What Changed  .what-changed
+      - Why  .why-changed
+      - The Fix  .diffs
+      - How To Fix  .fixes
+        - Rename spring.session.redis.* to spring.session.data.redis.*  .rename-springsessionredis-to-springsessiondataredis
+      - Scope Check  .scope-check
+      - Watch Out  .watch-out
+      - Verify  .verify
+      - Further Info  .further-info
+      - Links  .footer-links
+  CARD cards-todo  "Cheat-Sheet Cards — Coverage TODO"  (/Users/spoole/claude_projects/spring-break/cheat-sheets/./cards-todo.md)
+    - (intro)  .intro
+    - Fix required (1)  .fix-required-1
+    - Cards created (20)  .cards-created-20
+    - Dropped (1)  .dropped-1
+    - On hold (1)  .on-hold-1
+    - Already covered (16)  .already-covered-16
+  BACK  (template: back-cta)

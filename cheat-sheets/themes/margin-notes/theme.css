@@ -142,6 +142,19 @@ h1.card-title {
 .mn-main ul, .mn-main ol { margin: 0 0 1.2mm 3.8mm; padding: 0; }
 .mn-main li { font-size: 7.2pt; line-height: 1.42; margin-bottom: 1.2mm; }
 
+/* Step subheadings (#### in the card markdown — formerly bold paragraphs).
+   Body-sized and bold so pagination stays where the <strong> version put
+   it; a little top margin separates one step from the last. Flush when it
+   sits directly under the section h2. */
+article.card section.block h4 {
+  font-size: 7.3pt;
+  line-height: 1.44;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 1.6mm 0 0.4mm;
+}
+article.card section.block h2 + h4 { margin-top: 0; }
+
 /* Error output — light console panel, tier-coloured rule. */
 .mn-main section.block pre {
   background: #f6f8fa;

@@ -220,6 +220,19 @@ h1.card-title {
 
 .cf-fixband ul, .cf-fixband ol { margin: 0 0 1mm 3.8mm; padding: 0; }
 
+/* Step subheadings (#### in the card markdown — formerly bold paragraphs).
+   Body-sized and bold so pagination stays where the <strong> version put
+   it; a little top margin separates one step from the last. Flush when it
+   sits directly under the section h2. */
+article.card section.block h4 {
+  font-size: 7.1pt;
+  line-height: 1.42;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 1.6mm 0 0.4mm;
+}
+article.card section.block h2 + h4 { margin-top: 0; }
+
 /* Verify → the green "done when" box. */
 .cf-fixband section.verify {
   background: #f0faf0;
